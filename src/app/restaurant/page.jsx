@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import RestaurantSignup from '../_components/restaurantSignup'
 import RestaurantLogin from '../_components/restaurantLogin'
 import RestaurantHeader from '../_components/RestaurantHeader';
+import Footer from '../_components/Footer';
 
 export default function Restaurant() {
     const [login, setLogin] = useState(true);
@@ -33,6 +34,7 @@ export default function Restaurant() {
                     </div>
                 </div>
             </div>
+            <Footer/>
         </>
     )
 }
