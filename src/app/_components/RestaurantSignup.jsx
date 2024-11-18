@@ -11,45 +11,28 @@ export default function RestaurantSignup() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [currentLocation, setCurrentLocation] = useState(null);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Prevent form from reloading the page
 
-        // Validate form
-        if (!username || !restaurantName || !email || !phone || !address || !restaurantType || !password || !confirmPassword) {
-            setErrorMessage('All fields are required');
-            return;
-        }
+        let result = await fetch("http://localhost:3000/api/restaurants",{
+            method: "POST",
+            body: JSON.stringify({
+                username,
+                restaurantName,
+                email,
+                phone,
+                address,
+                restaurantType,
+                password
+            })
+        })
+        result = result.json();
+        console.log(result);
 
-        if (password !== confirmPassword) {
-            setErrorMessage('Passwords do not match');
-            return;
-        }
-
-        // Handle signup logic (e.g., API call)
-        setErrorMessage('');
-        setSuccessMessage('Account created successfully!');
-    };
-
-    const handleGetLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setCurrentLocation({ latitude, longitude });
-
-                    // Optionally, you can use a geocoding service to get a human-readable address.
-                    // For now, let's just set the address as a placeholder for the coordinates
-                    setAddress(`Lat: ${latitude}, Lon: ${longitude}`);
-                },
-                (error) => {
-                    setErrorMessage('Failed to retrieve your location.');
-                }
-            );
-        } else {
-            setErrorMessage('Geolocation is not supported by your browser.');
-        }
+        // Uncomment and add your validation or API call logic
+        // const formData = { username, restaurantName, email, phone, address, restaurantType, password };
+        // your API call logic here...
     };
 
     return (
@@ -70,9 +53,7 @@ export default function RestaurantSignup() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {/* Left Side: Restaurant Details */}
                     <div className="space-y-6">
-                        {/* Restaurant Name */}
                         <div>
                             <label htmlFor="restaurantName" className="block text-gray-700">Restaurant Name</label>
                             <input
@@ -86,7 +67,6 @@ export default function RestaurantSignup() {
                             />
                         </div>
 
-                        {/* Phone */}
                         <div>
                             <label htmlFor="phone" className="block text-gray-700">Phone Number</label>
                             <input
@@ -100,30 +80,19 @@ export default function RestaurantSignup() {
                             />
                         </div>
 
-                        {/* Address */}
                         <div>
                             <label htmlFor="address" className="block text-gray-700">Restaurant Address</label>
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="text"
-                                    id="address"
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                                    placeholder="Enter your restaurant address"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleGetLocation}
-                                    className="py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                                >
-                                    Use Current Location
-                                </button>
-                            </div>
+                            <input
+                                type="text"
+                                id="address"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                                placeholder="Enter your restaurant address"
+                                required
+                            />
                         </div>
 
-                        {/* Restaurant Type */}
                         <div>
                             <label htmlFor="restaurantType" className="block text-gray-700">Restaurant Type</label>
                             <select
@@ -139,14 +108,11 @@ export default function RestaurantSignup() {
                                 <option value="asian">Asian</option>
                                 <option value="american">American</option>
                                 <option value="vegetarian">Vegetarian</option>
-                                {/* Add more types as necessary */}
                             </select>
                         </div>
                     </div>
 
-                    {/* Right Side: Account Details */}
                     <div className="space-y-6">
-                        {/* Username */}
                         <div>
                             <label htmlFor="username" className="block text-gray-700">Username</label>
                             <input
@@ -160,7 +126,6 @@ export default function RestaurantSignup() {
                             />
                         </div>
 
-                        {/* Email */}
                         <div>
                             <label htmlFor="email" className="block text-gray-700">Email</label>
                             <input
@@ -174,7 +139,6 @@ export default function RestaurantSignup() {
                             />
                         </div>
 
-                        {/* Password */}
                         <div>
                             <label htmlFor="password" className="block text-gray-700">Password</label>
                             <input
@@ -188,7 +152,6 @@ export default function RestaurantSignup() {
                             />
                         </div>
 
-                        {/* Confirm Password */}
                         <div>
                             <label htmlFor="confirmPassword" className="block text-gray-700">Confirm Password</label>
                             <input
@@ -204,9 +167,8 @@ export default function RestaurantSignup() {
                     </div>
                 </div>
 
-                {/* Submit Button */}
                 <button
-                    type="submit"
+                    type="submit" 
                     className="w-full py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                     Sign Up
