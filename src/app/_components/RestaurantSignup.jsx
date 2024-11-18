@@ -11,6 +11,7 @@ export default function RestaurantSignup() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [currentLocation, setCurrentLocation] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -29,6 +30,26 @@ export default function RestaurantSignup() {
         // Handle signup logic (e.g., API call)
         setErrorMessage('');
         setSuccessMessage('Account created successfully!');
+    };
+
+    const handleGetLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setCurrentLocation({ latitude, longitude });
+
+                    // Optionally, you can use a geocoding service to get a human-readable address.
+                    // For now, let's just set the address as a placeholder for the coordinates
+                    setAddress(`Lat: ${latitude}, Lon: ${longitude}`);
+                },
+                (error) => {
+                    setErrorMessage('Failed to retrieve your location.');
+                }
+            );
+        } else {
+            setErrorMessage('Geolocation is not supported by your browser.');
+        }
     };
 
     return (
@@ -82,15 +103,24 @@ export default function RestaurantSignup() {
                         {/* Address */}
                         <div>
                             <label htmlFor="address" className="block text-gray-700">Restaurant Address</label>
-                            <input
-                                type="text"
-                                id="address"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                                placeholder="Enter your restaurant address"
-                                required
-                            />
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    id="address"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="Enter your restaurant address"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleGetLocation}
+                                    className="py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                                >
+                                    Use Current Location
+                                </button>
+                            </div>
                         </div>
 
                         {/* Restaurant Type */}
