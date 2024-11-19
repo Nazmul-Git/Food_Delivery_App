@@ -1,4 +1,7 @@
+'use client'
+
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation'
 
 export default function RestaurantSignup() {
     const [username, setUsername] = useState('');
@@ -12,8 +15,10 @@ export default function RestaurantSignup() {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
+
+    const router = useRouter()
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent form from reloading the page
+        e.preventDefault();
 
         // Check if passwords match
         if (password !== confirmPassword) {
@@ -26,7 +31,7 @@ export default function RestaurantSignup() {
             let response = await fetch("http://localhost:3000/api/restaurants", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json", // Make sure to include Content-Type
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     username,
@@ -40,18 +45,20 @@ export default function RestaurantSignup() {
             });
 
             // Parse the JSON response
-            let result = await response.json();
+            response = await response.json();
+            console.log(response);
 
-            // Handle success or failure based on response
-            if (result.success) {
+            if (response.success) {
+                localStorage.setItem('restaurantUser', JSON.stringify(response.signedUser)); 
                 setSuccessMessage('Restaurant registered successfully!');
-                setErrorMessage(''); // Reset any previous error message
+                setErrorMessage(''); 
+                return router.push('/restaurants/dashboard');
+                
             } else {
-                setErrorMessage('Error registering restaurant: ' + result.message);
-                setSuccessMessage(''); // Reset any previous success message
+                setErrorMessage('Error registering restaurant: ' + response.message);
+                setSuccessMessage('');
             }
         } catch (error) {
-            // Handle network or other errors
             console.error('Error during form submission:', error);
             setErrorMessage('There was an error submitting the form.');
             setSuccessMessage('');
@@ -75,7 +82,6 @@ export default function RestaurantSignup() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Left Side: Restaurant Details */}
                     <div className="space-y-6">
-                        {/* Restaurant Name */}
                         <div>
                             <label htmlFor="restaurantName" className="block text-gray-700">Restaurant Name</label>
                             <input

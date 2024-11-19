@@ -1,7 +1,8 @@
+'use client'
 import React, { useState } from 'react';
 import Link from 'next/link'; // Import Link component from next/link
 
-export default function Header() {
+export default function RestaurantHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Example state to toggle Login/Signup
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
