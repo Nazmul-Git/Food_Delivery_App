@@ -1,10 +1,19 @@
 'use client'
-import React, { useState } from 'react';
-import Link from 'next/link'; // Import Link component from next/link
 
-export default function RestaurantHeader() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Example state to toggle Login/Signup
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+export default function Header() {
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    let restUser = localStorage.getItem("restaurantUser");
+    if (!restUser) return router.push('/restaurants');
+    else setIsLoggedIn(JSON.parse(restUser));
+  },[]);
 
   return (
     <header className="bg-indigo-600 shadow-md">
@@ -22,28 +31,18 @@ export default function RestaurantHeader() {
           <Link href="/" className="text-white hover:text-indigo-200">
             Home
           </Link>
-          <Link href="/profile" className="text-white hover:text-indigo-200">
-            Profile
-          </Link>
-          <div className="flex items-center space-x-4">
-            {isLoggedIn ? (
-              <button
-                onClick={() => setIsLoggedIn(false)}
-                className="text-white hover:text-indigo-200"
-              >
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link href="/login" className="text-white hover:text-indigo-200">
-                  Login
-                </Link>
-                <Link href="/signup" className="text-white hover:text-indigo-200">
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
+
+          {
+            isLoggedIn && isLoggedIn.username ?
+
+              <Link href="/profile" className="text-white hover:text-indigo-200">
+                Profile
+              </Link>
+              :
+              <Link href="/login" className="text-white hover:text-indigo-200">
+                Login/Sign Up
+              </Link>
+          }
         </nav>
 
         {/* Mobile Hamburger Icon */}
@@ -74,28 +73,17 @@ export default function RestaurantHeader() {
           <Link href="/" className="block">
             Home
           </Link>
-          <Link href="/profile" className="block">
-            Profile
-          </Link>
-          <div className="flex flex-col space-y-4">
-            {isLoggedIn ? (
-              <button
-                onClick={() => setIsLoggedIn(false)}
-                className="block w-full text-left"
-              >
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link href="/login" className="block w-full text-left">
-                  Login
-                </Link>
-                <Link href="/signup" className="block w-full text-left">
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
+          {
+            isLoggedIn && isLoggedIn.username ?
+
+              <Link href="/profile" className="text-white hover:text-indigo-200">
+                Profile
+              </Link>
+              :
+              <Link href="/login" className="text-white hover:text-indigo-200">
+                Login/Sign Up
+              </Link>
+          }
         </div>
       )}
     </header>

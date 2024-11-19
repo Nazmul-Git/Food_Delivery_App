@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 export default function RestaurantSignup() {
     const [username, setUsername] = useState('');
@@ -16,7 +16,7 @@ export default function RestaurantSignup() {
     const [successMessage, setSuccessMessage] = useState('');
 
 
-    const router = useRouter()
+    const router = useRouter();
     const handleSubmit = async (e) => {
         e.preventDefault();
 
