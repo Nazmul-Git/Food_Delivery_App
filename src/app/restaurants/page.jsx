@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import RestaurantSignup from '../_components/restaurantSignup'
-import RestaurantLogin from '../_components/restaurantLogin'
+import RestaurantSignup from '../_components/RestaurantSignup'
+import RestaurantLogin from '../_components/RestaurantLogin'
 import RestaurantHeader from '../_components/RestaurantHeader';
 import Footer from '../_components/Footer';
 
