@@ -1,7 +1,8 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Loading from '../loading';
 
 export default function RestaurantSignup() {
     const [username, setUsername] = useState('');
@@ -14,6 +15,7 @@ export default function RestaurantSignup() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
@@ -41,12 +43,14 @@ export default function RestaurantSignup() {
             return;
         }
 
+        setLoading(true); // Set loading to true at the start of the API call
+
         try {
             // API call
-            let response = await fetch("http://localhost:3000/api/restaurants", {
-                method: "POST",
+            let response = await fetch('http://localhost:3000/api/restaurants', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     username,
@@ -61,22 +65,22 @@ export default function RestaurantSignup() {
 
             // Parse the response
             response = await response.json();
-            console.log(response);
 
             if (response.success) {
-                localStorage.setItem('restaurantUser', JSON.stringify(response.signedUser)); 
+                localStorage.setItem('restaurantUser', JSON.stringify(response.signedUser));
                 setSuccessMessage('Restaurant registered successfully!');
                 setErrorMessage('');
-                clearFields(); // Reset all fields
+                clearFields();
                 router.push('/restaurants/dashboard');
             } else {
                 setErrorMessage('Error registering restaurant: ' + response.message);
                 setSuccessMessage('');
             }
         } catch (error) {
-            console.error('Error during form submission:', error);
             setErrorMessage('There was an error submitting the form.');
             setSuccessMessage('');
+        } finally {
+            setLoading(false); // Ensure loading is set to false after the API call
         }
     };
 
@@ -90,6 +94,11 @@ export default function RestaurantSignup() {
         setPassword('');
         setConfirmPassword('');
     };
+
+    // Show loading spinner while waiting for data
+    if (loading) {
+        return <Loading />;
+    }
 
     return (
         <>

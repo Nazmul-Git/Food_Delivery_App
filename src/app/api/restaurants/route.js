@@ -14,9 +14,24 @@ export async function GET() {
 
 export async function POST(req) {
   let payload = await req.json();
+  let signedUser;
+  let success = false;
   await mongoose.connect(connectionUrl);
-  const restaurant = new RestaurantsSchema(payload);
-  const signedUser = await restaurant.save();
+
+  if (payload.login){
+    signedUser = await RestaurantsSchema.findOne({ email: payload.email, password: payload.password });
+    if(signedUser){
+      success= true;
+    }
+  }
+  else {
+    const restaurant = new RestaurantsSchema(payload);
+    signedUser = await restaurant.save();
+    if(signedUser){
+      success= true;
+    }
+  }
+
   // console.log(signedUser);
   return NextResponse.json({ signedUser, success: true });
 }

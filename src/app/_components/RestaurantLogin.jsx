@@ -1,20 +1,58 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Loading from '../loading'; // Assuming you have a loading component.
 
 export default function RestaurantLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false); // Updated to false initially
 
-    const handleSubmit = (e) => {
+    const router = useRouter();
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password) {
             setErrorMessage('Please enter both email and password');
             return;
         }
-        // Handle login logic here
-        setErrorMessage('');
-        alert('Logged in successfully!');
+
+        setLoading(true);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/restaurants', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password, login: true }),
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                const { signedUser } = data;
+                delete signedUser.password;
+                localStorage.setItem('restaurantUser', JSON.stringify(signedUser));
+                router.push('/restaurants/dashboard');
+            } else {
+                setErrorMessage('Invalid credentials, please try again.');
+            }
+        } catch (error) {
+            setErrorMessage('An error occurred, please try again later.');
+        } finally {
+            setLoading(false);
+        }
     };
+
+    if (loading) {
+        return <Loading />;
+    }
 
     return (
         <>
@@ -40,15 +78,24 @@ export default function RestaurantLogin() {
 
                 <div>
                     <label htmlFor="password" className="block text-gray-700">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter your password"
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            type={isPasswordVisible ? "text" : "password"}
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Enter your password"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={togglePasswordVisibility}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                        >
+                            {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex justify-between items-center">

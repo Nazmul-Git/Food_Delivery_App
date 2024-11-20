@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Loading from '../loading';
+import Image from 'next/image';
+
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -45,38 +47,51 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-gradient-to-r from-indigo-600 to-purple-700 shadow-md">
+    <header className="bg-gradient-to-r from-black to-orange-700 shadow-md p-2">
       <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <div className="text-white text-2xl font-bold">
           <Link href="/" className="flex items-center cursor-pointer">
-            <img src="#" alt="Logo" className="h-10 w-10 mr-2 rounded-full border border-white" />
+            <div className="h-20 w-20 mr-2 rounded-full border border-white overflow-hidden">
+              <Image
+                src="/images/dBoy.jpeg"
+                alt="logo"
+                width={78} // Matches the container size (10 * 4 = 40px)
+                height={78} // Matches the container size
+                className="object-cover"
+                priority // Ensures the image loads quickly
+              />
+            </div>
+
             <span className="hidden sm:block">RestaurantApp</span>
           </Link>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
-          <Link href="/" className="text-white hover:text-indigo-200 transition">
+          <Link href="/" className="text-white font-semibold hover:text-indigo-200 transition">
             Home
+          </Link>
+          <Link href="/" className="text-white font-semibold hover:text-indigo-200 transition">
+            About
           </Link>
           {isLoggedIn && isLoggedIn.username ? (
             <>
               <button
                 onClick={handleLogout}
-                className="text-white hover:text-indigo-200 transition"
+                className="text-white font-semibold hover:text-indigo-200 transition"
               >
                 Logout
               </button>
               <Link
                 href="/profile"
-                className="text-white hover:text-indigo-200 transition"
+                className="text-white font-semibold hover:text-indigo-200 transition"
               >
                 Profile
               </Link>
             </>
           ) : (
-            <Link href="/login" className="text-white hover:text-indigo-200 transition">
+            <Link href="/restaurants" className="text-white font-semibold hover:text-indigo-200 transition">
               Login/Sign Up
             </Link>
           )}
