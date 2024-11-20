@@ -15,19 +15,34 @@ export default function RestaurantSignup() {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
-
     const router = useRouter();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if passwords match
+        // Field validation
+        if (!username || !restaurantName || !email || !phone || !address || !restaurantType || !password || !confirmPassword) {
+            setErrorMessage('All fields are required.');
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setErrorMessage('Invalid email format.');
+            return;
+        }
+
+        if (phone.length < 10 || !/^\d+$/.test(phone)) {
+            setErrorMessage('Phone number must be at least 10 digits and numeric.');
+            return;
+        }
+
         if (password !== confirmPassword) {
             setErrorMessage('Passwords do not match.');
             return;
         }
 
         try {
-            // Make the POST request to your API
+            // API call
             let response = await fetch("http://localhost:3000/api/restaurants", {
                 method: "POST",
                 headers: {
@@ -44,16 +59,16 @@ export default function RestaurantSignup() {
                 }),
             });
 
-            // Parse the JSON response
+            // Parse the response
             response = await response.json();
             console.log(response);
 
             if (response.success) {
                 localStorage.setItem('restaurantUser', JSON.stringify(response.signedUser)); 
                 setSuccessMessage('Restaurant registered successfully!');
-                setErrorMessage(''); 
-                return router.push('/restaurants/dashboard');
-                
+                setErrorMessage('');
+                clearFields(); // Reset all fields
+                router.push('/restaurants/dashboard');
             } else {
                 setErrorMessage('Error registering restaurant: ' + response.message);
                 setSuccessMessage('');
@@ -63,6 +78,17 @@ export default function RestaurantSignup() {
             setErrorMessage('There was an error submitting the form.');
             setSuccessMessage('');
         }
+    };
+
+    const clearFields = () => {
+        setUsername('');
+        setRestaurantName('');
+        setEmail('');
+        setPhone('');
+        setAddress('');
+        setRestaurantType('');
+        setPassword('');
+        setConfirmPassword('');
     };
 
     return (
@@ -94,7 +120,6 @@ export default function RestaurantSignup() {
                                 required
                             />
                         </div>
-                        {/* Phone */}
                         <div>
                             <label htmlFor="phone" className="block text-gray-700">Phone Number</label>
                             <input
@@ -107,7 +132,6 @@ export default function RestaurantSignup() {
                                 required
                             />
                         </div>
-                        {/* Address */}
                         <div>
                             <label htmlFor="address" className="block text-gray-700">Restaurant Address</label>
                             <input
@@ -120,8 +144,6 @@ export default function RestaurantSignup() {
                                 required
                             />
                         </div>
-
-                        {/* Restaurant Type */}
                         <div>
                             <label htmlFor="restaurantType" className="block text-gray-700">Restaurant Type</label>
                             <select
@@ -143,7 +165,6 @@ export default function RestaurantSignup() {
 
                     {/* Right Side: Account Details */}
                     <div className="space-y-6">
-                        {/* Username */}
                         <div>
                             <label htmlFor="username" className="block text-gray-700">Username</label>
                             <input
@@ -156,7 +177,6 @@ export default function RestaurantSignup() {
                                 required
                             />
                         </div>
-                        {/* Email */}
                         <div>
                             <label htmlFor="email" className="block text-gray-700">Email</label>
                             <input
@@ -169,7 +189,6 @@ export default function RestaurantSignup() {
                                 required
                             />
                         </div>
-                        {/* Password */}
                         <div>
                             <label htmlFor="password" className="block text-gray-700">Password</label>
                             <input
@@ -182,7 +201,6 @@ export default function RestaurantSignup() {
                                 required
                             />
                         </div>
-                        {/* Confirm Password */}
                         <div>
                             <label htmlFor="confirmPassword" className="block text-gray-700">Confirm Password</label>
                             <input
