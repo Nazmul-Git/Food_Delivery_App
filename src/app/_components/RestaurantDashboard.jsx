@@ -13,7 +13,7 @@ export default function RestaurantDashboard() {
                 setLoading(true);
                 const restUser = JSON.parse(localStorage.getItem('restaurantUser'));
                 if (!restUser || !restUser._id) throw new Error('Invalid restaurant user data');
-                
+
                 const restaurantId = restUser._id;
                 let response = await fetch(`http://localhost:3000/api/restaurants/foods/${restaurantId}`);
                 if (!response.ok) {
@@ -37,10 +37,40 @@ export default function RestaurantDashboard() {
         // Implement edit logic here
     };
 
-    const handleDelete = (id) => {
-        // console.log('Delete clicked for ID:', id);
-        // Implement delete logic here
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this food item?");
+        if (!confirmDelete) return;
+
+        try {
+            setLoading(true);
+
+            const response = await fetch(`http://localhost:3000/api/restaurants/foods/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Error response:", errorText);
+                alert("Failed to delete food item. Please try again.");
+                return;
+            }
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Food item deleted successfully!");
+                // Remove the deleted item from the UI
+                setFoodItems((prev) => prev.filter((item) => item._id !== id));
+            } else {
+                alert(result.message || "Failed to delete food item");
+            }
+        } catch (error) {
+            console.error("Error deleting food item:", error);
+            alert("An error occurred while deleting the food item.");
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     if (loading) {
         return (
