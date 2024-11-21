@@ -9,6 +9,7 @@ export default function Banner() {
             {/* overflow-hidden ensures the rounded corners apply to the image */}
             <Image 
                 src="/images/banner.jpg" 
+                sizes=''
                 alt="Banner" 
                 fill 
                 className="object-cover" 

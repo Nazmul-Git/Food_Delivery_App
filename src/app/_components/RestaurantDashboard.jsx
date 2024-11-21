@@ -1,11 +1,14 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 export default function RestaurantDashboard() {
     const [foodItems, setFoodItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchFoodItems = async () => {
@@ -31,11 +34,6 @@ export default function RestaurantDashboard() {
 
         fetchFoodItems();
     }, []);
-
-    const handleEdit = (id) => {
-        // console.log('Edit clicked for ID:', id);
-        // Implement edit logic here
-    };
 
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this food item?");
@@ -128,7 +126,10 @@ export default function RestaurantDashboard() {
                                 </td>
                                 <td className="px-4 py-10 flex items-center space-x-2">
                                     <button
-                                        onClick={() => handleEdit(item._id)}
+                                        onClick={() => {
+                                            console.log(`/restaurants/dashboard/${item._id}`);
+                                            router.push(`/restaurants/dashboard/${item._id}`)}
+                                        }
                                         className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
                                     >
                                         Edit
