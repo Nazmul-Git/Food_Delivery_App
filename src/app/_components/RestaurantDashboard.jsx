@@ -125,7 +125,7 @@ export default function RestaurantDashboard() {
                                         <td className="px-4 py-3 font-bold text-indigo-600">
                                             ${parseFloat(item.price).toFixed(2)}
                                         </td>
-                                        <td className="px-4 py-3 flex items-center gap-2">
+                                        <td className="px-4 py-8 flex items-center gap-2">
                                             <button
                                                 onClick={() => router.push(`/restaurants/dashboard/${item._id}`)}
                                                 className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
