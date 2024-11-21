@@ -36,7 +36,7 @@ const RestaurantModel = new Schema(
     restaurantType: {
       type: String,
       required: [true, "Restaurant type is required"],
-      enum: ["Italian", "Mexican", "Asian", "American", "Vegetarian"],
+      enum: ["italian", "mexican", "asian", "american", "vegetarian"],
     },
     password: {
       type: String,

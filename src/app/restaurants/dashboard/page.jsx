@@ -3,6 +3,7 @@
 import AddFoodItem from '@/app/_components/AddFoodItem';
 import Banner from '@/app/_components/Banner';
 import Footer from '@/app/_components/Footer';
+import RestaurantDashboard from '@/app/_components/RestaurantDashboard';
 import RestaurantHeader from '@/app/_components/RestaurantHeader';
 import React, { useState } from 'react';
 
@@ -43,9 +44,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <div className="flex-grow bg-white p-6 rounded-md shadow-lg mx-4">
           {addItem ? (
-            <h1 className="text-2xl font-bold text-gray-700 text-center ">
-              Restaurant Dashboard
-            </h1>
+            <RestaurantDashboard/>
           ) : (
             <AddFoodItem />
           )}

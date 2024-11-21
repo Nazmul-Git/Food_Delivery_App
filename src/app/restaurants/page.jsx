@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import RestaurantHeader from '../_components/RestaurantHeader';
 import Footer from '../_components/Footer';
 import RestaurantLogin from '../_components/RestaurantLogin';
+import RestaurantSignup from '../_components/RestaurantSignup';
 
 export default function Restaurant() {
     const [login, setLogin] = useState(true);

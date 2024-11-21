@@ -33,5 +33,5 @@ export async function POST(req) {
   }
 
   // console.log(signedUser);
-  return NextResponse.json({ signedUser, success: true });
+  return NextResponse.json({ signedUser, success });
 }

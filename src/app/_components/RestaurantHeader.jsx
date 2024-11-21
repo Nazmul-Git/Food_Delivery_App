@@ -52,7 +52,7 @@ export default function Header() {
         {/* Logo */}
         <div className="text-white text-2xl font-bold">
           <Link href="/" className="flex items-center cursor-pointer">
-            <div className="h-20 w-20 mr-2 rounded-full border border-white overflow-hidden">
+            <div className="h-14 w-14 mr-2 rounded-full border border-white overflow-hidden">
               <Image
                 src="/images/dBoy.jpeg"
                 alt="logo"

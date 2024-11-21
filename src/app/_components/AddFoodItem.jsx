@@ -41,16 +41,16 @@ export default function AddFoodItem() {
         });
         console.log(response)
         response = await response.json();
-        if(response.success){
+        if (response.success) {
             setSuccessMessage('Food item added successfully!');
+            setFoodName('');
+            setDescription('');
+            setPrice('');
+            setCategory('');
+            setImagePath('');
+        } else {
+            setErrorMessage('Failed to add food list!');
         }
-
-        // Clear form fields
-        setFoodName('');
-        setDescription('');
-        setPrice('');
-        setCategory('');
-        setImagePath(''); 
     };
 
     return (
