@@ -6,6 +6,7 @@ import Footer from '@/app/_components/Footer';
 import RestaurantDashboard from '@/app/_components/RestaurantDashboard';
 import RestaurantHeader from '@/app/_components/RestaurantHeader';
 import React, { useState } from 'react';
+import { FaHandPointRight } from 'react-icons/fa';
 
 export default function Dashboard() {
   const [addItem, setItem] = useState(false);
@@ -24,27 +25,33 @@ export default function Dashboard() {
       </div>
       <div className="flex">
         {/* Left Sidebar */}
-        <div className="w-1/4 bg-white shadow-md p-4">
-          <button
-            onClick={() => setItem(true)}
-            className={`w-full text-left px-4 py-2 mb-2 text-gray-800 font-semibold rounded-md hover:bg-gray-200 ${addItem ? 'bg-indigo-100' : ''
-              }`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setItem(false)}
-            className={`w-full text-left px-4 py-2 mb-2 text-gray-800 font-semibold rounded-md hover:bg-gray-200 ${!addItem ? 'bg-indigo-100' : ''
-              }`}
-          >
-            Add Food Items
-          </button>
+        <div className="w-1/4 p-4 rounded-md">
+          <div className='flex gap-2 items-center'>
+            <FaHandPointRight />
+            <button
+              onClick={() => setItem(true)}
+              className={`w-full text-left px-4 py-2 mb-2 text-gray-800 font-semibold rounded-md hover:bg-gray-200 ${addItem ? 'bg-indigo-100' : ''
+                }`}
+            >
+              Dashboard
+            </button>
+          </div>
+          <div className='flex gap-2 items-center'>
+            <FaHandPointRight />
+            <button
+              onClick={() => setItem(false)}
+              className={`w-full text-left px-4 py-2 mb-2 text-gray-800 font-semibold rounded-md hover:bg-gray-200 ${!addItem ? 'bg-indigo-100' : ''
+                }`}
+            >
+              Add Food Items
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow bg-white p-6 rounded-md shadow-lg mx-4">
+        <div className="flex-grow bg-white p-2 rounded-md shadow-lg mx-4">
           {addItem ? (
-            <RestaurantDashboard/>
+            <RestaurantDashboard />
           ) : (
             <AddFoodItem />
           )}

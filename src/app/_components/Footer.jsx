@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
@@ -10,7 +12,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-gradient-to-b from-orange-500 to-black text-white pt-10 pb-6">
+    <footer className="bg-gradient-to-b from-slate-400 via-gray-600 to-black text-gray-300 pt-10 pb-6">
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start space-y-8 md:space-y-0">
@@ -18,34 +20,34 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start">
             <Link href="/" className="flex items-center cursor-pointer" aria-label="Go to homepage">
               <img src="#" alt="RestaurantApp Logo" className="h-12 w-12 mr-3 rounded-full bg-white" />
-              <span className="text-3xl font-bold tracking-wide">RestaurantApp</span>
+              <span className="text-3xl font-bold text-yellow-400 tracking-wide">RestaurantApp</span>
             </Link>
-            <p className="mt-4 text-sm text-gray-300 max-w-xs text-center md:text-left">
+            <p className="mt-4 text-sm max-w-xs text-center md:text-left">
               Your ultimate destination for delicious meals from top restaurants, delivered right to your doorstep.
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4 text-center md:text-left">
-            <h3 className="text-xl font-semibold">Quick Links</h3>
+            <h3 className="text-xl font-semibold text-yellow-400">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-gray-300 hover:text-orange-300">
+                <Link href="/" className="hover:text-yellow-400 transition text-md">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-300 hover:text-orange-300">
+                <Link href="/about" className="hover:text-yellow-400 transition text-md">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-300 hover:text-orange-300">
+                <Link href="/contact" className="hover:text-yellow-400 transition text-md">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-gray-300 hover:text-orange-300">
+                <Link href="/faq" className="hover:text-yellow-400 transition text-md">
                   FAQ
                 </Link>
               </li>
@@ -54,15 +56,15 @@ export default function Footer() {
 
           {/* Social Media Links */}
           <div className="space-y-4 text-center md:text-left">
-            <h3 className="text-xl font-semibold">Follow Us</h3>
+            <h3 className="text-xl font-semibold text-yellow-400">Follow Us</h3>
             <div className="flex space-x-6 justify-center md:justify-start">
-              <Link href="https://facebook.com" className="text-gray-300 hover:text-orange-300" aria-label="Facebook">
+              <Link href="https://facebook.com" className="hover:text-blue-500 transition" aria-label="Facebook">
                 <FaFacebook size={28} />
               </Link>
-              <Link href="https://instagram.com" className="text-gray-300 hover:text-orange-300" aria-label="Instagram">
+              <Link href="https://instagram.com" className="hover:text-pink-500 transition" aria-label="Instagram">
                 <FaInstagram size={28} />
               </Link>
-              <Link href="https://twitter.com" className="text-gray-300 hover:text-orange-300" aria-label="Twitter">
+              <Link href="https://twitter.com" className="hover:text-blue-400 transition" aria-label="Twitter">
                 <FaTwitter size={28} />
               </Link>
             </div>
@@ -71,15 +73,15 @@ export default function Footer() {
 
         {/* Contact Section */}
         <div className="mt-12 text-center md:text-left">
-          <h3 className="text-xl font-semibold">Contact Us</h3>
-          <p className="text-gray-300 mt-2">Email: support@restaurantapp.com</p>
-          <p className="text-gray-300">Phone: +1 (555) 123-4567</p>
+          <h3 className="text-xl font-semibold text-yellow-400">Contact Us</h3>
+          <p className="mt-2">Email: <a href="mailto:support@restaurantapp.com" className="hover:text-yellow-400 transition">support@restaurantapp.com</a></p>
+          <p>Phone: <a href="tel:+15551234567" className="hover:text-yellow-400 transition">+1 (555) 123-4567</a></p>
         </div>
 
         {/* Footer Bottom */}
         <div className="mt-8 border-t border-gray-700 pt-4 text-center">
-          <p className="text-sm text-gray-300">
-            &copy; {currentYear || 'Loading...'} RestaurantApp. All Rights Reserved.
+          <p className="text-sm">
+            &copy; {currentYear || 'Loading...'} <span className="text-yellow-400">RestaurantApp</span>. All Rights Reserved.
           </p>
         </div>
       </div>
