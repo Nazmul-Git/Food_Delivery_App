@@ -11,10 +11,16 @@ export async function GET(request) {
     //   const location = queryParams.get('restaurants');
     //   console.log(location); // BBQ
 
-    let filter ={};
-    if(queryParams.get('location')){
+    let filter = {};
+    // search by location
+    if (queryParams.get('location')) {
         let address = queryParams.get('location');
-        filter = {$regex : new RegExp(address, 'i')};
+        filter = { address: { $regex: new RegExp(address, 'i') } };
+    }
+    // search by restaurant name
+    else if (queryParams.get('restaurant')) {
+        let name = queryParams.get('restaurant');
+        filter = { restaurantName: { $regex: new RegExp(name, 'i') } };
     }
     await mongoose.connect(connectionUrl);
     let result = await RestaurantsSchema.find(filter);
