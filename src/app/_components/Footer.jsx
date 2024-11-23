@@ -12,7 +12,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-gradient-to-b from-slate-400 via-gray-600 to-black text-gray-300 pt-10 pb-6">
+    <footer className="bg-gradient-to-b from-slate-700  to-black text-gray-300 pt-10 pb-6">
       <div className="max-w-screen-xl mx-auto px-4 md:px-8">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-center md:items-start space-y-8 md:space-y-0">

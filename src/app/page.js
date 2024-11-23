@@ -17,6 +17,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative bg-indigo-600 text-white py-12 px-6 md:py-20 md:px-12">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center">
+          {/* Text section */}
           <div className="md:w-1/2 text-center md:text-left">
             <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
               Delicious Food, Delivered to Your Doorstep
@@ -24,8 +25,8 @@ export default function Home() {
             <p className="text-lg mb-6">
               Savor the taste of your favorite meals from top restaurants, delivered fresh and fast.
             </p>
-            <div className="space-x-4">
-              <Link href='#' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center md:justify-start">
+              <Link href='/stores' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
                 Order Now
               </Link>
               <Link href='/restaurants' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
@@ -36,15 +37,18 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="md:w-1/2 mt-10 md:mt-0">
+
+          {/* Image section */}
+          <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
             <img
               src="https://img.freepik.com/premium-photo/young-delivery-girl_1368-61399.jpg"
               alt="Delicious food"
-              className="rounded-lg shadow-lg"
+              className="rounded-lg shadow-lg w-full max-w-md" 
             />
           </div>
         </div>
       </section>
+
 
       {/* Features Section */}
       <section className="py-12 px-6 md:py-16 md:px-12">
