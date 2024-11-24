@@ -7,9 +7,9 @@ export async function GET(request) {
     // Get the query parameters
     const queryParams = request.nextUrl.searchParams;
 
-    // Log the value of the location query parameter ex: http://localhost:3000/api/customer?restaurants=BBQ
-    //   const location = queryParams.get('restaurants');
-    //   console.log(location); // BBQ
+    // Log the value of the location query parameter ex: http://localhost:3000/api/customer?restaurant=BBQ
+    //   const name = queryParams.get('restaurant');
+    //   console.log(name); // BBQ
 
     let filter = {};
     // search by location

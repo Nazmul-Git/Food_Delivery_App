@@ -43,6 +43,14 @@ const RestaurantModel = new Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
     },
+    imageUrl: {
+      type: String,
+      required: [true, "Restaurant image URL is required"],
+    },
+    description: {
+      type: String,
+      required: [true, "Restaurant description is required"],
+    },
     createdAt: {
       type: Date,
       default: Date.now,

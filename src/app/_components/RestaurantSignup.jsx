@@ -13,6 +13,8 @@ export default function RestaurantSignup() {
     const [restaurantType, setRestaurantType] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [imageUrl, setImageUrl] = useState(''); // New state for image URL
+    const [description, setDescription] = useState(''); // New state for description
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -23,7 +25,7 @@ export default function RestaurantSignup() {
         e.preventDefault();
 
         // Field validation
-        if (!username || !restaurantName || !email || !phone || !address || !restaurantType || !password || !confirmPassword) {
+        if (!username || !restaurantName || !email || !phone || !address || !restaurantType || !password || !confirmPassword || !imageUrl || !description) {
             setErrorMessage('All fields are required.');
             return;
         }
@@ -60,6 +62,8 @@ export default function RestaurantSignup() {
                     address,
                     restaurantType,
                     password,
+                    imageUrl:imageUrl, // Send image URL
+                    description, // Send description
                 }),
             });
 
@@ -93,6 +97,8 @@ export default function RestaurantSignup() {
         setRestaurantType('');
         setPassword('');
         setConfirmPassword('');
+        setImageUrl('');
+        setDescription('');
     };
 
     // Show loading spinner while waiting for data
@@ -170,6 +176,18 @@ export default function RestaurantSignup() {
                                 <option value="vegetarian">Vegetarian</option>
                             </select>
                         </div>
+                        <div>
+                            <label htmlFor="imageUrl" className="block text-gray-700">Restaurant Image URL</label>
+                            <input
+                                type="text"
+                                id="imageUrl"
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                                placeholder="Enter image URL for your restaurant"
+                                required
+                            />
+                        </div>
                     </div>
 
                     {/* Right Side: Account Details */}
@@ -219,6 +237,17 @@ export default function RestaurantSignup() {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
                                 placeholder="Confirm your password"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="description" className="block text-gray-700">Restaurant Description</label>
+                            <textarea
+                                id="description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                                placeholder="Describe your restaurant"
                                 required
                             />
                         </div>

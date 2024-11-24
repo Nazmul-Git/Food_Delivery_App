@@ -9,16 +9,30 @@ export default function Store() {
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("");  // Default to empty string
   const [filteredLocations, setFilteredLocations] = useState([]);  // To store filtered locations based on user input
+  const [restaurants, setRestaurants] = useState([]);  // Store fetched restaurants
+  const [searchQuery, setSearchQuery] = useState("");  // Store the search query for restaurant names
 
   useEffect(() => {
     loadLocations();
+    loadRestaurants();
   }, []);
 
+  // Fetch all locations
   const loadLocations = async () => {
     let response = await fetch('http://localhost:3000/api/customer/locations');
     response = await response.json();
     if (response.success) {
       setLocations(response.result);
+    }
+  };
+
+  // Fetch all restaurants
+  const loadRestaurants = async () => {
+    let response = await fetch('http://localhost:3000/api/customer');
+    response = await response.json();
+    if (response.success) {
+      setRestaurants(response.result);
+      console.log(response.result);
     }
   };
 
@@ -44,12 +58,17 @@ export default function Store() {
     setFilteredLocations([]);
   };
 
+  // Filter restaurants based on search query and selected location
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    return (
+      (selectedLocation ? restaurant.location.toLowerCase().includes(selectedLocation.toLowerCase()) : true) &&
+      (searchQuery ? restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) : true)
+    );
+  });
+
   return (
     <div>
       <CustomerHeader />
-      <div>
-        <p>Stored all restaurants</p>
-      </div>
       
       <div className="flex items-center justify-center min-h-screen bg-cover bg-center relative" style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/background-cooking-black-wooden-background-top-view-free-space-your-text_187166-5650.jpg')" }}>
         {/* Background overlay */}
@@ -90,16 +109,37 @@ export default function Store() {
               )}
             </div>
 
-            {/* Restaurant name input field with search icon */}
+            {/* Restaurant search input field with search icon */}
             <div className="relative w-80">
               <input
                 type="text"
                 placeholder="Enter food or restaurant name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-4 text-black rounded-r-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer hover:text-blue-600 font-bold text-2xl" />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Display filtered restaurants */}
+      <div className="p-8">
+        <h3 className="text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredRestaurants.map((restaurant) => (
+            <div key={restaurant._id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition duration-300">
+              <img src={restaurant.imageUrl} alt={restaurant.restaurantName} className="w-full h-40 object-cover" />
+              <div className="p-4">
+                <h4 className="text-xl font-semibold">{restaurant.restaurantName}</h4>
+                <p className="text-gray-600 mt-2">{restaurant.address}</p>
+                <p className="text-gray-600 mt-2">{restaurant.restaurantType}</p>
+                <p className="text-sm text-gray-500 mt-2">{restaurant.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
