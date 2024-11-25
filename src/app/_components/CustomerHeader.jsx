@@ -2,62 +2,39 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import Loading from '../loading';
 import Image from 'next/image';
-import { FaHome, FaInfoCircle, FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa'; // Import icons from react-icons
+import { FaHome, FaInfoCircle, FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
 
-export default function CustomerHeader() {
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
+export default function CustomerHeader({ cartData }) {
+  const cartStorage = JSON.parse(localStorage.getItem('cart'));
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const path = usePathname();
-
-  // To manage the cart, let's assume cart is stored in localStorage as well
-  const [cartCount, setCartCount] = useState(0);
+  const [cartCount, setCartCount] = useState(cartStorage?.length);
+  const [cartItems, setCartItems] = useState(cartStorage);
 
   useEffect(() => {
-    const checkUser = () => {
-      let customerUser = localStorage.getItem('customerUser');
-      if (!customerUser && path === '/customer/dashboard') {
-        setLoading(false);
-        router.push('/customer/login');
-      } else if (customerUser && path === '/customer/login') {
-        setLoading(false);
-        router.push('/customer/dashboard');
+    // console.log(cartData);
+    if (cartData) {
+      if (cartCount) {
+        // console.log(cartItems[0]);
+        if (cartItems[0].restaurantId != cartData.restaurantId) {
+          localStorage.removeItem('cart');
+          setCartCount(1);
+          setCartItems([cartData]);
+          localStorage.setItem('cart', JSON.stringify({ cartData }));
+        } else {
+          let localCartItem = cartItems;
+          localCartItem.push(JSON.parse(JSON.stringify(cartData)));
+          setCartItems(localCartItem);
+          setCartCount(cartCount + 1);
+          localStorage.setItem('cart', JSON.stringify(localCartItem));
+        }
       } else {
-        setIsLoggedIn(JSON.parse(customerUser));
-        setLoading(false);
+        setCartCount(1);
+        setCartItems([cartData]);
+        localStorage.setItem('cart', JSON.stringify({ cartData }));
       }
-    };
-
-    const updateCartCount = () => {
-      const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-      setCartCount(cartItems.length);
-    };
-
-    checkUser();
-    updateCartCount(); // Update cart count on initial load
-
-  }, [path, router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('customerUser');
-    setIsLoggedIn(null);
-    setIsMenuOpen(false);
-    router.replace('/customer/login');
-  };
-
-  // Function to extract the first letter of the user's email
-  const getInitials = (email) => {
-    const name = email.split('@')[0]; // Get the part before '@'
-    return name.charAt(0).toUpperCase(); // Take the first letter and capitalize it
-  };
-
-  if (loading) {
-    return <Loading />;
-  }
+    }
+  }, [cartData])
 
   return (
     <header className="bg-gradient-to-r from-black via-indigo-600 to-blue-700 shadow-lg">
@@ -90,8 +67,7 @@ export default function CustomerHeader() {
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
 
-
-          {isLoggedIn && isLoggedIn.username ? (
+          {/* {isLoggedIn && isLoggedIn.username ? (
             <>
               <button
                 onClick={handleLogout}
@@ -104,7 +80,6 @@ export default function CustomerHeader() {
                 href="/profile"
                 className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
               >
-                {/* Desktop Profile Initials */}
                 {isLoggedIn.email ? (
                   <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center">
                     {getInitials(isLoggedIn.email)}
@@ -115,27 +90,20 @@ export default function CustomerHeader() {
               </Link>
             </>
           ) : (
-            <>
-              <Link
-                href="/customer/login"
-                className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group"
-              >
-                Login/Sign Up
-                <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </Link>
-              
-            </>
-          )}
+            <Link
+              href="/customer/login"
+              className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group"
+            >
+              Login/Sign Up
+              <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+          )} */}
+
           <Link
             href="/cart"
             className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
           >
-            Cart
-            {cartCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
+            Cart (<p className='text-orange-600'>{cartCount ? cartCount : 0}</p>)
             <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
         </nav>
@@ -165,8 +133,7 @@ export default function CustomerHeader() {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
-          }`}
+        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link
           href="/"
@@ -185,8 +152,7 @@ export default function CustomerHeader() {
           About
         </Link>
 
-
-        {isLoggedIn && isLoggedIn.username ? (
+        {/* {isLoggedIn && isLoggedIn.username ? (
           <>
             <button
               onClick={() => {
@@ -195,7 +161,7 @@ export default function CustomerHeader() {
               }}
               className="block w-full text-left text-lg transition flex gap-2 items-center relative group"
             >
-              <FaSignOutAlt className="w-5 h-5  text-red-700" />
+              <FaSignOutAlt className="w-5 h-5 text-red-700" />
               Logout
             </button>
             <Link
@@ -214,29 +180,22 @@ export default function CustomerHeader() {
             </Link>
           </>
         ) : (
-          <>
-            <Link
-              href="/customer/login"
-              onClick={() => setIsMenuOpen(false)}
-              className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
-            >
-              <FaUser className="w-5 h-5 mr-2 text-yellow-300" />
-              Login/Sign Up
-            </Link>
-          </>
-        )}
+          <Link
+            href="/customer/login"
+            onClick={() => setIsMenuOpen(false)}
+            className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
+          >
+            <FaUser className="w-5 h-5 mr-2 text-yellow-300" />
+            Login/Sign Up
+          </Link>
+        )} */}
         <Link
           href="/cart"
           onClick={() => setIsMenuOpen(false)}
           className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
         >
           <FaShoppingCart className="w-5 h-5 text-yellow-500" />
-          Cart
-          {cartCount > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
+          Cart (<p className='text-orange-600'>{cartCount ? cartCount : 0}</p>)
         </Link>
       </div>
     </header>

@@ -14,6 +14,7 @@ export default function StoreDetails({ params, searchParams }) {
     const [restaurantDetails, setRestaurantDetails] = useState(null);
     const [foodItems, setFoodItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cartData, setCartData] = useState();
 
     useEffect(() => {
         const loadRestaurantDetails = async () => {
@@ -49,9 +50,13 @@ export default function StoreDetails({ params, searchParams }) {
         return words.slice(0, 10).join(' ') + (words.length > 10 ? '...' : '');
     };
 
+    const addToCart = (item) => {
+        setCartData(item);
+    }
+
     return (
         <div>
-            <CustomerHeader />
+            <CustomerHeader cartData={cartData} />
             <div
                 className="relative bg-cover bg-center min-h-screen"
                 style={{
@@ -65,7 +70,7 @@ export default function StoreDetails({ params, searchParams }) {
                 </p>
             </div>
 
-            <ScrollToTop/>
+            <ScrollToTop />
 
             <div className="container mx-auto px-14 py-14">
                 {/* Available Foods Section */}
@@ -84,7 +89,7 @@ export default function StoreDetails({ params, searchParams }) {
                                 <p className="text-lg text-gray-700 mt-2 flex-grow">{truncateDescription(item.description)}</p>
                                 <div className="flex justify-between items-center mt-4">
                                     <span className="text-lg font-bold text-green-500">${item.price}</span>
-                                    <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition">Add to Cart</button>
+                                    <button onClick={() => addToCart(item)} className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition">Add to Cart</button>
                                 </div>
                             </div>
                         </div>
