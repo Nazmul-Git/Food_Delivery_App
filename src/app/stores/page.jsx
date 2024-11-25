@@ -6,6 +6,7 @@ import CustomerHeader from '../_components/CustomerHeader';
 import Footer from '../_components/Footer';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ScrollToTop from '../_components/ScrollToTop';
 
 export default function Store() {
   const [locations, setLocations] = useState([]);
@@ -109,21 +110,21 @@ export default function Store() {
         <div className="absolute inset-0 bg-black opacity-50"></div>
 
         {/* Centered content */}
-        <div className="relative z-10 text-white">
+        <div className="relative z-10 text-white p-4">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Discover Amazing Restaurants</h2>
-            <p className="text-lg">Find the best places to eat and drink in your city</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Discover Amazing Restaurants</h2>
+            <p className="text-lg sm:text-xl">Find the best places to eat and drink in your city</p>
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             {/* Location input field */}
-            <div className="relative w-80">
+            <div className="relative w-full sm:w-80">
               <input
                 type="text"
                 placeholder="Select place"
                 value={selectedLocation}
                 onChange={handleLocationChange}
-                className="w-full px-4 py-4 text-black shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 text-black shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               {/* Location suggestions dropdown */}
               {filteredLocations.length > 0 && selectedLocation && (
@@ -144,13 +145,13 @@ export default function Store() {
             </div>
 
             {/* Restaurant search input field with search icon */}
-            <div className="relative w-80">
+            <div className="relative w-full sm:w-80">
               <input
                 type="text"
-                placeholder="Enter food or restaurant name"
+                placeholder="Enter restaurant name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-4 text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <FaSearch
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer hover:text-blue-600 font-bold text-2xl"
@@ -161,9 +162,11 @@ export default function Store() {
         </div>
       </div>
 
+      <ScrollToTop/>
+
       {/* Display filtered restaurants */}
       <div className="p-8">
-        <h3 className="text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
+        <h3 className="text-xl sm:text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredRestaurants.length > 0 ? (
             filteredRestaurants.map((restaurant) => (

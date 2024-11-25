@@ -89,18 +89,7 @@ export default function CustomerHeader() {
             About
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link
-            href="/cart"
-            className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
-          >
-            Cart
-            <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            {cartCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+
 
           {isLoggedIn && isLoggedIn.username ? (
             <>
@@ -131,18 +120,24 @@ export default function CustomerHeader() {
                 href="/customer/login"
                 className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group"
               >
-                Login
+                Login/Sign Up
                 <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Link>
-              <Link
-                href="/customer/signup"
-                className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group"
-              >
-                Sign Up
-                <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </Link>
+              
             </>
           )}
+          <Link
+            href="/cart"
+            className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
+          >
+            Cart
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+            <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
         </nav>
 
         {/* Mobile Hamburger Icon */}
@@ -170,7 +165,7 @@ export default function CustomerHeader() {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
+        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
           }`}
       >
         <Link
@@ -189,19 +184,7 @@ export default function CustomerHeader() {
           <FaInfoCircle className="w-5 h-5 text-yellow-500" />
           About
         </Link>
-        <Link
-          href="/cart"
-          onClick={() => setIsMenuOpen(false)}
-          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-        >
-          Cart
-          <FaShoppingCart className="w-5 h-5 text-yellow-500" />
-          {cartCount > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </Link>
+
 
         {isLoggedIn && isLoggedIn.username ? (
           <>
@@ -210,7 +193,7 @@ export default function CustomerHeader() {
                 setIsMenuOpen(false);
                 handleLogout();
               }}
-              className="block w-full text-left text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+              className="block w-full text-left text-lg transition flex gap-2 items-center relative group"
             >
               <FaSignOutAlt className="w-5 h-5  text-red-700" />
               Logout
@@ -225,7 +208,7 @@ export default function CustomerHeader() {
                   {getInitials(isLoggedIn.email)}
                 </div>
               ) : (
-                <FaUser className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <FaUser className="w-5 h-5 text-yellow-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               )}
               Profile
             </Link>
@@ -237,19 +220,24 @@ export default function CustomerHeader() {
               onClick={() => setIsMenuOpen(false)}
               className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
             >
-              Login
-              <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
-            <Link
-              href="/customer/signup"
-              onClick={() => setIsMenuOpen(false)}
-              className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
-            >
-              Sign Up
-              <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <FaUser className="w-5 h-5 mr-2 text-yellow-300" />
+              Login/Sign Up
             </Link>
           </>
         )}
+        <Link
+          href="/cart"
+          onClick={() => setIsMenuOpen(false)}
+          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+        >
+          <FaShoppingCart className="w-5 h-5 text-yellow-500" />
+          Cart
+          {cartCount > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+              {cartCount}
+            </span>
+          )}
+        </Link>
       </div>
     </header>
   );

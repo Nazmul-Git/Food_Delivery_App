@@ -1,6 +1,8 @@
+'use client'
 import React from 'react';
 import RestaurantHeader from '../_components/RestaurantHeader';
 import Footer from '../_components/Footer';
+import ScrollToTop from '../_components/ScrollToTop';
 
 export default function about() {
     return (
@@ -41,6 +43,8 @@ export default function about() {
                         </p>
                     </div>
                 </section>
+
+                <ScrollToTop/>
 
                 {/* Why Choose Us Section */}
                 <section className="max-w-6xl text-center mb-12">

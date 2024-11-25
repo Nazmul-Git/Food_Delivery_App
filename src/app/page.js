@@ -1,8 +1,10 @@
 'use client';
 
 import Link from "next/link";
+import ScrollToTop from "./_components/ScrollToTop";
 
 export default function Home() {
+
   const categories = [
     { category: "Pizza", imageUrl: "https://realfood.tesco.com/media/images/1400x919-MargaritaPizza-555a4065-2573-4b41-bcf3-7193cd095d8f-0-1400x919.jpg" },
     { category: "Burger", imageUrl: "https://insanelygoodrecipes.com/wp-content/uploads/2020/02/Burger-and-Fries.jpg" },
@@ -11,6 +13,8 @@ export default function Home() {
     { category: "Drinks", imageUrl: "https://think.ing.com/uploads/hero/_w1200/250321-image-drinks-market-food-beverages.jpg" },
     { category: "Salads", imageUrl: "https://images.immediate.co.uk/production/volatile/sites/30/2014/05/Epic-summer-salad-hub-2646e6e.jpg?quality=90&resize=960%2C872" },
   ];
+
+  
 
   return (
     <main className="bg-gray-50 min-h-screen">
@@ -43,12 +47,13 @@ export default function Home() {
             <img
               src="https://img.freepik.com/premium-photo/young-delivery-girl_1368-61399.jpg"
               alt="Delicious food"
-              className="rounded-lg shadow-lg w-full max-w-md" 
+              className="rounded-lg shadow-lg w-full max-w-md"
             />
           </div>
         </div>
       </section>
 
+      <ScrollToTop/>
 
       {/* Features Section */}
       <section className="py-12 px-6 md:py-16 md:px-12">
