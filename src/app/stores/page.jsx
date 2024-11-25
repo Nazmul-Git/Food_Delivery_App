@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { FaSearch } from 'react-icons/fa' // Importing the search icon
-import CustomerHeader from '../_components/CustomerHeader'
-import Footer from '../_components/Footer'
+import { FaSearch } from 'react-icons/fa'; // Importing the search icon
+import CustomerHeader from '../_components/CustomerHeader';
+import Footer from '../_components/Footer';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Store() {
   const [locations, setLocations] = useState([]);
@@ -11,6 +13,8 @@ export default function Store() {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     loadLocations();
@@ -80,13 +84,19 @@ export default function Store() {
     setFilteredLocations([]);  // Clear suggestions after selection
   };
 
+  // Function to limit the description to the first 10 words
+  const limitDescription = (description) => {
+    if (!description) return '';
+    const words = description.split(' ');
+    const truncated = words.slice(0, 10).join(' ');
+    return truncated.length < description.length ? truncated + '...' : truncated;
+  };
+
   // Filter restaurants based on search query and selected location
   const filteredRestaurants = restaurants.filter(restaurant => {
     return (
       // Filter by restaurant name and food name
-      (
-        searchQuery ? (restaurant.restaurantName && restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase()))
-          : true)
+      (searchQuery ? (restaurant.restaurantName && restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())) : true)
     );
   });
 
@@ -105,7 +115,7 @@ export default function Store() {
             <p className="text-lg">Find the best places to eat and drink in your city</p>
           </div>
 
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center">
             {/* Location input field */}
             <div className="relative w-80">
               <input
@@ -113,11 +123,11 @@ export default function Store() {
                 placeholder="Select place"
                 value={selectedLocation}
                 onChange={handleLocationChange}
-                className="w-full px-4 py-4 text-black rounded-l-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-4 text-black shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               {/* Location suggestions dropdown */}
               {filteredLocations.length > 0 && selectedLocation && (
-                <ul className='absolute bg-white w-full max-h-40 overflow-y-auto z-10 mt-2 rounded-lg shadow-md'>
+                <ul className='absolute bg-white w-full max-h-40 overflow-y-auto z-10 mt-2 shadow-md'>
                   {
                     filteredLocations.map((location, index) => (
                       <li
@@ -140,7 +150,7 @@ export default function Store() {
                 placeholder="Enter food or restaurant name"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-4 text-black rounded-r-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-4 text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <FaSearch
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer hover:text-blue-600 font-bold text-2xl"
@@ -154,26 +164,48 @@ export default function Store() {
       {/* Display filtered restaurants */}
       <div className="p-8">
         <h3 className="text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredRestaurants.length > 0 ? (
             filteredRestaurants.map((restaurant) => (
-              <div key={restaurant._id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition duration-300">
-                <img src={restaurant.imageUrl} alt={restaurant.restaurantName} className="w-full h-40 object-cover" />
+              <div
+                key={restaurant._id}
+                onClick={() => router.push(`/stores/${restaurant.restaurantName}?id=${restaurant._id}`)}
+                className="bg-white rounded-lg shadow-lg overflow-hidden relative group cursor-pointer transition-all duration-300 transform hover:scale-105"
+              >
+                {/* Restaurant Image */}
+                <img
+                  src={restaurant.imageUrl}
+                  alt={restaurant.restaurantName}
+                  className="w-full h-40 object-cover transition-all duration-300 group-hover:opacity-70"
+                />
+
+                {/* Information section */}
                 <div className="p-4">
                   <h4 className="text-xl font-semibold">{restaurant.restaurantName}</h4>
                   <p className="text-gray-600 mt-2">{restaurant.address}</p>
                   <p className="text-gray-600 mt-2">{restaurant.restaurantType}</p>
-                  <p className="text-sm text-gray-500 mt-2">{restaurant.description}</p>
+                  <p className="text-sm text-gray-500 mt-2">{limitDescription(restaurant.description)}</p> {/* Use the truncated description */}
+                </div>
+
+                {/* Hover Effect: Blend background */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300"></div>
+
+                {/* Visit Button */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Link
+                    href={`/stores/${restaurant.restaurantName}?id=${restaurant._id}`} 
+                    className="px-6 py-2 font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-xl transform hover:scale-110 transition-all duration-300"
+                  >
+                    Visit
+                  </Link>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-500">No restaurants found</p>
+            <p className="text-center p-10 text-gray-500">No restaurants found</p>
           )}
         </div>
       </div>
-
       <Footer />
     </div>
   );
