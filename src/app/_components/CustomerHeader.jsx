@@ -4,19 +4,18 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaHome, FaInfoCircle, FaShoppingCart } from 'react-icons/fa';
-import CartModal from './CartModal'; // Import the CartModal component
+import CartModal from './CartModal'
 
 export default function CustomerHeader({ cartData }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Define isMenuOpen state
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Use useEffect to ensure we access localStorage only in the client-side
   useEffect(() => {
     const cartStorage = localStorage.getItem('cart');
     if (cartStorage) {
@@ -24,32 +23,43 @@ export default function CustomerHeader({ cartData }) {
       setCartItems(parsedCart);
       setCartCount(parsedCart.length);
     }
-  }, []); // Empty dependency array means this runs once on mount (client-side only)
+  }, []);
+
+  const initialCartDataSet = () => {
+    setCartCount(1);
+    setCartItems([cartData]);
+    localStorage.setItem('cart', JSON.stringify([cartData]));
+    return;
+  }
 
   useEffect(() => {
+    // console.log(cartData);
     if (cartData) {
-      const cartStorage = JSON.parse(localStorage.getItem('cart')) || [];
-      if (cartItems && cartItems.length > 0) {
-        if (cartItems[0].restaurantId !== cartData.restaurantId) {
-          // Remove previous cart if different restaurant
+      if (cartCount) {
+        // console.log(cartItems[0]);
+        // check if another restaurant
+        if (cartItems[0].restaurantId != cartData.restaurantId) {
           localStorage.removeItem('cart');
-          setCartCount(1);
-          setCartItems([cartData]);
-          localStorage.setItem('cart', JSON.stringify([cartData]));
+          initialCartDataSet();
         } else {
-          // Add new cart item
-          const updatedCartItems = [...cartItems, cartData];
-          setCartItems(updatedCartItems);
-          setCartCount(updatedCartItems.length);
-          localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+          let localCartItem = cartItems;
+          const itemExists = localCartItem.some(item => item._id === cartData._id);
+          if (!itemExists) {
+            // If the item doesn't exist, add it to the cart
+            const updatedCartItems = [...localCartItem, cartData];
+            setCartItems(updatedCartItems);
+            setCartCount(updatedCartItems.length);
+            localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+            alert('Item added successfully');
+          } else {
+            alert('Item is already added!');
+          }
         }
       } else {
-        setCartCount(1);
-        setCartItems([cartData]);
-        localStorage.setItem('cart', JSON.stringify([cartData]));
+        initialCartDataSet();
       }
-    }
-  }, [cartData, cartItems]); // Depend on cartData and cartItems
+    };
+  }, [cartData])
 
   return (
     <header className="bg-gradient-to-r from-black via-indigo-600 to-blue-700 shadow-lg">
@@ -94,7 +104,7 @@ export default function CustomerHeader({ cartData }) {
         {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden text-white focus:outline-none"
-          onClick={() => setIsMenuOpen(!isMenuOpen)} // Toggle the mobile menu
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle Menu"
         >
           <svg
@@ -148,6 +158,7 @@ export default function CustomerHeader({ cartData }) {
         <CartModal
           cartItems={cartItems}
           onClose={toggleModal}
+          setCartCount={setCartCount}
         />
       )}
     </header>
