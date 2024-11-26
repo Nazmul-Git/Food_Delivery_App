@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from 'react-icons/fa';
 
 export default function CartModal({ setCartCount, onClose }) {
   // Get the cart from local storage initially
@@ -85,6 +87,7 @@ export default function CartModal({ setCartCount, onClose }) {
             </ul>
           )}
         </div>
+        <Link href='/cart' className='absolute flex items-center justify-center gap-2 bottom-2 right-4 text-md underline font-semibold hover:text-blue-600  text-black '><FaArrowAltCircleRight/> Go for order <FaArrowAltCircleLeft/></Link>
       </div>
     </div>
   );

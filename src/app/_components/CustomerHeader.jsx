@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaHome, FaInfoCircle, FaShoppingCart } from 'react-icons/fa';
+import { FaHome, FaInfoCircle, FaShoppingCart, FaShoppingBag } from 'react-icons/fa';
 import CartModal from './CartModal'
 
 export default function CustomerHeader({ cartData }) {
@@ -97,7 +97,11 @@ export default function CustomerHeader({ cartData }) {
             className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
           >
             Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
-            <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {
+              cartCount ?
+                <FaShoppingBag className="w-5 h-5 mr-2 mb-6 text-orange-500" /> :
+                <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            }
           </button>
         </nav>
 
@@ -151,6 +155,11 @@ export default function CustomerHeader({ cartData }) {
         >
           <FaShoppingCart className="w-5 h-5 text-yellow-500" />
           Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
+          {
+            cartCount ?
+              <FaShoppingBag className="w-5 h-5 mr-2 mb-6 text-orange-500" /> :
+              <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          }
         </button>
       </div>
 
