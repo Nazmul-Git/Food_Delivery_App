@@ -3,38 +3,53 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaHome, FaInfoCircle, FaShoppingCart, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaInfoCircle, FaShoppingCart } from 'react-icons/fa';
+import CartModal from './CartModal'; // Import the CartModal component
 
 export default function CustomerHeader({ cartData }) {
-  const cartStorage = JSON.parse(localStorage.getItem('cart'));
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(cartStorage?.length);
-  const [cartItems, setCartItems] = useState(cartStorage);
+  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Define isMenuOpen state
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  // Use useEffect to ensure we access localStorage only in the client-side
+  useEffect(() => {
+    const cartStorage = localStorage.getItem('cart');
+    if (cartStorage) {
+      const parsedCart = JSON.parse(cartStorage);
+      setCartItems(parsedCart);
+      setCartCount(parsedCart.length);
+    }
+  }, []); // Empty dependency array means this runs once on mount (client-side only)
 
   useEffect(() => {
-    // console.log(cartData);
     if (cartData) {
-      if (cartCount) {
-        // console.log(cartItems[0]);
-        if (cartItems[0].restaurantId != cartData.restaurantId) {
+      const cartStorage = JSON.parse(localStorage.getItem('cart')) || [];
+      if (cartItems && cartItems.length > 0) {
+        if (cartItems[0].restaurantId !== cartData.restaurantId) {
+          // Remove previous cart if different restaurant
           localStorage.removeItem('cart');
           setCartCount(1);
           setCartItems([cartData]);
-          localStorage.setItem('cart', JSON.stringify({ cartData }));
+          localStorage.setItem('cart', JSON.stringify([cartData]));
         } else {
-          let localCartItem = cartItems;
-          localCartItem.push(JSON.parse(JSON.stringify(cartData)));
-          setCartItems(localCartItem);
-          setCartCount(cartCount + 1);
-          localStorage.setItem('cart', JSON.stringify(localCartItem));
+          // Add new cart item
+          const updatedCartItems = [...cartItems, cartData];
+          setCartItems(updatedCartItems);
+          setCartCount(updatedCartItems.length);
+          localStorage.setItem('cart', JSON.stringify(updatedCartItems));
         }
       } else {
         setCartCount(1);
         setCartItems([cartData]);
-        localStorage.setItem('cart', JSON.stringify({ cartData }));
+        localStorage.setItem('cart', JSON.stringify([cartData]));
       }
     }
-  }, [cartData])
+  }, [cartData, cartItems]); // Depend on cartData and cartItems
 
   return (
     <header className="bg-gradient-to-r from-black via-indigo-600 to-blue-700 shadow-lg">
@@ -67,51 +82,19 @@ export default function CustomerHeader({ cartData }) {
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
 
-          {/* {isLoggedIn && isLoggedIn.username ? (
-            <>
-              <button
-                onClick={handleLogout}
-                className="text-white font-semibold hover:text-red-700 transition flex items-center gap-2 relative group"
-              >
-                Logout
-                <FaSignOutAlt className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </button>
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
-              >
-                {isLoggedIn.email ? (
-                  <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center">
-                    {getInitials(isLoggedIn.email)}
-                  </div>
-                ) : (
-                  <FaUser className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                )}
-              </Link>
-            </>
-          ) : (
-            <Link
-              href="/customer/login"
-              className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group"
-            >
-              Login/Sign Up
-              <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
-          )} */}
-
-          <Link
-            href="/cart"
+          <button
+            onClick={toggleModal}
             className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
           >
-            Cart (<p className='text-orange-600'>{cartCount ? cartCount : 0}</p>)
+            Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
             <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </Link>
+          </button>
         </nav>
 
         {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden text-white focus:outline-none"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={() => setIsMenuOpen(!isMenuOpen)} // Toggle the mobile menu
           aria-label="Toggle Menu"
         >
           <svg
@@ -152,52 +135,21 @@ export default function CustomerHeader({ cartData }) {
           About
         </Link>
 
-        {/* {isLoggedIn && isLoggedIn.username ? (
-          <>
-            <button
-              onClick={() => {
-                setIsMenuOpen(false);
-                handleLogout();
-              }}
-              className="block w-full text-left text-lg transition flex gap-2 items-center relative group"
-            >
-              <FaSignOutAlt className="w-5 h-5 text-red-700" />
-              Logout
-            </button>
-            <Link
-              href="/profile"
-              onClick={() => setIsMenuOpen(false)}
-              className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-            >
-              {isLoggedIn.email ? (
-                <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center">
-                  {getInitials(isLoggedIn.email)}
-                </div>
-              ) : (
-                <FaUser className="w-5 h-5 text-yellow-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              )}
-              Profile
-            </Link>
-          </>
-        ) : (
-          <Link
-            href="/customer/login"
-            onClick={() => setIsMenuOpen(false)}
-            className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
-          >
-            <FaUser className="w-5 h-5 mr-2 text-yellow-300" />
-            Login/Sign Up
-          </Link>
-        )} */}
-        <Link
-          href="/cart"
-          onClick={() => setIsMenuOpen(false)}
+        <button
+          onClick={toggleModal}
           className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
         >
           <FaShoppingCart className="w-5 h-5 text-yellow-500" />
-          Cart (<p className='text-orange-600'>{cartCount ? cartCount : 0}</p>)
-        </Link>
+          Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
+        </button>
       </div>
+
+      {isModalOpen && (
+        <CartModal
+          cartItems={cartItems}
+          onClose={toggleModal}
+        />
+      )}
     </header>
   );
 }
