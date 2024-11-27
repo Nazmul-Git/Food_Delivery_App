@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { FaArrowAltCircleRight, FaArrowAltCircleLeft } from 'react-icons/fa';
+import { TiArrowForward } from "react-icons/ti";
 
 export default function CartModal({ setCartCount, onClose }) {
   // Get the cart from local storage initially
@@ -12,7 +12,7 @@ export default function CartModal({ setCartCount, onClose }) {
   // Update localStorage whenever cartItems change
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+  }, [cartItems]); 
 
   // Handle item removal from cart
   const handleRemoveItem = (itemId) => {
@@ -41,7 +41,7 @@ export default function CartModal({ setCartCount, onClose }) {
   return (
     <div
       id="modal-overlay"
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 "
     >
       <div className="bg-white p-6 sm:p-8 rounded-lg max-w-lg w-full shadow-lg relative">
         <h2 className="text-4xl text-black font-bold mb-6 text-center">Your Cart</h2>
@@ -87,7 +87,7 @@ export default function CartModal({ setCartCount, onClose }) {
             </ul>
           )}
         </div>
-        <Link href='/cart' className='absolute mt-4 flex items-center justify-center gap-2 bottom-2 right-4 text-md hover:underline font-semibold hover:text-blue-600  text-black '><FaArrowAltCircleRight/> Go for order <FaArrowAltCircleLeft/></Link>
+        <Link href='/cart' className='absolute mt-4 flex items-center justify-center gap-2 bottom-2 right-4 text-md hover:underline font-semibold hover:text-blue-600  text-blue-400 '><TiArrowForward/> View Cart and Review Order</Link>
       </div>
     </div>
   );

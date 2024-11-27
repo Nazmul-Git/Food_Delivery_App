@@ -1,10 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import CartItem from '../_components/CartItem';
+import { vatPercentage, deliveryCharge } from '../lib/constant';
+import { TiArrowBack } from "react-icons/ti";
 
 export default function ShoppingCart() {
   const [cartStorage, setCartStorage] = useState([]);
+  const router = useRouter();
 
   // Update localStorage whenever cartItems change
   useEffect(() => {
@@ -18,13 +22,13 @@ export default function ShoppingCart() {
         setCartStorage([]); // If parse fails, set to empty array
       }
     }
-  }, []); 
+  }, []);
 
   // Add quantity field if not present
   const ensureQuantity = (item) => {
     return {
       ...item,
-      quantity: item.quantity || 1 
+      quantity: item.quantity || 1
     };
   };
 
@@ -47,19 +51,14 @@ export default function ShoppingCart() {
   // Calculate total price based on quantity
   const total = cartStorage.reduce((acc, item) => {
     const price = parseFloat(item.price);
-    const quantity = item.quantity || 1; // Ensure quantity is set
+    const quantity = item.quantity || 1;
 
     // Validate that price and quantity are valid numbers
     if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
       return acc + (price * quantity);
     }
-    console.warn(`Invalid price or quantity for item with ID: ${item._id}`);
-    return acc; // If invalid, skip this item
+    return acc;
   }, 0);
-
-  // VAT and Delivery charge calculations
-  const vatPercentage = 0.10; // 10% VAT
-  const deliveryCharge = 1.0; // Fixed delivery charge (could be dynamic)
 
   // Calculate VAT (10% of subtotal) and total including VAT
   const vat = total * vatPercentage;
@@ -81,16 +80,42 @@ export default function ShoppingCart() {
     }
   }, [cartStorage]);
 
+  // Handle item removal from cart
+  const handleRemoveItem = (itemId) => {
+    const updatedCart = cartStorage.filter((item) => item._id !== itemId);
+    setCartStorage(updatedCart);
+  };
+
+  // Function to limit the description to the first 10 words
+  const limitDescription = (description) => {
+    if (!description) return '';
+    const words = description.split(' ');
+    const truncated = words.slice(0, 10).join(' ');
+    return truncated.length < description.length ? truncated + '...' : truncated;
+  };
+
+  // Handle the back button click
+  const handleBackClick = () => {
+    router.back(); // Go back to the previous page
+  };
+
   return (
     <div className="flex flex-col mt-10 lg:flex-row lg:space-x-8 p-6 lg:px-16 lg:py-10">
-      {/* tract process now on cart */}
-      <div>
-        
-      </div>
-
       {/* Cart Items Section */}
-      <div className="flex-1 bg-white rounded-lg shadow-xl p-8 space-y-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Shopping Cart</h1>
+      <div className="flex-1 bg-white rounded-lg shadow-xl p-8 space-y-6 max-h-[480px] overflow-y-auto">
+        <div className="mb-6">
+          {/* Back Button */}
+          <button
+            onClick={handleBackClick}
+            className="text-blue-600 text-lg font-semibold flex items-center space-x-2"
+          >
+            <TiArrowBack />
+            <span>Back</span>
+          </button>
+
+          {/* Shopping Cart Title */}
+          <h1 className="text-3xl font-bold text-pink-700 mt-4">Shopping Cart</h1>
+        </div>
         <div className="space-y-4">
           {cartStorage.length === 0 ? (
             <p className="text-lg text-gray-600">Your cart is empty.</p>
@@ -102,6 +127,8 @@ export default function ShoppingCart() {
                   key={itemWithQuantity._id}
                   item={itemWithQuantity}
                   updateQuantity={updateQuantity}
+                  handleRemoveItem={handleRemoveItem}
+                  limitDescription={limitDescription}
                 />
               );
             })
@@ -109,40 +136,48 @@ export default function ShoppingCart() {
         </div>
       </div>
 
-      {/* Summary Section */}
-      <div className="flex-1 max-w-md bg-white rounded-lg shadow-xl p-8 mt-8 lg:mt-0">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Order Summary</h2>
+      {/* Order Summary Section */}
+      <div className="flex-1 max-w-md bg-white rounded-lg p-8 mt-8 lg:mt-0">
+        <h2 className="text-2xl font-semibold text-pink-500 mb-6">Order Summary</h2>
         <div className="space-y-5">
+          {/* Subtotal */}
           <div className="flex justify-between">
             <span className="text-lg text-gray-700">Subtotal ({cartStorage.length} items):</span>
             <span className="text-lg font-semibold text-gray-900">${formattedTotal}</span>
           </div>
 
+          {/* VAT */}
           <div className="flex justify-between">
             <span className="text-lg text-gray-700">VAT (10%):</span>
             <span className="text-lg font-semibold text-gray-900">${formattedVat}</span>
           </div>
 
+          {/* Shipping */}
           <div className="flex justify-between">
             <span className="text-lg text-gray-700">Shipping:</span>
-            <span className="text-lg text-green-500">FREE</span>
+            <span className="text-lg text-gray-900">${deliveryCharge.toFixed(2)}</span>
           </div>
 
+          {/* Discount (if any) */}
           <div className="flex justify-between">
             <span className="text-lg text-gray-700">Discount:</span>
             <span className="text-lg text-gray-500">-</span>
           </div>
 
+          {/* Total (incl. VAT) */}
           <div className="flex justify-between text-xl font-bold text-gray-900 mt-6">
             <span>Total (incl. VAT):</span>
             <span>${formattedTotalWithVat}</span>
           </div>
 
+          {/* Final Total (incl. VAT & Delivery) */}
           <div className="flex justify-between text-xl font-bold text-gray-900 mt-6">
             <span>Final Total (incl. VAT & Delivery):</span>
             <span>${formattedFinalTotal}</span>
           </div>
         </div>
+
+        {/* Checkout Button */}
         <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
           Checkout
         </button>

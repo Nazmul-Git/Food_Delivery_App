@@ -51,7 +51,7 @@ export default function CustomerHeader({ cartData }) {
             setCartItems(updatedCartItems);
             setCartCount(updatedCartItems.length);
             localStorage.setItem('cart', JSON.stringify(updatedCartItems));
-            alert('Item added successfully');
+            alert('To add on cart say ok!');
           } else {
             alert('Item is already added!');
           }
