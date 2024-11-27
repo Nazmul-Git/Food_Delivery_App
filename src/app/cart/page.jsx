@@ -178,7 +178,7 @@ export default function ShoppingCart() {
         </div>
 
         {/* Checkout Button */}
-        <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
+        <button onClick={()=> router.push('/user')} className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
           Checkout
         </button>
       </div>
