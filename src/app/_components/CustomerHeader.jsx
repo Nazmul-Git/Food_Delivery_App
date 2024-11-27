@@ -29,6 +29,7 @@ export default function CustomerHeader({ cartData }) {
     setCartCount(1);
     setCartItems([cartData]);
     localStorage.setItem('cart', JSON.stringify([cartData]));
+    alert('Item added successfully');
     return;
   }
 
