@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState } from 'react';
 
 export default function UserSignUp(props) {
@@ -13,8 +13,11 @@ export default function UserSignUp(props) {
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
+    const searchParams = useSearchParams();
+    const redirectToOrder = searchParams?.get('order') === 'true'; 
 
     const router = useRouter();
+
 
     // Handle form field change
     const handleChange = (e) => {
@@ -92,7 +95,7 @@ export default function UserSignUp(props) {
                 const { signedUser } = response;
                 delete signedUser.password;
                 localStorage.setItem('user' , JSON.stringify({signedUser}));
-                if(props?.redirect?.order){
+                if(redirectToOrder){
                     router.push('/order');
                     alert('Sign up successfully!');
                 }else{

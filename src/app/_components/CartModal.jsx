@@ -87,7 +87,7 @@ export default function CartModal({ setCartCount, onClose }) {
             </ul>
           )}
         </div>
-        <Link href='/cart' className='absolute mt-4 flex items-center justify-center gap-2 bottom-2 right-4 text-md hover:underline font-semibold hover:text-blue-600  text-blue-400 '><TiArrowForward/> View Cart and checkout</Link>
+        <Link href='/cart' className='absolute mt-4 flex items-center justify-center gap-2 bottom-2 right-4 text-md hover:underline font-semibold hover:text-blue-600  text-blue-400 '><TiArrowForward/> View Cart</Link>
       </div>
     </div>
   );

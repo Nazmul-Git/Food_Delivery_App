@@ -1,41 +1,34 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons for password visibility toggle
+import React, { useState, useEffect } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 export default function UserLogin(props) {
+    const searchParams = useSearchParams();
+    const redirectToOrder = searchParams?.get('order') === 'true'; 
+    
     // Separate state for email and password
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
     const [error, setError] = useState('');
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false); // State to toggle password visibility
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false); 
     const [loading, setLoading] = useState(false);
-
     const router = useRouter();
 
     // Handle form field change
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        if (name === 'email') {
-            setEmail(value);
-        } else if (name === 'password') {
-            setPassword(value);
-        }
+        if (name === 'email') setEmail(value);
+        if (name === 'password') setPassword(value);
     };
 
-    // Toggle password visibility
-    const togglePasswordVisibility = () => {
-        setIsPasswordVisible(!isPasswordVisible);
-    };
+    const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Simple validation
         if (!email || !password) {
             setError('Please enter both email and password');
             return;
@@ -55,38 +48,32 @@ export default function UserLogin(props) {
 
             response = await response.json();
 
-            if (response.success) {  // Check if response is okay
-                if (response.success) {
-                    // Handle successful login
-                    const { loggedUser } = response;
-                    delete loggedUser.password;
-                    localStorage.setItem('user', JSON.stringify(loggedUser));
-                    if(props?.redirect?.order){
-                        router.push('/order');
-                        alert('Logged in successfully!');
-                    }else{
-                        router.push('/');
-                        alert('Log in failed!');
-                    }
+            if (response.success) {
+                const { loggedUser } = response;
+                delete loggedUser.password;
+                localStorage.setItem('user', JSON.stringify(loggedUser));
+                
+                if (redirectToOrder) {
+                    router.push('/order');
+                    alert('Logged in successfully!');
                 } else {
-                    setError(response.message || 'Login failed. Please try again.');
+                    router.push('/stores');
+                    alert('Login successful!');
                 }
             } else {
-                setError('Server error occurred. Please try again later.');
+                setError(response.message || 'Login failed. Please try again.');
             }
         } catch (error) {
-            console.error('Login Error:', error);  // Log the error
+            console.error('Login Error:', error);  
             setError('An error occurred. Please try again later.');
         } finally {
             setLoading(false);
         }
-
     };
 
     return (
         <>
             <form onSubmit={handleSubmit}>
-                {/* Email */}
                 <div className="mb-4">
                     <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email</label>
                     <input
@@ -101,7 +88,6 @@ export default function UserLogin(props) {
                     />
                 </div>
 
-                {/* Password */}
                 <div className="mb-6">
                     <label htmlFor="password" className="block text-lg font-medium text-gray-700">Password</label>
                     <div className="relative">
@@ -125,25 +111,12 @@ export default function UserLogin(props) {
                     </div>
                 </div>
 
-                {/* Error Message */}
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-                {/* Remember Me */}
-                <div className="flex items-center mb-4">
-                    <input
-                        type="checkbox"
-                        id="rememberMe"
-                        name="rememberMe"
-                        className="h-4 w-4 text-pink-600 focus:ring-2 focus:ring-pink-600"
-                    />
-                    <label htmlFor="rememberMe" className="ml-2 text-lg text-gray-700">Remember Me</label>
-                </div>
-
-                {/* Submit Button */}
                 <button
                     type="submit"
                     className="w-full bg-pink-600 text-white py-3 rounded-lg mt-4 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
-                    disabled={loading} // Disable the button during loading
+                    disabled={loading} 
                 >
                     {loading ? 'Logging in...' : 'Login'}
                 </button>

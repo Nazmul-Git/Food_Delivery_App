@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "bcryptjs": "^2.4.3",
     "mongoose": "^8.8.3",
     "next": "15.0.3",

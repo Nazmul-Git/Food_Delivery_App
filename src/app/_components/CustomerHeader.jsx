@@ -14,7 +14,7 @@ export default function CustomerHeader({ cartData }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter(); // Initialize useRouter to navigate
+  const router = useRouter();
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);

@@ -112,7 +112,7 @@ export default function Order() {
 
     if (loading) return <Loading />
 
-    console.log(cartStorage);
+    // console.log(cartStorage);
     return (
         <div className="flex flex-col mt-10 lg:flex-row lg:space-x-8 p-6 lg:px-16 lg:py-10">
             {/* Cart Items Section */}

@@ -9,28 +9,35 @@ import Loading from '../loading';
 
 export default function Cart() {
   const [cartStorage, setCartStorage] = useState([]);
-  const [userStorage, setUserStorage] = useState();
-  const [loading, setLoading] = useState(false);
+  const [userStorage, setUserStorage] = useState(null);
+  const [loading, setLoading] = useState(true);  // Set loading initially to true
   const router = useRouter();
 
   // Check if the component is mounted on the client side
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setLoading(true);
-      // Load data from localStorage only on the client side
+      // Simulate async loading
       const cartData = localStorage.getItem('cart');
       const userData = localStorage.getItem('user');
-      
+
+      // Load data from localStorage only on the client side
       if (cartData) {
         setCartStorage(JSON.parse(cartData));
       }
-      
       if (userData) {
         setUserStorage(JSON.parse(userData));
       }
-      setLoading(false);
+      
+      setLoading(false);  // Set loading to false after data is fetched
     }
   }, []);  // Empty dependency array to run only once on mount
+
+  // Store cart items in localStorage whenever cartStorage changes
+  useEffect(() => {
+    if (cartStorage.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(cartStorage));
+    }
+  }, [cartStorage]);
 
   // Add quantity field if not present
   const ensureQuantity = (item) => ({
@@ -40,24 +47,27 @@ export default function Cart() {
 
   // Update quantity for an item and persist changes in localStorage
   const updateQuantity = (id, action) => {
+    console.log("Updating quantity for id:", id, "action:", action);  // Debugging the click event
+    
     setCartStorage((prevCartStorage) => {
+      // Create a new array and update the item based on its _id
       const updatedCart = prevCartStorage.map((item) => {
         if (item._id === id) {
-          const updatedItem = { ...item };
+          const updatedItem = { ...item };  // Create a new item object
           if (action === 'increase') {
             updatedItem.quantity += 1;
           } else if (action === 'decrease' && updatedItem.quantity > 1) {
             updatedItem.quantity -= 1;
           }
-          return updatedItem; 
+          return updatedItem;
         }
-        return item; 
+        return item;  // No change for other items
       });
 
       // Persist updated cart in localStorage
       localStorage.setItem('cart', JSON.stringify(updatedCart));
 
-      return updatedCart; 
+      return updatedCart;  // Update the state with the new cart
     });
   };
 
@@ -87,18 +97,11 @@ export default function Cart() {
   const formattedTotalWithVat = totalWithVat ? parseFloat(totalWithVat.toFixed(2)) : 0;
   const formattedFinalTotal = finalTotal ? parseFloat(finalTotal.toFixed(2)) : 0;
 
-  // Store cart items in localStorage whenever cartStorage changes
-  useEffect(() => {
-    if (cartStorage.length > 0) {
-      localStorage.setItem('cart', JSON.stringify(cartStorage));
-    }
-  }, [cartStorage]);
-
   // Handle item removal from cart
   const handleRemoveItem = (itemId) => {
     const updatedCart = cartStorage.filter((item) => item._id !== itemId);
     setCartStorage(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));  // Persist in localStorage
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
   // Function to limit the description to the first 10 words
@@ -111,19 +114,19 @@ export default function Cart() {
 
   // Handle the back button click
   const handleBackClick = () => {
-    router.push('/stores'); 
+    router.push('/stores');
   };
 
-  const orderNow =()=>{
-    if(userStorage && cartStorage.length){
+  const orderNow = () => {
+    if (userStorage && cartStorage.length) {
       router.push('/order');
-    }else{
+    } else {
       router.push('/user?order=true');
     }
-  }
+  };
 
   if (loading) {
-    return <Loading />;
+    return <Loading />;  // Display loading spinner while data is loading
   }
 
   return (
@@ -145,8 +148,8 @@ export default function Cart() {
         </div>
         <div className="space-y-4">
           {cartStorage.length === 0 ? (
-            <div className=' flex flex-col items-center justify-center gap-4'>
-              <p className="text-lg text-gray-600 ">Your cart is empty.</p>
+            <div className='flex flex-col items-center justify-center gap-4'>
+              <p className="text-lg text-gray-600">Your cart is empty.</p>
               <button onClick={() => router.push('/stores')} className='px-3 py-2 rounded-md bg-orange-600 text-white font-semibold'>Shop Now</button>
             </div>
           ) : (
@@ -208,8 +211,8 @@ export default function Cart() {
         </div>
 
         {/* Checkout Button */}
-        <button onClick={orderNow} 
-        className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
+        <button onClick={orderNow}
+          className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
           Proceed to Checkout
         </button>
       </div>
