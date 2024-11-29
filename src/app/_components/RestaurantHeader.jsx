@@ -57,7 +57,7 @@ export default function RestaurantHeader() {
           <Link href="/" className="flex flex-col justify-start items-center cursor-pointer">
             <div className="h-14 w-14 mr-2 rounded-full border border-white overflow-hidden">
               <Image
-                src="/images/dBoy.jpeg"
+                src="/images/delevery_logo.jpg"
                 alt="RestaurantApp Logo"
                 width={56}
                 height={56}

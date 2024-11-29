@@ -82,7 +82,7 @@ export default function CustomerHeader({ cartData }) {
     setCartItems([]);
 
     // Optionally, navigate to the login page or homepage
-    router.push('/login'); // Redirect user to the login page
+    router.push('/user'); // Redirect user to the login page
   };
 
   return (
@@ -93,10 +93,10 @@ export default function CustomerHeader({ cartData }) {
           <Link href="/" className="flex flex-col justify-start items-center cursor-pointer">
             <div className="h-14 w-14 mr-2 rounded-full border border-white overflow-hidden">
               <Image
-                src="/images/dBoy.jpeg"
+                src="/images/delevery_logo.jpg"
                 alt="CustomerApp Logo"
-                width={56}
-                height={56}
+                width={76}
+                height={76}
                 className="object-cover"
                 priority
               />

@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons for password visibility toggle
 
-export default function UserLogin() {
+export default function UserLogin(props) {
     // Separate state for email and password
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    
+
     const [error, setError] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false); // State to toggle password visibility
     const [loading, setLoading] = useState(false);
@@ -45,24 +45,29 @@ export default function UserLogin() {
         setLoading(true);
 
         try {
-            let response = await fetch('http://localhost:3000/api/user/login', { 
+            let response = await fetch('http://localhost:3000/api/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, password }),
             });
-        
+
             response = await response.json();
-        
+
             if (response.success) {  // Check if response is okay
                 if (response.success) {
                     // Handle successful login
                     const { loggedUser } = response;
                     delete loggedUser.password;
                     localStorage.setItem('user', JSON.stringify(loggedUser));
-                    router.push('/stores');
-                    alert('Logged in successfully!');
+                    if(props?.redirect?.order){
+                        router.push('/order');
+                        alert('Logged in successfully!');
+                    }else{
+                        router.push('/');
+                        alert('Log in failed!');
+                    }
                 } else {
                     setError(response.message || 'Login failed. Please try again.');
                 }
@@ -75,7 +80,7 @@ export default function UserLogin() {
         } finally {
             setLoading(false);
         }
-        
+
     };
 
     return (

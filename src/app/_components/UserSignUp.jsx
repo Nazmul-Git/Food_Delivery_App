@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-export default function UserSignUp() {
+export default function UserSignUp(props) {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -92,7 +92,13 @@ export default function UserSignUp() {
                 const { signedUser } = response;
                 delete signedUser.password;
                 localStorage.setItem('user' , JSON.stringify({signedUser}));
-                router.push('/stores');
+                if(props?.redirect?.order){
+                    router.push('/order');
+                    alert('Sign up successfully!');
+                }else{
+                    router.push('/');
+                    alert('Sign up failed!');
+                }
                 setMessage(response.message || 'User registered successfully');
                 // Clear the form fields after successful registration
                 setFullName('');

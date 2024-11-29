@@ -1,64 +1,78 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CartItem from '../_components/CartItem';
 import { vatPercentage, deliveryCharge } from '../lib/constant';
 import { TiArrowBack } from "react-icons/ti";
+import Loading from '../loading';
 
-export default function ShoppingCart() {
+export default function Cart() {
   const [cartStorage, setCartStorage] = useState([]);
+  const [userStorage, setUserStorage] = useState();
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Update localStorage whenever cartItems change
+  // Check if the component is mounted on the client side
   useEffect(() => {
-    const cartData = localStorage.getItem('cart');
-    if (cartData) {
-      try {
-        const parsedCart = JSON.parse(cartData);
-        setCartStorage(parsedCart);
-      } catch (error) {
-        console.error('Failed to parse cart from localStorage', error);
-        setCartStorage([]); // If parse fails, set to empty array
+    if (typeof window !== "undefined") {
+      setLoading(true);
+      // Load data from localStorage only on the client side
+      const cartData = localStorage.getItem('cart');
+      const userData = localStorage.getItem('user');
+      
+      if (cartData) {
+        setCartStorage(JSON.parse(cartData));
       }
+      
+      if (userData) {
+        setUserStorage(JSON.parse(userData));
+      }
+      setLoading(false);
     }
-  }, []);
+  }, []);  // Empty dependency array to run only once on mount
 
   // Add quantity field if not present
-  const ensureQuantity = (item) => {
-    return {
-      ...item,
-      quantity: item.quantity || 1
-    };
-  };
+  const ensureQuantity = (item) => ({
+    ...item,
+    quantity: item.quantity || 1,
+  });
 
-  // Update quantity for an item
+  // Update quantity for an item and persist changes in localStorage
   const updateQuantity = (id, action) => {
-    const updatedCart = cartStorage.map(item => {
-      if (item._id === id) {
-        // Adjust the quantity
-        if (action === 'increase') {
-          item.quantity += 1;
-        } else if (action === 'decrease' && item.quantity > 1) {
-          item.quantity -= 1;
+    setCartStorage((prevCartStorage) => {
+      const updatedCart = prevCartStorage.map((item) => {
+        if (item._id === id) {
+          const updatedItem = { ...item };
+          if (action === 'increase') {
+            updatedItem.quantity += 1;
+          } else if (action === 'decrease' && updatedItem.quantity > 1) {
+            updatedItem.quantity -= 1;
+          }
+          return updatedItem; 
         }
-      }
-      return item;
+        return item; 
+      });
+
+      // Persist updated cart in localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+
+      return updatedCart; 
     });
-    setCartStorage(updatedCart);
   };
 
   // Calculate total price based on quantity
-  const total = cartStorage.reduce((acc, item) => {
-    const price = parseFloat(item.price);
-    const quantity = item.quantity || 1;
+  const total = useMemo(() => {
+    return cartStorage.reduce((acc, item) => {
+      const price = parseFloat(item.price);
+      const quantity = item.quantity || 1;
 
-    // Validate that price and quantity are valid numbers
-    if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
-      return acc + (price * quantity);
-    }
-    return acc;
-  }, 0);
+      if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
+        return acc + (price * quantity);
+      }
+      return acc;
+    }, 0);
+  }, [cartStorage]);
 
   // Calculate VAT (10% of subtotal) and total including VAT
   const vat = total * vatPercentage;
@@ -84,6 +98,7 @@ export default function ShoppingCart() {
   const handleRemoveItem = (itemId) => {
     const updatedCart = cartStorage.filter((item) => item._id !== itemId);
     setCartStorage(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));  // Persist in localStorage
   };
 
   // Function to limit the description to the first 10 words
@@ -96,8 +111,20 @@ export default function ShoppingCart() {
 
   // Handle the back button click
   const handleBackClick = () => {
-    router.back(); // Go back to the previous page
+    router.push('/stores'); 
   };
+
+  const orderNow =()=>{
+    if(userStorage && cartStorage.length){
+      router.push('/order');
+    }else{
+      router.push('/user?order=true');
+    }
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="flex flex-col mt-10 lg:flex-row lg:space-x-8 p-6 lg:px-16 lg:py-10">
@@ -118,10 +145,13 @@ export default function ShoppingCart() {
         </div>
         <div className="space-y-4">
           {cartStorage.length === 0 ? (
-            <p className="text-lg text-gray-600">Your cart is empty.</p>
+            <div className=' flex flex-col items-center justify-center gap-4'>
+              <p className="text-lg text-gray-600 ">Your cart is empty.</p>
+              <button onClick={() => router.push('/stores')} className='px-3 py-2 rounded-md bg-orange-600 text-white font-semibold'>Shop Now</button>
+            </div>
           ) : (
             cartStorage.map((item) => {
-              const itemWithQuantity = ensureQuantity(item); // Ensure item has a quantity field
+              const itemWithQuantity = ensureQuantity(item);
               return (
                 <CartItem
                   key={itemWithQuantity._id}
@@ -178,8 +208,9 @@ export default function ShoppingCart() {
         </div>
 
         {/* Checkout Button */}
-        <button onClick={()=> router.push('/user')} className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
-          Checkout
+        <button onClick={orderNow} 
+        className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
+          Proceed to Checkout
         </button>
       </div>
     </div>

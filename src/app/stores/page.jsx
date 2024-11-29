@@ -7,6 +7,7 @@ import Footer from '../_components/Footer';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ScrollToTop from '../_components/ScrollToTop';
+import Loading from '../loading';
 
 export default function Store() {
   const [locations, setLocations] = useState([]);
@@ -14,6 +15,7 @@ export default function Store() {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -52,11 +54,13 @@ export default function Store() {
       url += `restaurant=${encodeURIComponent(searchQuery)}&`;
     }
 
+    setLoading(true);
     try {
       let response = await fetch(url);
       response = await response.json();
       if (response.success) {
         setRestaurants(response.result);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching restaurants:", error);
@@ -100,6 +104,10 @@ export default function Store() {
       (searchQuery ? (restaurant.restaurantName && restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())) : true)
     );
   });
+
+  if(loading){
+    return <Loading/>
+  }
 
   return (
     <div>

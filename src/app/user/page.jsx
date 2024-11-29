@@ -7,9 +7,10 @@ import UserLogin from "../_components/UserLogin";
 import UserSignUp from "../_components/UserSignUp";
 
 
-const userAuth = () => {
+const userAuth = async (props) => {
     const [login, setLogin] = useState(true);
-
+    const queryParams = await props.searchParams;
+    
     return (
         <>
             <CustomerHeader />
@@ -24,9 +25,9 @@ const userAuth = () => {
                     }
                     {
                         login ?
-                            <UserLogin />
+                            <UserLogin redirect={queryParams} />
                             :
-                            <UserSignUp />
+                            <UserSignUp redirect={queryParams} />
 
                     }
                     <div onClick={() => setLogin(!login)}>
