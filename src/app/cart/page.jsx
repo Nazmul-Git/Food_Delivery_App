@@ -135,7 +135,7 @@ export default function Cart() {
           {/* Back Button */}
           <button
             onClick={handleBackClick}
-            className="text-blue-600 text-lg font-semibold flex items-center space-x-2"
+            className="text-indigo-600 text-lg font-semibold flex items-center space-x-2 hover:text-indigo-800 transition-all duration-200 transform hover:scale-105"
           >
             <TiArrowBack />
             <span>Back</span>

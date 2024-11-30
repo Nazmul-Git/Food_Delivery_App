@@ -26,20 +26,22 @@ export default function Order() {
     useEffect(() => {
         if (typeof window !== "undefined") {
             setLoading(true);
-            // Load data from localStorage only on the client side
             const cartData = localStorage.getItem('cart');
             const userData = localStorage.getItem('user');
-
+    
             if (cartData) {
                 setCartStorage(JSON.parse(cartData));
+            } else {
+                setCartStorage([]);  
             }
-
+    
             if (userData) {
                 setUserStorage(JSON.parse(userData));
             }
             setLoading(false);
         }
     }, []);
+    
 
     // Handle payment method selection
     const handlePaymentMethodChange = (method) => {
@@ -72,7 +74,6 @@ export default function Order() {
         if (selectedPaymentMethod === 'bank' && !validateBankPayment()) {
             return;
         }
-        alert('Payment successful!');
     };
 
 
@@ -111,11 +112,22 @@ export default function Order() {
     };
 
     const confirmOrder = async () => {
+        if (!selectedPaymentMethod) {
+            alert('Please select a payment method.');
+            return;
+        }
+    
+        // Check if cartStorage is valid and not empty
+        if (!cartStorage || cartStorage.length === 0) {
+            alert('Your cart is empty.');
+            return;
+        }
+    
         let user_Id = JSON.parse(localStorage.getItem('user'))._id;
-        let cart = JSON.parse(localStorage.getItem('cart'));
-        let foodItemId = cart.map((item) => item._id).toString();
-        let restaurantId = cart[0].restaurantId;
+        let foodItemId = cartStorage.map((item) => item._id).toString(); 
+        let restaurantId = cartStorage[0].restaurantId;
         let delivery_Id = '6742e28005e7d9d258b57779';
+    
         let orderDetails = {
             user_Id,
             foodItemId,
@@ -123,26 +135,40 @@ export default function Order() {
             delivery_Id,
             status: 'confirm',
             amount: formattedFinalTotal,
-        }
+            paymentMethod: selectedPaymentMethod,
+        };
+    
         console.log(orderDetails);
-        let response = await fetch('http://localhost:3000/api/order', {
-            method: 'POST',
-            body: JSON.stringify(orderDetails)
-        })
-        response = await response.json();
-
-        if (response.success) {
-            const profile = {
-                ...orderDetails,
-                paymentMethod: selectedPaymentMethod
+    
+        try {
+            let response = await fetch('http://localhost:3000/api/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderDetails),
+            });
+    
+            response = await response.json();
+    
+            if (response.success) {
+                const profile = { ...orderDetails };
+                localStorage.setItem('profile', JSON.stringify(profile));
+                if(!cartStorage.length){
+                    alert('Already confirmed your order!..Go to shop!..');
+                    router.push('/stores');
+                }
+                alert('Order Confirmed Successfully');
+                router.push('/your-profile');
+            } else {
+                alert('Order Failed!');
             }
-            localStorage.setItem('profile', JSON.stringify(profile));
-            alert('Order Confirmed Successfully');
-        } else {
-            alert('Order Failed!');
+        } catch (error) {
+            alert('Something went wrong. Please try again later.');
         }
+    };
+    
 
-    }
 
     if (loading) return <Loading />
 
@@ -156,7 +182,7 @@ export default function Order() {
                     <button
                         type="button"
                         onClick={handleBackClick}
-                        className="text-blue-600 text-lg font-semibold flex items-center space-x-2"
+                        className="text-indigo-600 text-lg font-semibold flex items-center space-x-2 hover:text-indigo-800 transition-all duration-200 transform hover:scale-105"
                     >
                         <TiArrowBack />
                         <span>Back</span>
@@ -284,13 +310,13 @@ export default function Order() {
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => handlePaymentMethodChange('rocket')}
-                                            className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'rocket' ? 'bg-gradient-to-r from-purple-700 to-blue-400 text-white' : 'bg-gray-100'}`}
+                                            onClick={() => handlePaymentMethodChange('paypal')}
+                                            className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'paypal' ? 'bg-gradient-to-r from-purple-700 to-blue-400 text-white' : 'bg-gray-100'}`}
                                         >
                                             PayPal Payment
                                         </button>
                                     </div>
-                                    <IoMdRadioButtonOn className={`text-xl ${selectedPaymentMethod === 'rocket' ? 'text-pink-600' : 'text-gray-400'}`} />
+                                    <IoMdRadioButtonOn className={`text-xl ${selectedPaymentMethod === 'paypal' ? 'text-pink-600' : 'text-gray-400'}`} />
                                 </div>
                                 <div className='w-2/4 py-2'>
                                     <h1 className="text-xl font-semibold text-pink-500 mt-8 py-2">Cash on Delivery</h1>

@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { TiArrowBack } from 'react-icons/ti';
-import { FaDollarSign, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaDollarSign, FaCheckCircle, FaTimesCircle, FaHome } from 'react-icons/fa';
 import Loading from '../loading'; // Assuming a loading component
+import ScrollToTop from '../_components/ScrollToTop';
+import { useRouter } from 'next/navigation';
 
 const Profile = () => {
   const [orders, setOrders] = useState([]);
@@ -12,6 +14,7 @@ const Profile = () => {
   const [user, setUser] = useState({});
   const [userStorage, setUserStorage] = useState({});
   const [userEmail, setUserEmail] = useState('');
+  const router = useRouter();
 
   // Helper function to format dates
   const formatDate = (dateString) => {
@@ -47,11 +50,11 @@ const Profile = () => {
     fetchOrders();
   }, []);
 
-   // Helper function to get the first letter of the email
-   const getInitialsFromEmail = (email) => {
+  // Helper function to get the first letter of the email
+  const getInitialsFromEmail = (email) => {
     if (email) {
-      const namePart = email.split('@')[0]; 
-      return namePart.charAt(0).toUpperCase(); 
+      const namePart = email.split('@')[0];
+      return namePart.charAt(0).toUpperCase();
     }
     return '?';
   };
@@ -65,17 +68,22 @@ const Profile = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col space-y-8 p-6 lg:px-16 lg:py-10">
-      <button
-        onClick={handleBackClick}
-        className="text-indigo-600 text-lg font-semibold flex items-center space-x-2 hover:text-indigo-800 transition-all duration-200 transform hover:scale-105"
-      >
-        <TiArrowBack size={24} />
-        <span>Back</span>
-      </button>
+      <div className='flex justify-between items-center'>
+        <button
+          onClick={handleBackClick}
+          className="text-indigo-600 text-lg font-semibold flex items-center space-x-2 hover:text-indigo-800 transition-all duration-200 transform hover:scale-105"
+        >
+          <TiArrowBack size={24} />
+          <span>Back</span>
+        </button>
+        <button onClick={()=> router.push('/')}>
+          <FaHome className='text-3xl text-blue-600 hover:text-green-600 cursor-pointer' />
+        </button>
+      </div>
 
       {/* User Profile Section */}
       <div className="p-8 rounded-3xl  space-y-6">
-        
+
 
         {/* User Info */}
         <div className="flex items-center space-x-6 border-b border-gray-200 pb-6">
@@ -92,6 +100,7 @@ const Profile = () => {
         </div>
       </div>
 
+      <ScrollToTop />
       {/* Orders Section */}
       <div className=" p-8 rounded-3xl shadow-xl space-y-6">
         <h1 className="text-4xl font-bold text-purple-600">Order History</h1>
@@ -129,7 +138,7 @@ const Profile = () => {
               <div className="mt-4 flex justify-between items-center">
                 <div>
                   <h3 className="text-xl font-semibold text-purple-500">Payment Method</h3>
-                  <p className="text-lg text-gray-700">{user.paymentMethod}</p>
+                  <p className="text-lg text-gray-700">{order.paymentMethod}</p>
                 </div>
                 <p className="text-lg text-blue-700"><strong>Date:</strong> <span className="font-semibold text-purple-600">{formatDate(order.createdAt)}</span></p>
               </div>
