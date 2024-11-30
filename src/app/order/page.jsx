@@ -110,6 +110,35 @@ export default function Order() {
         router.push('/cart');
     };
 
+    const confirmOrder= async ()=>{
+        let user_Id = JSON.parse(localStorage.getItem('user'))._id;
+        let cart = JSON.parse(localStorage.getItem('cart'));
+        let foodItemId = cart.map((item)=>item._id).toString();
+        let restaurantId = cart[0].restaurantId;
+        let delivery_Id = '6742e28005e7d9d258b57779';
+        let orderDetails = {
+            user_Id,
+            foodItemId,
+            restaurantId,
+            delivery_Id,
+            status: 'confirm',
+            amount: formattedFinalTotal,
+        }
+        console.log(orderDetails);
+        let response = await fetch('http://localhost:3000/api/order',{
+            method : 'POST',
+            body : JSON.stringify(orderDetails) 
+        })
+        response = await response.json();
+
+        if(response.success){
+            alert('Order Confirmed Successfully');
+        }else{
+            alert('Order Failed!');
+        }
+
+    }
+
     if (loading) return <Loading />
 
     // console.log(cartStorage);
@@ -304,7 +333,7 @@ export default function Order() {
                             )}
 
                             {/* Submit Button */}
-                            <button type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md mt-6">
+                            <button onClick={confirmOrder} type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md mt-6">
                                 Confirm your Order
                             </button>
                         </div>
