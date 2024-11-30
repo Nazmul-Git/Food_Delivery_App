@@ -110,10 +110,10 @@ export default function Order() {
         router.push('/cart');
     };
 
-    const confirmOrder= async ()=>{
+    const confirmOrder = async () => {
         let user_Id = JSON.parse(localStorage.getItem('user'))._id;
         let cart = JSON.parse(localStorage.getItem('cart'));
-        let foodItemId = cart.map((item)=>item._id).toString();
+        let foodItemId = cart.map((item) => item._id).toString();
         let restaurantId = cart[0].restaurantId;
         let delivery_Id = '6742e28005e7d9d258b57779';
         let orderDetails = {
@@ -125,15 +125,20 @@ export default function Order() {
             amount: formattedFinalTotal,
         }
         console.log(orderDetails);
-        let response = await fetch('http://localhost:3000/api/order',{
-            method : 'POST',
-            body : JSON.stringify(orderDetails) 
+        let response = await fetch('http://localhost:3000/api/order', {
+            method: 'POST',
+            body: JSON.stringify(orderDetails)
         })
         response = await response.json();
 
-        if(response.success){
+        if (response.success) {
+            const profile = {
+                ...orderDetails,
+                paymentMethod: selectedPaymentMethod
+            }
+            localStorage.setItem('profile', JSON.stringify(profile));
             alert('Order Confirmed Successfully');
-        }else{
+        } else {
             alert('Order Failed!');
         }
 

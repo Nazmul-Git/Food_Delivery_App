@@ -8,52 +8,55 @@ import { TiArrowBack } from "react-icons/ti";
 import Loading from '../loading';
 
 export default function Cart() {
-  const [cartStorage, setCartStorage] = useState([]);
-  const [userStorage, setUserStorage] = useState(null);
-  const [loading, setLoading] = useState(true);  // Set loading initially to true
+  const [cartStorage, setCartStorage] = useState(() => {
+    // Initialize cart state from localStorage (if available)
+    const storedCart = localStorage.getItem('cart');
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
+  const [userStorage, setUserStorage] = useState(() => {
+    // Initialize user state from localStorage (if available)
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Check if the component is mounted on the client side
+  // Re-sync cartStorage with localStorage when it changes
+  useEffect(() => {
+    if (cartStorage.length > 0) {
+      localStorage.setItem('cart', JSON.stringify(cartStorage));
+    }
+  }, [cartStorage]); 
+
+  // Re-fetch cart data from localStorage after hot reload or re-mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Simulate async loading
       const cartData = localStorage.getItem('cart');
       const userData = localStorage.getItem('user');
 
-      // Load data from localStorage only on the client side
       if (cartData) {
         setCartStorage(JSON.parse(cartData));
       }
       if (userData) {
         setUserStorage(JSON.parse(userData));
       }
-      
-      setLoading(false);  // Set loading to false after data is fetched
-    }
-  }, []);  // Empty dependency array to run only once on mount
 
-  // Store cart items in localStorage whenever cartStorage changes
-  useEffect(() => {
-    if (cartStorage.length > 0) {
-      localStorage.setItem('cart', JSON.stringify(cartStorage));
+      setLoading(false);
     }
-  }, [cartStorage]);
+  }, []); 
 
-  // Add quantity field if not present
+  // Ensure each cart item has a quantity field
   const ensureQuantity = (item) => ({
     ...item,
     quantity: item.quantity || 1,
   });
 
-  // Update quantity for an item and persist changes in localStorage
+  // Update item quantity and persist to localStorage
   const updateQuantity = (id, action) => {
-    console.log("Updating quantity for id:", id, "action:", action);  // Debugging the click event
-    
     setCartStorage((prevCartStorage) => {
-      // Create a new array and update the item based on its _id
       const updatedCart = prevCartStorage.map((item) => {
         if (item._id === id) {
-          const updatedItem = { ...item };  // Create a new item object
+          const updatedItem = { ...item };
           if (action === 'increase') {
             updatedItem.quantity += 1;
           } else if (action === 'decrease' && updatedItem.quantity > 1) {
@@ -61,17 +64,15 @@ export default function Cart() {
           }
           return updatedItem;
         }
-        return item;  // No change for other items
+        return item;
       });
 
-      // Persist updated cart in localStorage
       localStorage.setItem('cart', JSON.stringify(updatedCart));
-
-      return updatedCart;  // Update the state with the new cart
+      return updatedCart; 
     });
   };
 
-  // Calculate total price based on quantity
+  // Calculate totals
   const total = useMemo(() => {
     return cartStorage.reduce((acc, item) => {
       const price = parseFloat(item.price);
@@ -84,27 +85,23 @@ export default function Cart() {
     }, 0);
   }, [cartStorage]);
 
-  // Calculate VAT (10% of subtotal) and total including VAT
   const vat = total * vatPercentage;
   const totalWithVat = total + vat;
-
-  // Final total including delivery charge and VAT
   const finalTotal = totalWithVat + deliveryCharge;
 
-  // Format all totals to 2 decimal places
   const formattedTotal = total ? parseFloat(total.toFixed(2)) : 0;
   const formattedVat = vat ? parseFloat(vat.toFixed(2)) : 0;
   const formattedTotalWithVat = totalWithVat ? parseFloat(totalWithVat.toFixed(2)) : 0;
   const formattedFinalTotal = finalTotal ? parseFloat(finalTotal.toFixed(2)) : 0;
 
-  // Handle item removal from cart
+  // Handle item removal
   const handleRemoveItem = (itemId) => {
     const updatedCart = cartStorage.filter((item) => item._id !== itemId);
     setCartStorage(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  // Function to limit the description to the first 10 words
+  // Limit description to first 10 words
   const limitDescription = (description) => {
     if (!description) return '';
     const words = description.split(' ');
@@ -112,11 +109,12 @@ export default function Cart() {
     return truncated.length < description.length ? truncated + '...' : truncated;
   };
 
-  // Handle the back button click
+  // Navigate back to stores page
   const handleBackClick = () => {
     router.push('/stores');
   };
 
+  // Proceed to checkout
   const orderNow = () => {
     if (userStorage && cartStorage.length) {
       router.push('/order');
@@ -126,7 +124,7 @@ export default function Cart() {
   };
 
   if (loading) {
-    return <Loading />;  // Display loading spinner while data is loading
+    return <Loading />;
   }
 
   return (

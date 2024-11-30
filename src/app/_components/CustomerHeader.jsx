@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { FaHome, FaInfoCircle, FaShoppingCart, FaShoppingBag, FaUserCircle } from 'react-icons/fa';
 import { TbUserQuestion } from "react-icons/tb";
 import CartModal from './CartModal';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 export default function CustomerHeader({ cartData }) {
   const [user, setUser] = useState(null);
@@ -14,17 +14,18 @@ export default function CustomerHeader({ cartData }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmOrder, setConfirmOrder] = useState(null); 
   const router = useRouter();
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  // Ensure that code runs only on the client side
+  // This effect will handle clearing the cart when the order is confirmed
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const userStorage = JSON.parse(localStorage.getItem('user'));
-      setUser(userStorage); // Will set null if no user is found
+      const profile = JSON.parse(localStorage.getItem('profile'));
+      const isOrderConfirm = profile?.status;
+      
+      setConfirmOrder(isOrderConfirm);
+      setUser(userStorage);
 
       const cartStorage = localStorage.getItem('cart');
       if (cartStorage) {
@@ -32,36 +33,42 @@ export default function CustomerHeader({ cartData }) {
         setCartItems(parsedCart);
         setCartCount(parsedCart.length);
       }
-    }
-  }, []);
 
+      if (isOrderConfirm === 'confirm') {
+        // Clear cart and reset count when order is confirmed
+        localStorage.removeItem('cart');
+        setCartItems([]);
+        setCartCount(0);
+      }
+    }
+  }, [confirmOrder]); 
+
+  // Initial cart item addition
   const initialCartDataSet = () => {
     setCartCount(1);
     setCartItems([cartData]);
     localStorage.setItem('cart', JSON.stringify([cartData]));
     alert('Item added successfully');
-    return;
   };
 
   useEffect(() => {
     if (cartData) {
       if (cartCount) {
-        // check if another restaurant
-        if (cartItems[0].restaurantId !== cartData.restaurantId) {
+        // Check if another restaurant's item is being added
+        if (cartItems[0]?.restaurantId !== cartData.restaurantId) {
           localStorage.removeItem('cart');
           initialCartDataSet();
         } else {
           let localCartItem = cartItems;
           const itemExists = localCartItem.some(item => item._id === cartData._id);
           if (!itemExists) {
-            // If the item doesn't exist, add it to the cart
             const updatedCartItems = [...localCartItem, cartData];
             setCartItems(updatedCartItems);
             setCartCount(updatedCartItems.length);
             localStorage.setItem('cart', JSON.stringify(updatedCartItems));
-            alert('To add on cart say ok!');
+            alert('Item added to cart!');
           } else {
-            alert('Item is already added!');
+            alert('Item is already in the cart!');
           }
         }
       } else {
@@ -70,19 +77,39 @@ export default function CustomerHeader({ cartData }) {
     }
   }, [cartData]);
 
-  // Logout Functionality
+  // Logout functionality
   const handleLogout = () => {
     // Clear user and cart data from localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('cart');
-
     // Reset state
     setUser(null);
     setCartCount(0);
     setCartItems([]);
-
-    // Optionally, navigate to the login page or homepage
+    // Redirect user to the login page or homepage
     router.push('/user'); // Redirect user to the login page
+  };
+
+  // Fallback profile image or initials (first letter of email)
+  const getProfileImage = () => {
+    if (user && user.email) {
+      const initials = user.email.charAt(0).toUpperCase(); // Get first letter of the email
+      return (
+        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold">
+          {initials}
+        </div>
+      );
+    }
+    return (
+      <div className="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center font-semibold">
+        ?
+      </div>
+    );
+  };
+
+  // Toggle the cart modal
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   return (
@@ -140,6 +167,17 @@ export default function CustomerHeader({ cartData }) {
               <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             )}
           </button>
+
+          {/* Profile Image or Initials */}
+          <button
+            onClick={() => {
+              router.push('/your-profile');
+            }}
+            className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+          >
+            {getProfileImage()}
+          </button>
+
         </nav>
 
         {/* Mobile Hamburger Icon */}
@@ -202,6 +240,15 @@ export default function CustomerHeader({ cartData }) {
           ) : (
             <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           )}
+        </button>
+        {/* Profile Image or Initials */}
+        <button
+          onClick={() => {
+            router.push('/your-profile');
+          }}
+          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+        >
+          {getProfileImage()}
         </button>
       </div>
 
