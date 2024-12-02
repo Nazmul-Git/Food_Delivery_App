@@ -8,42 +8,28 @@ import { TiArrowBack } from "react-icons/ti";
 import Loading from '../loading';
 
 export default function Cart() {
-  const [cartStorage, setCartStorage] = useState(() => {
-    // Initialize cart state from localStorage (if available)
-    const storedCart = localStorage.getItem('cart');
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
-  const [userStorage, setUserStorage] = useState(() => {
-    // Initialize user state from localStorage (if available)
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [cartStorage, setCartStorage] = useState([]);
+  const [userStorage, setUserStorage] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  // Sync cartStorage and userStorage with localStorage and initialize state
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedCart = localStorage.getItem('cart');
+      const storedUser = localStorage.getItem('user');
+      if (storedCart) setCartStorage(JSON.parse(storedCart));
+      if (storedUser) setUserStorage(JSON.parse(storedUser));
+      setLoading(false); // Data has been fetched, set loading to false
+    }
+  }, []);
 
   // Re-sync cartStorage with localStorage when it changes
   useEffect(() => {
     if (cartStorage.length > 0) {
       localStorage.setItem('cart', JSON.stringify(cartStorage));
     }
-  }, [cartStorage]); 
-
-  // Re-fetch cart data from localStorage after hot reload or re-mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cartData = localStorage.getItem('cart');
-      const userData = localStorage.getItem('user');
-
-      if (cartData) {
-        setCartStorage(JSON.parse(cartData));
-      }
-      if (userData) {
-        setUserStorage(JSON.parse(userData));
-      }
-
-      setLoading(false);
-    }
-  }, []); 
+  }, [cartStorage]);
 
   // Ensure each cart item has a quantity field
   const ensureQuantity = (item) => ({
@@ -68,7 +54,7 @@ export default function Cart() {
       });
 
       localStorage.setItem('cart', JSON.stringify(updatedCart));
-      return updatedCart; 
+      return updatedCart;
     });
   };
 
@@ -117,8 +103,9 @@ export default function Cart() {
   // Proceed to checkout
   const orderNow = () => {
     if (userStorage && cartStorage.length) {
+      localStorage.setItem('orderSummery', JSON.stringify({formattedTotal,formattedVat,deliveryCharge,formattedFinalTotal}))
       router.push('/order');
-    } else {
+    } else if (!userStorage) {
       router.push('/user?order=true');
     }
   };

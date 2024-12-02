@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { FaSearch } from 'react-icons/fa'; // Importing the search icon
+import { FaSearch } from 'react-icons/fa'; 
 import CustomerHeader from '../_components/CustomerHeader';
 import Footer from '../_components/Footer';
 import Link from 'next/link';
@@ -25,7 +25,7 @@ export default function Store() {
 
   useEffect(() => {
     loadRestaurants();
-  }, [selectedLocation, searchQuery]);  // Fetch restaurants based on location or search query changes
+  }, [selectedLocation, searchQuery]); 
 
   // Fetch all locations
   const loadLocations = async () => {

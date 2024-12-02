@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaHome, FaInfoCircle, FaShoppingCart, FaShoppingBag, FaUserCircle } from 'react-icons/fa';
+import { FaHome, FaInfoCircle, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
+import { HiOutlineShoppingCart } from "react-icons/hi2";
 import { TbUserQuestion } from "react-icons/tb";
 import CartModal from './CartModal';
 import { useRouter } from 'next/navigation';
@@ -14,17 +15,13 @@ export default function CustomerHeader({ cartData }) {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [confirmOrder, setConfirmOrder] = useState(null); 
+  const [keepProf, setKeepProf] = useState({});
   const router = useRouter();
 
   // This effect will handle clearing the cart when the order is confirmed
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const userStorage = JSON.parse(localStorage.getItem('user'));
-      const profile = JSON.parse(localStorage.getItem('profile'));
-      const isOrderConfirm = profile?.status;
-      
-      setConfirmOrder(isOrderConfirm);
       setUser(userStorage);
 
       const cartStorage = localStorage.getItem('cart');
@@ -33,15 +30,20 @@ export default function CustomerHeader({ cartData }) {
         setCartItems(parsedCart);
         setCartCount(parsedCart.length);
       }
-
-      if (isOrderConfirm === 'confirm') {
-        // Clear cart and reset count when order is confirmed
-        localStorage.removeItem('cart');
-        setCartItems([]);
-        setCartCount(0);
-      }
     }
-  }, [confirmOrder]); 
+  }, []);
+
+  // after complete order cart will be reset
+  useEffect(()=>{
+    const profile = JSON.parse(localStorage.getItem('profile'));
+    if(profile?.success){
+      localStorage.removeItem('cart');
+      setCartItems([]);
+      setCartCount(0);
+      localStorage.removeItem('profile');
+      setKeepProf(profile);
+    }
+  },[keepProf]);
 
   // Initial cart item addition
   const initialCartDataSet = () => {
@@ -162,7 +164,7 @@ export default function CustomerHeader({ cartData }) {
           >
             Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
             {cartCount ? (
-              <FaShoppingBag className="w-5 h-5 mr-2 mb-6 text-orange-500" />
+              <HiOutlineShoppingCart className="w-5 h-5 mr-2 mb-6 text-white" />
             ) : (
               <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             )}
@@ -236,7 +238,7 @@ export default function CustomerHeader({ cartData }) {
           <FaShoppingCart className="w-5 h-5 text-yellow-500" />
           Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
           {cartCount ? (
-            <FaShoppingBag className="w-5 h-5 mr-2 mb-6 text-orange-500" />
+            <HiOutlineShoppingCart className="w-5 h-5 mr-2 mb-6 text-white" />
           ) : (
             <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           )}

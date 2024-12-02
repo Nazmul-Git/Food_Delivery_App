@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { TiArrowBack } from 'react-icons/ti';
 import { FaDollarSign, FaCheckCircle, FaTimesCircle, FaHome } from 'react-icons/fa';
-import Loading from '../loading'; // Assuming a loading component
+import Loading from '../loading';
 import ScrollToTop from '../_components/ScrollToTop';
 import { useRouter } from 'next/navigation';
 
@@ -61,7 +61,7 @@ const Profile = () => {
 
   // Handle back button click
   const handleBackClick = () => {
-    window.history.back();
+    router.push('/stores');
   };
 
   if (loading) return <Loading />;

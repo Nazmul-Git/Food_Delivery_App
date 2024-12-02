@@ -11,8 +11,10 @@ import Loading from '../loading';
 export default function Order() {
     const [userStorage, setUserStorage] = useState();
     const [cartStorage, setCartStorage] = useState([]);
+    const [orderSummery, setOrderSummery] = useState({});
     const [loading, setLoading] = useState(false);
 
+    console.log(orderSummery)
     const router = useRouter();
 
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
@@ -21,27 +23,30 @@ export default function Order() {
         accountNumber: '',
         accountHolderName: '',
     });
+    // const [removeCartData,setRemoveCartData] = useState(false);
     const [errors, setErrors] = useState({});
 
+
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            setLoading(true);
-            const cartData = localStorage.getItem('cart');
-            const userData = localStorage.getItem('user');
-    
-            if (cartData) {
-                setCartStorage(JSON.parse(cartData));
-            } else {
-                setCartStorage([]);  
-            }
-    
-            if (userData) {
-                setUserStorage(JSON.parse(userData));
-            }
-            setLoading(false);
+        setLoading(true);
+        const cartData = localStorage.getItem('cart');
+        const userData = localStorage.getItem('user');
+        const orderSummery = JSON.parse(localStorage.getItem('orderSummery'));
+        setOrderSummery(orderSummery);
+
+        if (cartData) {
+            setCartStorage(JSON.parse(cartData));
+        } else {
+            setCartStorage([]);
         }
+
+        if (userData) {
+            setUserStorage(JSON.parse(userData));
+        }
+        setLoading(false);
     }, []);
-    
+
+
 
     // Handle payment method selection
     const handlePaymentMethodChange = (method) => {
@@ -77,27 +82,13 @@ export default function Order() {
     };
 
 
-    // Calculate total price based on quantity
-    const total = cartStorage.reduce((acc, item) => {
-        const price = parseFloat(item.price);
-        const quantity = item.quantity || 1;
 
-        if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
-            return acc + (price * quantity);
+
+    useEffect(() => {
+        if (!orderSummery) {
+            router.push('/stores')
         }
-        return acc;
-    }, 0);
-
-    // Calculate VAT (10% of subtotal) and total including VAT
-    const vat = total * vatPercentage;
-    const totalWithVat = total + vat;
-    const finalTotal = totalWithVat + deliveryCharge;
-
-    // Format all totals to 2 decimal places
-    const formattedTotal = total ? parseFloat(total.toFixed(2)) : 0;
-    const formattedVat = vat ? parseFloat(vat.toFixed(2)) : 0;
-    const formattedTotalWithVat = totalWithVat ? parseFloat(totalWithVat.toFixed(2)) : 0;
-    const formattedFinalTotal = finalTotal ? parseFloat(finalTotal.toFixed(2)) : 0;
+    }, [orderSummery]);
 
     // Store cart items in localStorage whenever cartStorage changes
     useEffect(() => {
@@ -115,31 +106,33 @@ export default function Order() {
         if (!selectedPaymentMethod) {
             alert('Please select a payment method.');
             return;
+        } else {
+
         }
-    
+
         // Check if cartStorage is valid and not empty
         if (!cartStorage || cartStorage.length === 0) {
             alert('Your cart is empty.');
             return;
         }
-    
+
         let user_Id = JSON.parse(localStorage.getItem('user'))._id;
-        let foodItemId = cartStorage.map((item) => item._id).toString(); 
+        let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
         let delivery_Id = '6742e28005e7d9d258b57779';
-    
+
         let orderDetails = {
             user_Id,
             foodItemId,
             restaurantId,
             delivery_Id,
             status: 'confirm',
-            amount: formattedFinalTotal,
+            amount: orderSummery?.formattedFinalTotal,
             paymentMethod: selectedPaymentMethod,
         };
-    
-        console.log(orderDetails);
-    
+
+        // console.log(orderDetails);
+
         try {
             let response = await fetch('http://localhost:3000/api/order', {
                 method: 'POST',
@@ -148,26 +141,29 @@ export default function Order() {
                 },
                 body: JSON.stringify(orderDetails),
             });
-    
+
             response = await response.json();
-    
+
             if (response.success) {
-                const profile = { ...orderDetails };
-                localStorage.setItem('profile', JSON.stringify(profile));
-                if(!cartStorage.length){
-                    alert('Already confirmed your order!..Go to shop!..');
-                    router.push('/stores');
+                const orderDetailsStorage = {
+                    ...orderDetails,
+                    success: response.success
                 }
+                localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
+                localStorage.removeItem('orderSummery');
                 alert('Order Confirmed Successfully');
                 router.push('/your-profile');
             } else {
-                alert('Order Failed!');
+                alert(response.message || 'Order Failed!');
+                router.push('/stores');
             }
         } catch (error) {
+            console.error(error);
             alert('Something went wrong. Please try again later.');
         }
+
     };
-    
+
 
 
     if (loading) return <Loading />
@@ -378,19 +374,19 @@ export default function Order() {
                 <div className="space-y-4">
                     <div className="flex justify-between">
                         <span>Subtotal:</span>
-                        <span>$ {formattedTotal}</span>
+                        <span>$ {orderSummery?.formattedTotal}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>VAT (10%):</span>
-                        <span>$ {formattedVat}</span>
+                        <span>$ {orderSummery?.formattedVat}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>Delivery Charge:</span>
-                        <span>$ {deliveryCharge}</span>
+                        <span>$ {orderSummery?.deliveryCharge}</span>
                     </div>
                     <div className="flex justify-between font-semibold text-lg text-pink-500">
                         <span>Total:</span>
-                        <span>$ {formattedFinalTotal}</span>
+                        <span>$ {orderSummery?.formattedFinalTotal}</span>
                     </div>
                 </div>
             </div>
