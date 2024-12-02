@@ -14,7 +14,7 @@ export default function Order() {
     const [orderSummery, setOrderSummery] = useState({});
     const [loading, setLoading] = useState(false);
 
-    console.log(orderSummery)
+    // console.log(orderSummery)
     const router = useRouter();
 
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
@@ -250,7 +250,7 @@ export default function Order() {
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>Bkash</p>
                                             <Image
-                                                src="/images/bKash-Logo.png"
+                                                src="/images/bkash-Logo.png"
                                                 alt="RestaurantApp Logo"
                                                 width={76}
                                                 height={76}
@@ -273,7 +273,7 @@ export default function Order() {
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>Nagad</p>
                                             <Image
-                                                src="/images/Nagad-Logo.png"
+                                                src="/images/nagad-Logo.png"
                                                 alt="RestaurantApp Logo"
                                                 width={76}
                                                 height={76}
@@ -296,7 +296,7 @@ export default function Order() {
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>PayPal</p>
                                             <Image
-                                                src="/images/PayPal-Logo.png"
+                                                src="/images/paypal-Logo.png"
                                                 alt="RestaurantApp Logo"
                                                 width={76}
                                                 height={76}
