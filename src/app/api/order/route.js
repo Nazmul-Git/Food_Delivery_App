@@ -19,11 +19,12 @@ export async function GET(req) {
                 restauranInfo.paymentMethod = item.paymentMethod;
                 restauranInfo.amount = item.amount;
                 restauranInfo.status = item.status;
+                restauranInfo.date = new Date();
                 return restauranInfo;
             })
         );
         orders = restaurantData;
-        // console.log(orders);
+        //console.log(orders);
         success = true;
     }
     return NextResponse.json({ orders, success });

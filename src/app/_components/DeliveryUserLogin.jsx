@@ -1,13 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import React, { useState,  } from 'react';
+import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-export default function UserLogin({ redirect }) {
+export default function DeliveryUserLogin({ redirect }) {
 
     // Separate state for email and password
-    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -17,7 +17,7 @@ export default function UserLogin({ redirect }) {
     // Handle form field change
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === 'email') setEmail(value);
+        if (name === 'phone') setPhone(value);
         if (name === 'password') setPassword(value);
     };
 
@@ -26,8 +26,8 @@ export default function UserLogin({ redirect }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!email || !password) {
-            setError('Please enter both email and password');
+        if (!phone || !password) {
+            setError('Please enter both phone number and password');
             return;
         }
 
@@ -35,12 +35,12 @@ export default function UserLogin({ redirect }) {
         setLoading(true);
 
         try {
-            let response = await fetch('http://localhost:3000/api/user/login', {
+            let response = await fetch('http://localhost:3000/api/deliveryPartners/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ phone, password }),
             });
 
             response = await response.json();
@@ -48,15 +48,18 @@ export default function UserLogin({ redirect }) {
             if (response.success) {
                 const { loggedUser } = response;
                 delete loggedUser.password;
-                localStorage.setItem('user', JSON.stringify(loggedUser));
-                if (redirect.order) {
-                    router.push('/order');
+                localStorage.setItem('deliveryUser', JSON.stringify(loggedUser));
+                console.log(redirect)
+
+                if (redirect.dashboard) {
                     alert('Logged in successfully!');
-                } else if(JSON.parse(localStorage.getItem('user'))) {
-                    router.push('/stores');
+                    router.push('/dashboard');
+                }else if(JSON.parse(localStorage.getItem('deliveryUser'))){
                     alert('Logged in successfully!');
-                }else{
-                    alert('Log in failed!');
+                    router.push('/dashboard');
+                } else {
+                    alert('Login failed!');
+                    // router.push('/');
                 }
             } else {
                 setError(response.message || 'Login failed. Please try again.');
@@ -73,15 +76,15 @@ export default function UserLogin({ redirect }) {
         <>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email</label>
+                    <label htmlFor="phone" className="block text-lg font-medium text-gray-700">Mobile</label>
                     <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={email}
+                        type="number"
+                        name="phone"
+                        id="phone"
+                        value={phone}
                         onChange={handleChange}
                         className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
-                        placeholder="Enter your email"
+                        placeholder="Enter your phone number"
                         required
                     />
                 </div>

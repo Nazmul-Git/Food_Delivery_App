@@ -29,7 +29,7 @@ const Profile = () => {
   const fetchOrders = async () => {
     const userLStorage = JSON.parse(localStorage.getItem('user'));
     setUser(userLStorage);
-    setUserEmail(userLStorage.email);
+    setUserEmail(userLStorage?.email);
 
     let response = await fetch(`http://localhost:3000/api/order?id=${userLStorage?._id}`);
     response = await response.json();
@@ -81,9 +81,9 @@ const Profile = () => {
 
           {/* User Info */}
           <div className="space-y-2">
-            <h2 className="text-3xl font-semibold text-gray-900">{user.fullName}</h2>
+            <h2 className="text-3xl font-semibold text-gray-900">{user?.fullName}</h2>
             <p className="text-lg text-gray-700">{userEmail}</p>
-            <p className="text-lg text-gray-600">{user.address}</p>
+            <p className="text-lg text-gray-600">{user?.address}</p>
 
             {/* Additional info or action buttons (optional) */}
             <div className="flex space-x-4 mt-4">
@@ -113,7 +113,7 @@ const Profile = () => {
         ) : (
           orders.map((order, index) => (
             <div key={index} className="border-b border-gray-300 pb-6">
-              <h2 className="text-2xl font-semibold text-red-600">Order #{index + 1}</h2>
+              <h2 className="text-2xl font-semibold text-purple-700">Order #{index + 1}</h2>
 
               {/* Order Status */}
               <div className="flex items-center gap-2 mt-4">
@@ -122,7 +122,7 @@ const Profile = () => {
                 ) : (
                   <FaTimesCircle className="text-red-500 text-xl" />
                 )}
-                <span className="text-lg text-gray-700">Status: {order.status === 'confirm' ? 'Confirmed' : 'Failed'}</span>
+                <span className="text-lg text-gray-700">Status: {order?.status === 'confirm' ? 'Confirmed' : 'Failed'}</span>
               </div>
 
               {/* Restaurant Info */}
@@ -133,7 +133,7 @@ const Profile = () => {
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Restaurant:</strong>
                     </p>
-                    <p className="text-lg text-gray-600">{order.data.restaurantName}</p>
+                    <p className="text-lg text-gray-600">{order?.data?.restaurantName}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <p className="text-lg font-semibold text-gray-800">
@@ -141,7 +141,7 @@ const Profile = () => {
                     </p>
                     <p className="text-lg text-pink-600 font-semibold flex items-center">
                       <FaDollarSign className="mr-1" />
-                      {order.amount}
+                      {order?.amount}
                     </p>
                   </div>
                 </div>
@@ -152,13 +152,13 @@ const Profile = () => {
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Restaurant Type:</strong>
                     </p>
-                    <p className="text-lg text-gray-600">{order.data.restaurantType}</p>
+                    <p className="text-lg text-gray-600">{order?.data?.restaurantType}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Delivery Address:</strong>
                     </p>
-                    <p className="text-lg text-gray-600">{user.address}</p>
+                    <p className="text-lg text-gray-600">{user?.address}</p>
                   </div>
                 </div>
               </div>
@@ -168,9 +168,9 @@ const Profile = () => {
                 <div>
                   <h3 className="text-xl font-semibold text-indigo-500">Payment Method</h3>
                   <div className="flex items-center space-x-4">
-                    <p className="text-lg text-red-700 font-semibold">{order.paymentMethod}</p>
+                    <p className="text-lg text-red-700 font-semibold">{order?.paymentMethod}</p>
                     <Image
-                      src={`/images/${order.paymentMethod}-Logo.png`}
+                      src={`/images/${order?.paymentMethod}-Logo.png`}
                       alt="Icon"
                       width={70}
                       height={70}
@@ -180,7 +180,7 @@ const Profile = () => {
                 </div>
                 <p className="text-lg text-blue-700">
                   <strong>Date:</strong>{' '}
-                  <span className="font-semibold text-indigo-600">{formatDate(order.data.createdAt)}</span>
+                  <span className="font-semibold text-indigo-600">{formatDate(order?.date)}</span>
                 </p>
               </div>
             </div>

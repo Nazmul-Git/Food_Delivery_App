@@ -1,30 +1,37 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from 'next/navigation';
-import CustomerHeader from "../_components/CustomerHeader";
+import { useRouter, useSearchParams } from 'next/navigation'; 
 import Footer from "../_components/Footer";
-import UserLogin from "../_components/UserLogin";
-import UserSignUp from "../_components/UserSignUp";
+import DeliveryUserLogin from "../_components/DeliveryUserLogin";
+import DeliveryUserSignup from "../_components/DeliveryUserSignup";
+import DeliveryHeader from "../_components/DeliveryUserHeader";
 
-const UserAuth = () => {
+const deliveryDashboard = () => {
     const [login, setLogin] = useState(true);
     const [queryParams, setQueryParams] = useState(null);
     const searchParams = useSearchParams(); 
+    const router = useRouter();
 
     // Fetch query parameters in useEffect
     useEffect(() => {
         if (searchParams) {
             // Example of accessing specific query parameters like `order`
             setQueryParams({
-                order: searchParams.get('order')
+                dashboard: searchParams.get('dashboard')
             });
         }
     }, [searchParams]);
 
+    useEffect(()=>{
+        if(JSON.parse(localStorage.getItem('deliveryUser'))){
+          router.push('/dashboard');
+        }
+      },[])
+
     return (
         <>
-            <CustomerHeader />
+            <DeliveryHeader />
 
             <div className="min-h-screen bg-gray-100 flex items-center justify-center p-16">
                 <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
@@ -36,9 +43,9 @@ const UserAuth = () => {
                     }
                     {
                         login ? 
-                            <UserLogin redirect={queryParams} />
+                            <DeliveryUserLogin redirect={queryParams} />
                             :
-                            <UserSignUp redirect={queryParams} />
+                            <DeliveryUserSignup redirect={queryParams} />
                     }
                     <div onClick={() => setLogin(!login)}>
                         {
@@ -61,4 +68,4 @@ const UserAuth = () => {
     );
 }
 
-export default UserAuth;
+export default deliveryDashboard;

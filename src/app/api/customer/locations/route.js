@@ -13,7 +13,7 @@ export async function GET() {
     let result = await RestaurantsSchema.find();
     
     // Capitalizing the first letter of the address and removing duplicates
-    result = result.map(item => item.address.charAt(0).toUpperCase() + item.address.slice(1));
+    result = result.map(item => item?.address?.charAt(0).toUpperCase() + item.address.slice(1));
     result = [...new Set(result)];
 
     return NextResponse.json({ result, success: true });

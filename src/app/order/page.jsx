@@ -106,21 +106,58 @@ export default function Order() {
         if (!selectedPaymentMethod) {
             alert('Please select a payment method.');
             return;
-        } else {
-
         }
-
-        // Check if cartStorage is valid and not empty
+    
         if (!cartStorage || cartStorage.length === 0) {
             alert('Your cart is empty.');
             return;
         }
-
+    
         let user_Id = JSON.parse(localStorage.getItem('user'))._id;
+        let user_Address = JSON.parse(localStorage.getItem('user')).address;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
-        let delivery_Id = '6742e28005e7d9d258b57779';
-
+    
+        // Break down the user address into keywords
+        const addressKeywords = user_Address
+            .toLowerCase()
+            .replace(/[\-,]/g, '') // Remove punctuation
+            .split(/\s*,\s*|\s+/); // Split by commas or spaces
+    
+        let deliveryBoyResponse = null;
+    
+        // Try searching delivery partners progressively with broader keywords
+        for (let i = 0; i < addressKeywords.length; i++) {
+            const searchKeyword = addressKeywords.slice(i).join(' '); // Join remaining keywords
+            try {
+                console.log(`Searching delivery partners for: ${searchKeyword}`);
+                deliveryBoyResponse = await fetch(
+                    `http://localhost:3000/api/deliveryPartners/${encodeURIComponent(searchKeyword)}`
+                );
+                deliveryBoyResponse = await deliveryBoyResponse.json();
+    
+                // Break the loop if results are found
+                if (deliveryBoyResponse.result && deliveryBoyResponse.result.length > 0) {
+                    break;
+                }
+            } catch (error) {
+                console.error(`Error searching for keyword "${searchKeyword}":`, error);
+            }
+        }
+    
+        // Check if delivery partners were found
+        if (!deliveryBoyResponse || !deliveryBoyResponse.result || deliveryBoyResponse.result.length === 0) {
+            alert('No delivery partner found for your address.');
+            return;
+        }
+    
+        const deliveryBoysIds = deliveryBoyResponse.result.map((deliveryMan) => deliveryMan._id);
+    
+        // Select a random delivery boy
+        let delivery_Id = deliveryBoysIds[Math.floor(Math.random() * deliveryBoysIds.length)];
+        // console.log("Selected Delivery Boy ID:", delivery_Id);
+        if(!delivery_Id) alert('Delivery man are not available at this moment!');
+    
         let orderDetails = {
             user_Id,
             foodItemId,
@@ -130,9 +167,7 @@ export default function Order() {
             amount: orderSummery?.formattedFinalTotal,
             paymentMethod: selectedPaymentMethod,
         };
-
-        // console.log(orderDetails);
-
+    
         try {
             let response = await fetch('http://localhost:3000/api/order', {
                 method: 'POST',
@@ -141,14 +176,14 @@ export default function Order() {
                 },
                 body: JSON.stringify(orderDetails),
             });
-
+    
             response = await response.json();
-
+    
             if (response.success) {
                 const orderDetailsStorage = {
                     ...orderDetails,
-                    success: response.success
-                }
+                    success: response.success,
+                };
                 localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
                 localStorage.removeItem('orderSummery');
                 alert('Order Confirmed Successfully');
@@ -161,11 +196,8 @@ export default function Order() {
             console.error(error);
             alert('Something went wrong. Please try again later.');
         }
-
     };
-
-
-
+        
     if (loading) return <Loading />
 
     // console.log(cartStorage);

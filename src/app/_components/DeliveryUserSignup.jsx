@@ -3,9 +3,8 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-export default function UserSignUp({ redirect }) {
+export default function DeliveryUserSignup({ redirect }) {
     const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
@@ -24,9 +23,6 @@ export default function UserSignUp({ redirect }) {
         switch (name) {
             case 'fullName':
                 setFullName(value);
-                break;
-            case 'email':
-                setEmail(value);
                 break;
             case 'phone':
                 setPhone(value);
@@ -66,20 +62,19 @@ export default function UserSignUp({ redirect }) {
             return;
         }
 
-        setError(''); // Reset error if passwords match
+        setError('');
 
         try {
             // Prepare the request payload without `confirmPassword`
             const { confirmPassword, ...formDataToSend } = {
                 fullName,
-                email,
                 phone,
                 address,
                 password,
             };
 
             // Send the data to the backend
-            let response = await fetch('http://localhost:3000/api/user', {
+            let response = await fetch('http://localhost:3000/api/deliveryPartners/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,23 +86,27 @@ export default function UserSignUp({ redirect }) {
 
             if (response.success) {
                 const { signedUser } = response;
+                console.log(signedUser)
                 delete signedUser.password;
-                localStorage.setItem('user', JSON.stringify( signedUser ));
-                if (redirect?.order) {
-                    router.push('/order');
-                    alert('Sign up successfully!');
-                } else if(JSON.parse(localStorage.getItem('user'))){
-                    router.push('/stores');
-                    alert('Sign up successfully!');
+                localStorage.setItem('deliveryUser', JSON.stringify({ signedUser }));
+                if (redirect.dashboard) {
+                    router.push('/dashboard');
+                    setMessage(response.message || 'User registered successfully');
+                    // Clear the form fields after successful registration
+                    setFullName('');
+                    setPhone('');
+                    setAddress('');
+                    setPassword('');
+                    setConfirmPassword('');
+                } else if(JSON.parse(localStorage.getItem('deliveryUser'))) {
+                    setMessage(response.message || 'User registered successfully');
+                    router.push('/dashboard');
+                }else{
+                    alert('Sign up failed!');
                 }
-                setFullName('');
-                setEmail('');
-                setPhone('');
-                setAddress('');
-                setPassword('');
-                setConfirmPassword('');
-                
-            } else {
+            }
+            else {
+                router.push('/')
                 setError(response.error || 'Sign up failed!');
             }
         } catch (err) {
@@ -130,21 +129,6 @@ export default function UserSignUp({ redirect }) {
                         onChange={handleChange}
                         className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
                         placeholder="Enter your full name"
-                        required
-                    />
-                </div>
-
-                {/* Email */}
-                <div className="mb-4">
-                    <label htmlFor="email" className="block text-lg font-medium text-gray-700">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={email}
-                        onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
-                        placeholder="Enter your email"
                         required
                     />
                 </div>

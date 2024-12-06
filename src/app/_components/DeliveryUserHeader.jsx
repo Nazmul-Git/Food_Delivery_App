@@ -3,99 +3,36 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaHome, FaInfoCircle, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
-import { HiOutlineShoppingCart } from "react-icons/hi2";
+import { FaHome, FaInfoCircle, FaUserCircle } from 'react-icons/fa';
 import { TbUserQuestion } from "react-icons/tb";
-import CartModal from './CartModal';
 import { useRouter } from 'next/navigation';
 
-export default function CustomerHeader({ cartData }) {
+export default function DeliveryHeader({ cartData }) {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartItems, setCartItems] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [keepProf, setKeepProf] = useState({});
   const router = useRouter();
 
   // This effect will handle clearing the cart when the order is confirmed
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const userStorage = JSON.parse(localStorage.getItem('user'));
-      setUser(userStorage);
-
-      const cartStorage = localStorage.getItem('cart');
-      if (cartStorage) {
-        const parsedCart = JSON.parse(cartStorage);
-        setCartItems(parsedCart);
-        setCartCount(parsedCart.length);
-      }
+      const deliveryUserStorage = JSON.parse(localStorage.getItem('deliveryUser'));
+      setUser(deliveryUserStorage);
     }
   }, []);
-
-  // after complete order cart will be reset
-  useEffect(()=>{
-    const profile = JSON.parse(localStorage.getItem('profile'));
-    if(profile?.success){
-      localStorage.removeItem('cart');
-      setCartItems([]);
-      setCartCount(0);
-      localStorage.removeItem('profile');
-      setKeepProf(profile);
-    }
-  },[keepProf]);
-
-  // Initial cart item addition
-  const initialCartDataSet = () => {
-    setCartCount(1);
-    setCartItems([cartData]);
-    localStorage.setItem('cart', JSON.stringify([cartData]));
-    alert('Item added successfully');
-  };
-
-  useEffect(() => {
-    if (cartData) {
-      if (cartCount) {
-        // Check if another restaurant's item is being added
-        if (cartItems[0]?.restaurantId !== cartData.restaurantId) {
-          localStorage.removeItem('cart');
-          initialCartDataSet();
-        } else {
-          let localCartItem = cartItems;
-          const itemExists = localCartItem.some(item => item._id === cartData._id);
-          if (!itemExists) {
-            const updatedCartItems = [...localCartItem, cartData];
-            setCartItems(updatedCartItems);
-            setCartCount(updatedCartItems.length);
-            localStorage.setItem('cart', JSON.stringify(updatedCartItems));
-            alert('Item added to cart!');
-          } else {
-            alert('Item is already in the cart!');
-          }
-        }
-      } else {
-        initialCartDataSet();
-      }
-    }
-  }, [cartData]);
 
   // Logout functionality
   const handleLogout = () => {
     // Clear user and cart data from localStorage
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart');
+    localStorage.removeItem('deliveryUser');
     // Reset state
     setUser(null);
-    setCartCount(0);
-    setCartItems([]);
-    router.push('/user'); 
+    router.push('/delivery-user');
   };
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
-    console.log('user',user);
-    if (user && user?.email) {
-      const initials = user?.email?.charAt(0).toUpperCase(); 
+    if (user && user?.fullName) {
+      const initials = user?.fullName?.charAt(0).toUpperCase(); 
       return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold">
           {initials}
@@ -107,11 +44,6 @@ export default function CustomerHeader({ cartData }) {
         ?
       </div>
     );
-  };
-
-  // Toggle the cart modal
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
   };
 
   return (
@@ -130,7 +62,7 @@ export default function CustomerHeader({ cartData }) {
                 priority
               />
             </div>
-            <span className="hidden sm:block">CustomerApp</span>
+            <span className="hidden sm:block">DeliveryApp</span>
           </Link>
         </div>
 
@@ -158,25 +90,13 @@ export default function CustomerHeader({ cartData }) {
             </Link>
           )}
 
-          <button
-            onClick={toggleModal}
-            className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
-          >
-            Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
-            {cartCount ? (
-              <HiOutlineShoppingCart className="w-5 h-5 mr-2 mb-6 text-white" />
-            ) : (
-              <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            )}
-          </button>
-
           {/* Profile Image or Initials */}
           <button
             onClick={() => {
               user ? 
-              router.push('/your-profile')
+              router.push('/profile')
               :
-              router.push('/user');
+              router.push('/login');
             }}
             className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
           >
@@ -234,39 +154,8 @@ export default function CustomerHeader({ cartData }) {
           </Link>
         )}
 
-        <button
-          onClick={toggleModal}
-          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-        >
-          <FaShoppingCart className="w-5 h-5 text-yellow-500" />
-          Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
-          {cartCount ? (
-            <HiOutlineShoppingCart className="w-5 h-5 mr-2 mb-6 text-white" />
-          ) : (
-            <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          )}
-        </button>
-        {/* Profile Image or Initials */}
-        <button
-          onClick={() => {
-            user ? 
-            router.push('/your-profile')
-            :
-            router.push('/user');
-          }}
-          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-        >
-          {getProfileImage()}
-        </button>
+       
       </div>
-
-      {isModalOpen && (
-        <CartModal
-          cartItems={cartItems}
-          onClose={toggleModal}
-          setCartCount={setCartCount}
-        />
-      )}
     </header>
   );
 }
