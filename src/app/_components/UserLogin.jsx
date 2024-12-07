@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import React, { useState,  } from 'react';
+import React, { useState, } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function UserLogin({ redirect }) {
@@ -49,14 +49,17 @@ export default function UserLogin({ redirect }) {
                 const { loggedUser } = response;
                 delete loggedUser.password;
                 localStorage.setItem('user', JSON.stringify(loggedUser));
+                console.log(redirect.order)
                 if (redirect.order) {
                     router.push('/order');
                     alert('Logged in successfully!');
-                } else if(JSON.parse(localStorage.getItem('user'))) {
-                    router.push('/stores');
-                    alert('Logged in successfully!');
-                }else{
-                    alert('Log in failed!');
+                } else {
+                    if (JSON.parse(localStorage.getItem('user'))) {
+                        router.push('/stores');
+                        alert('Logged in successfully!');
+                    }else{
+                        alert('Login failed!');
+                    }
                 }
             } else {
                 setError(response.message || 'Login failed. Please try again.');

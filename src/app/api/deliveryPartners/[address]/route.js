@@ -11,5 +11,6 @@ export async function GET(req, { params }) {
     await mongoose.connect(connectionUrl);
     let filter = { address: { $regex: new RegExp(address, 'i') } };
     const result = await DeliveryUserModel.find(filter);
-    return NextResponse.json({ result });
+    if(result) success=true;
+    return NextResponse.json({ result, success });
 }

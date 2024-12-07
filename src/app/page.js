@@ -14,7 +14,7 @@ export default function Home() {
     { category: "Salads", imageUrl: "https://images.immediate.co.uk/production/volatile/sites/30/2014/05/Epic-summer-salad-hub-2646e6e.jpg?quality=90&resize=960%2C872" },
   ];
 
-  
+
 
   return (
     <main className="bg-gray-50 min-h-screen">
@@ -36,7 +36,12 @@ export default function Home() {
               <Link href='/restaurants' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
                 Become a seller
               </Link>
-              <Link href='/about' className="bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-800 transition">
+              <Link href='/dashboard' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
+                Become a supplier
+              </Link>
+            </div>
+            <div className="my-6">
+              <Link href='/about' className="bg-indigo-700 text-white font-semibold  py-2 px-6 rounded-lg shadow hover:bg-indigo-800 transition">
                 Learn More
               </Link>
             </div>
@@ -53,7 +58,7 @@ export default function Home() {
         </div>
       </section>
 
-      <ScrollToTop/>
+      <ScrollToTop />
 
       {/* Features Section */}
       <section className="py-12 px-6 md:py-16 md:px-12">
