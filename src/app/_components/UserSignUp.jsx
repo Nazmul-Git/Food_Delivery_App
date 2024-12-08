@@ -13,9 +13,9 @@ export default function UserSignUp({ redirect }) {
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false); // Added loading state
 
     const router = useRouter();
-
 
     // Handle form field change
     const handleChange = (e) => {
@@ -36,8 +36,7 @@ export default function UserSignUp({ redirect }) {
                 break;
             case 'password':
                 setPassword(value);
-                const strength = checkPasswordStrength(value);
-                setPasswordStrength(strength);
+                setPasswordStrength(checkPasswordStrength(value));
                 break;
             case 'confirmPassword':
                 setConfirmPassword(value);
@@ -66,7 +65,9 @@ export default function UserSignUp({ redirect }) {
             return;
         }
 
-        setError(''); // Reset error if passwords match
+        setError('');
+        setLoading(true);
+        setMessage('');
 
         try {
             // Prepare the request payload without `confirmPassword`
@@ -79,7 +80,7 @@ export default function UserSignUp({ redirect }) {
             };
 
             // Send the data to the backend
-            let response = await fetch('http://localhost:3000/api/user', {
+            const response = await fetch('http://localhost:3000/api/user', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -87,32 +88,34 @@ export default function UserSignUp({ redirect }) {
                 body: JSON.stringify(formDataToSend),
             });
 
-            response = await response.json();
+            const data = await response.json();
 
-            if (response.success) {
-                const { signedUser } = response;
+            if (response.ok && data.success) {
+                const { signedUser } = data;
                 delete signedUser.password;
-                localStorage.setItem('user', JSON.stringify( signedUser ));
-                if (redirect?.order) {
-                    router.push('/order');
-                    alert('Sign up successfully!');
-                } else if(JSON.parse(localStorage.getItem('user'))){
-                    router.push('/stores');
-                    alert('Sign up successfully!');
-                }
+                localStorage.setItem('user', JSON.stringify(signedUser));
+                setMessage('Sign up successful!');
                 setFullName('');
                 setEmail('');
                 setPhone('');
                 setAddress('');
                 setPassword('');
                 setConfirmPassword('');
-                
+                setPasswordStrength(0);
+
+                if (redirect?.order) {
+                    router.push('/order');
+                } else if (JSON.parse(localStorage.getItem('user'))) {
+                    router.push('/stores');
+                }
             } else {
-                setError(response.error || 'Sign up failed!');
+                setError(data.error || 'Sign up failed!');
             }
         } catch (err) {
             setError('Error connecting to server: ' + err.message);
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -128,7 +131,7 @@ export default function UserSignUp({ redirect }) {
                         id="fullName"
                         value={fullName}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Enter your full name"
                         required
                     />
@@ -143,7 +146,7 @@ export default function UserSignUp({ redirect }) {
                         id="email"
                         value={email}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Enter your email"
                         required
                     />
@@ -158,7 +161,7 @@ export default function UserSignUp({ redirect }) {
                         id="phone"
                         value={phone}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Enter your phone number"
                         required
                     />
@@ -173,7 +176,7 @@ export default function UserSignUp({ redirect }) {
                         id="address"
                         value={address}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Enter your delivery address"
                         required
                     />
@@ -188,13 +191,13 @@ export default function UserSignUp({ redirect }) {
                         id="password"
                         value={password}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Enter your password"
                         required
                     />
                     {/* Password strength meter */}
                     <div className="mt-2">
-                        <div className={`h-1 w-full bg-gray-200 rounded-full`}>
+                        <div className="h-1 w-full bg-gray-200 rounded-full">
                             <div
                                 className={`h-full ${passwordStrength === 0 ? 'bg-gray-400' : passwordStrength === 1 ? 'bg-yellow-400' : 'bg-green-500'} rounded-full`}
                                 style={{ width: `${(passwordStrength / 3) * 100}%` }}
@@ -213,7 +216,7 @@ export default function UserSignUp({ redirect }) {
                         id="confirmPassword"
                         value={confirmPassword}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Confirm your password"
                         required
                     />
@@ -228,9 +231,10 @@ export default function UserSignUp({ redirect }) {
                 {/* Submit Button */}
                 <button
                     type="submit"
-                    className="w-full bg-pink-600 text-white py-3 rounded-lg mt-4 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
+                    className="w-full bg-orange-600 text-white py-3 rounded-lg mt-4 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
+                    disabled={loading}
                 >
-                    Sign Up
+                    {loading ? 'Signing...' : 'Sign up'}
                 </button>
             </form>
         </>

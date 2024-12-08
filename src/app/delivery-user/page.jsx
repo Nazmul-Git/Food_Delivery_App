@@ -37,9 +37,9 @@ const deliveryDashboard = () => {
                 <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                     {
                         login ? 
-                            <h2 className="text-2xl font-bold text-center text-pink-600 mb-6">User Login</h2>
+                            <h2 className="text-2xl font-bold text-center text-green-600 mb-6">Delivery Login</h2>
                             :
-                            <h2 className="text-2xl font-bold text-center text-pink-600 mb-6">Create Account</h2>
+                            <h2 className="text-2xl font-bold text-center text-green-600 mb-6">Create Account</h2>
                     }
                     {
                         login ? 
@@ -52,12 +52,12 @@ const deliveryDashboard = () => {
                             login ? 
                                 <p className="mt-6 text-center text-sm cursor-pointer text-gray-500">
                                     Don't have an account?{' '}
-                                    <span className="text-pink-600 hover:underline">Sign up</span>
+                                    <span className="text-green-600 hover:underline">Sign up</span>
                                 </p>
                                 :
                                 <p className="mt-6 text-center text-sm cursor-pointer text-gray-500">
                                     Already have an account?{' '}
-                                    <span className="text-pink-600 hover:underline">Login here</span>
+                                    <span className="text-green-600 hover:underline">Login here</span>
                                 </p>
                         }
                     </div>

@@ -6,10 +6,9 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function DeliveryUserLogin({ redirect }) {
 
-    // Separate state for email and password
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -27,15 +26,15 @@ export default function DeliveryUserLogin({ redirect }) {
         e.preventDefault();
 
         if (!phone || !password) {
-            setError('Please enter both phone number and password');
+            setMessage('Please enter both phone number and password');
             return;
         }
 
-        setError('');
+        setMessage('');
         setLoading(true);
 
         try {
-            let response = await fetch('http://localhost:3000/api/deliveryPartners/login', {
+            const response = await fetch('http://localhost:3000/api/deliveryPartners/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -43,30 +42,21 @@ export default function DeliveryUserLogin({ redirect }) {
                 body: JSON.stringify({ phone, password }),
             });
 
-            response = await response.json();
-            // console.log(response.success)
+            const data = await response.json();
 
-            if (response.success) {
-                const { loggedUser } = response;
+            if (data.success) {
+                const { loggedUser } = data;
                 delete loggedUser.password;
                 localStorage.setItem('deliveryUser', JSON.stringify(loggedUser));
-                console.log(redirect)
 
-                if (redirect.dashboard) {
-                    alert('Logged in successfully!');
-                    router.push('/dashboard');
-                }else if(JSON.parse(localStorage.getItem('deliveryUser'))){
-                    alert('Logged in successfully!');
-                    router.push('/dashboard');
-                } else {
-                    alert('Login failed!');
-                }
+                setMessage('Logged in successfully!');
+                router.push('/dashboard');
             } else {
-                setError(response.message || 'Login failed. Please try again.');
+                setMessage(data.message || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error('Login Error:', error);
-            setError('An error occurred. Please try again later.');
+            setMessage('An error occurred. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -74,6 +64,11 @@ export default function DeliveryUserLogin({ redirect }) {
 
     return (
         <>
+            {message && (
+                <div className={`mb-4 p-2 text-sm ${message.includes('success') ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'} border rounded-md`}>
+                    {message}
+                </div>
+            )}
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                     <label htmlFor="phone" className="block text-lg font-medium text-gray-700">Mobile</label>
@@ -83,7 +78,7 @@ export default function DeliveryUserLogin({ redirect }) {
                         id="phone"
                         value={phone}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Enter your phone number"
                         required
                     />
@@ -98,7 +93,7 @@ export default function DeliveryUserLogin({ redirect }) {
                             id="password"
                             value={password}
                             onChange={handleChange}
-                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                             placeholder="Enter your password"
                             required
                         />
@@ -112,11 +107,9 @@ export default function DeliveryUserLogin({ redirect }) {
                     </div>
                 </div>
 
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
                 <button
                     type="submit"
-                    className="w-full bg-pink-600 text-white py-3 rounded-lg mt-4 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
+                    className="w-full bg-green-500 text-white py-3 rounded-lg mt-4 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                     disabled={loading}
                 >
                     {loading ? 'Logging in...' : 'Login'}

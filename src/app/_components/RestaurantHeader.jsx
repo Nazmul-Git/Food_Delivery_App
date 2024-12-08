@@ -4,13 +4,13 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Loading from '../loading';
-import Image from 'next/image';
-import { FaHome, FaInfoCircle, FaUser, FaSignOutAlt } from 'react-icons/fa'; // Import icons from react-icons
+import { FaHome, FaInfoCircle, FaUser, FaSignOutAlt } from 'react-icons/fa';
 
 export default function RestaurantHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [touchStartY, setTouchStartY] = useState(0);
   const router = useRouter();
   const path = usePathname();
 
@@ -39,10 +39,21 @@ export default function RestaurantHeader() {
     router.replace('/restaurants');
   };
 
-  // Function to extract the first letter of the user's email
   const getInitials = (email) => {
-    const name = email.split('@')[0]; // Get the part before '@'
-    return name.charAt(0).toUpperCase(); // Take the first letter and capitalize it
+    const name = email.split('@')[0];
+    return name.charAt(0).toUpperCase();
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    const currentY = e.touches[0].clientY;
+    if (touchStartY - currentY > 50) {
+      // Swipe up detected
+      setIsMenuOpen(false);
+    }
   };
 
   if (loading) {
@@ -50,24 +61,37 @@ export default function RestaurantHeader() {
   }
 
   return (
-    <header className="bg-gradient-to-r from-black via-indigo-600 to-blue-700 shadow-lg">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-blue-700 to-black shadow-lg py-1">
       <div className="max-w-screen-xl mx-auto px-6 py-2 flex items-center justify-between">
         {/* Logo */}
         <div className="text-white text-xl font-semibold">
-          <Link href="/" className="flex flex-col justify-start items-center cursor-pointer">
-            <div className="h-14 w-14 mr-2 rounded-full border border-white overflow-hidden">
-              <Image
-                src="/images/delevery_logo.jpg"
-                alt="RestaurantApp Logo"
-                width={56}
-                height={56}
-                className="object-cover"
-                priority
+          <Link
+            href="/"
+            className="flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity duration-300"
+          >
+            {/* Logo Wrapper */}
+            <div className="relative h-16 w-16 overflow-hidden rounded-full border-4 border-yellow-500 shadow-md bg-white">
+              <img
+                src={isLoggedIn?.imageUrl || '/images/2.png'}
+                alt="Restaurant Logo"
+                className="object-cover w-full h-full"
               />
+              {/* Add a subtle gradient overlay for style */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 rounded-full"></div>
             </div>
-            <span className="hidden sm:block">RestaurantApp</span>
+
+            {/* Restaurant Name */}
+            <div className="flex flex-col">
+              <span className="block md:text-2xl text-sm font-serif font-extrabold italic text-gray-300 uppercase tracking-wide">
+                {isLoggedIn?.restaurantName || 'Food Hunter Restaurant'}
+              </span>
+              <span className="block text-sm font-light text-gray-300 italic">
+                Delivering Excellence
+              </span>
+            </div>
           </Link>
         </div>
+
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
@@ -93,16 +117,15 @@ export default function RestaurantHeader() {
                 href="/profile"
                 className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
               >
-                Profile
                 {/* Desktop Profile Initials */}
                 {isLoggedIn.email ? (
-                  <div className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
                     {getInitials(isLoggedIn.email)}
                   </div>
                 ) : (
                   <FaUser className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 )}
-                
+
               </Link>
 
 
@@ -119,30 +142,51 @@ export default function RestaurantHeader() {
         </nav>
 
         {/* Mobile Hamburger Icon */}
+        {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden text-white focus:outline-none"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle Menu"
         >
-          <svg
-            className="w-8 h-8"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+          {isMenuOpen ? (
+            <svg
+              className="w-8 h-8"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            <svg
+              className="w-8 h-8"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          )}
         </button>
+
       </div>
 
       {/* Mobile Menu */}
       <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
           }`}
       >
@@ -182,13 +226,12 @@ export default function RestaurantHeader() {
               {/* Mobile Profile Initials */}
 
               {isLoggedIn.email ? (
-                <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
                   {getInitials(isLoggedIn.email)}
                 </div>
               ) : (
                 <FaUser className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               )}
-              Profile
             </Link>
           </>
         ) : (
@@ -197,8 +240,8 @@ export default function RestaurantHeader() {
             onClick={() => setIsMenuOpen(false)}
             className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
           >
+            <FaUser className="w-5 h-5 mr-2 text-yellow-500" />
             Login/Sign Up
-            <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
         )}
       </div>

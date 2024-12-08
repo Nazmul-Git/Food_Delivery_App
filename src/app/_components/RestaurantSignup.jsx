@@ -13,8 +13,8 @@ export default function RestaurantSignup() {
     const [restaurantType, setRestaurantType] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [imageUrl, setImageUrl] = useState(''); // New state for image URL
-    const [description, setDescription] = useState(''); // New state for description
+    const [imageUrl, setImageUrl] = useState(''); 
+    const [description, setDescription] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ export default function RestaurantSignup() {
             return;
         }
 
-        setLoading(true); // Set loading to true at the start of the API call
+        setLoading(true);
 
         try {
             // API call
@@ -62,8 +62,8 @@ export default function RestaurantSignup() {
                     address,
                     restaurantType,
                     password,
-                    imageUrl:imageUrl, // Send image URL
-                    description, // Send description
+                    imageUrl:imageUrl, 
+                    description, 
                 }),
             });
 
@@ -84,7 +84,7 @@ export default function RestaurantSignup() {
             setErrorMessage('There was an error submitting the form.');
             setSuccessMessage('');
         } finally {
-            setLoading(false); // Ensure loading is set to false after the API call
+            setLoading(false);
         }
     };
 

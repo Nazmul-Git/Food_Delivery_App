@@ -10,11 +10,11 @@ export default function DeliveryUserSignup({ redirect }) {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
 
     const router = useRouter();
-
 
     // Handle form field change
     const handleChange = (e) => {
@@ -63,7 +63,7 @@ export default function DeliveryUserSignup({ redirect }) {
         }
 
         setError('');
-
+        setLoading(true);
         try {
             // Prepare the request payload without `confirmPassword`
             const { confirmPassword, ...formDataToSend } = {
@@ -86,27 +86,23 @@ export default function DeliveryUserSignup({ redirect }) {
 
             if (response.success) {
                 const { signedUser } = response;
-                console.log(signedUser)
+                console.log(signedUser);
                 delete signedUser.password;
                 localStorage.setItem('deliveryUser', JSON.stringify({ signedUser }));
+                setMessage(response.message || 'User registered successfully');
                 if (redirect.dashboard) {
                     router.push('/dashboard');
-                    setMessage(response.message || 'User registered successfully');
                     // Clear the form fields after successful registration
                     setFullName('');
                     setPhone('');
                     setAddress('');
                     setPassword('');
                     setConfirmPassword('');
-                } else if(JSON.parse(localStorage.getItem('deliveryUser'))) {
+                } else if (JSON.parse(localStorage.getItem('deliveryUser'))) {
                     setMessage(response.message || 'User registered successfully');
                     router.push('/dashboard');
-                }else{
-                    alert('Sign up failed!');
                 }
-            }
-            else {
-                router.push('/')
+            } else {
                 setError(response.error || 'Sign up failed!');
             }
         } catch (err) {
@@ -127,7 +123,7 @@ export default function DeliveryUserSignup({ redirect }) {
                         id="fullName"
                         value={fullName}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Enter your full name"
                         required
                     />
@@ -142,7 +138,7 @@ export default function DeliveryUserSignup({ redirect }) {
                         id="phone"
                         value={phone}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Enter your phone number"
                         required
                     />
@@ -157,7 +153,7 @@ export default function DeliveryUserSignup({ redirect }) {
                         id="address"
                         value={address}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Enter your delivery address"
                         required
                     />
@@ -172,7 +168,7 @@ export default function DeliveryUserSignup({ redirect }) {
                         id="password"
                         value={password}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Enter your password"
                         required
                     />
@@ -197,7 +193,7 @@ export default function DeliveryUserSignup({ redirect }) {
                         id="confirmPassword"
                         value={confirmPassword}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Confirm your password"
                         required
                     />
@@ -212,9 +208,9 @@ export default function DeliveryUserSignup({ redirect }) {
                 {/* Submit Button */}
                 <button
                     type="submit"
-                    className="w-full bg-pink-600 text-white py-3 rounded-lg mt-4 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
+                    className="w-full bg-green-600 text-white py-3 rounded-lg mt-4 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300"
                 >
-                    Sign Up
+                    {loading ? 'Signing...' : 'Sign up'}
                 </button>
             </form>
         </>

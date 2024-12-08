@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Loading from '../loading'; // Assuming you have a loading component.
+import Loading from '../loading';
 
 export default function RestaurantLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [loading, setLoading] = useState(false); // Updated to false initially
+    const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
@@ -18,12 +18,14 @@ export default function RestaurantLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (!email || !password) {
-            setErrorMessage('Please enter both email and password');
+            setMessage('Please enter both email and password');
             return;
         }
 
         setLoading(true);
+        setMessage(''); // Reset message before processing
 
         try {
             const response = await fetch('http://localhost:3000/api/restaurants', {
@@ -39,12 +41,14 @@ export default function RestaurantLogin() {
                 const { signedUser } = data;
                 delete signedUser.password;
                 localStorage.setItem('restaurantUser', JSON.stringify(signedUser));
-                router.push('/restaurants/dashboard');
+
+                setMessage('Login successful! Redirecting...');
+                setTimeout(() => router.push('/restaurants/dashboard'), 2000);
             } else {
-                setErrorMessage('Invalid credentials, please try again.');
+                setMessage('Invalid credentials, please try again.');
             }
         } catch (error) {
-            setErrorMessage('An error occurred, please try again later.');
+            setMessage('An error occurred, please try again later.');
         } finally {
             setLoading(false);
         }
@@ -57,9 +61,15 @@ export default function RestaurantLogin() {
     return (
         <>
             <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Restaurant Login</h2>
-            {errorMessage && (
-                <div className="mb-4 p-2 text-red-600 bg-red-100 border border-red-300 rounded-md">
-                    {errorMessage}
+            {message && (
+                <div
+                    className={`mb-4 p-2 rounded-md ${
+                        message.includes('successful')
+                            ? 'text-green-600 bg-green-100 border-green-300'
+                            : 'text-red-600 bg-red-100 border-red-300'
+                    }`}
+                >
+                    {message}
                 </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-6">

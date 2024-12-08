@@ -1,20 +1,18 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import React, { useState, } from 'react';
+import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function UserLogin({ redirect }) {
-
-    // Separate state for email and password
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    // Handle form field change
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'email') setEmail(value);
@@ -49,18 +47,15 @@ export default function UserLogin({ redirect }) {
                 const { loggedUser } = response;
                 delete loggedUser.password;
                 localStorage.setItem('user', JSON.stringify(loggedUser));
-                console.log(redirect.order)
-                if (redirect.order) {
-                    router.push('/order');
-                    alert('Logged in successfully!');
-                } else {
-                    if (JSON.parse(localStorage.getItem('user'))) {
+
+                setMessage('Logged in successfully!');
+                setTimeout(() => {
+                    if (redirect?.order) {
+                        router.push('/order');
+                    } else {
                         router.push('/stores');
-                        alert('Logged in successfully!');
-                    }else{
-                        alert('Login failed!');
                     }
-                }
+                }, 2000);
             } else {
                 setError(response.message || 'Login failed. Please try again.');
             }
@@ -83,7 +78,7 @@ export default function UserLogin({ redirect }) {
                         id="email"
                         value={email}
                         onChange={handleChange}
-                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                         placeholder="Enter your email"
                         required
                     />
@@ -98,7 +93,7 @@ export default function UserLogin({ redirect }) {
                             id="password"
                             value={password}
                             onChange={handleChange}
-                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
                             placeholder="Enter your password"
                             required
                         />
@@ -113,10 +108,11 @@ export default function UserLogin({ redirect }) {
                 </div>
 
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
 
                 <button
                     type="submit"
-                    className="w-full bg-pink-600 text-white py-3 rounded-lg mt-4 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
+                    className="w-full bg-orange-600 text-white py-3 rounded-lg mt-4 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
                     disabled={loading}
                 >
                     {loading ? 'Logging in...' : 'Login'}

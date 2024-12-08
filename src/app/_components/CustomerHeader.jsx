@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { FaHome, FaInfoCircle, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
 import { HiOutlineShoppingCart } from "react-icons/hi2";
 import { TbUserQuestion } from "react-icons/tb";
@@ -16,6 +15,7 @@ export default function CustomerHeader({ cartData }) {
   const [cartItems, setCartItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [keepProf, setKeepProf] = useState({});
+  const [touchStartY, setTouchStartY] = useState(0);
   const router = useRouter();
 
   // This effect will handle clearing the cart when the order is confirmed
@@ -34,16 +34,16 @@ export default function CustomerHeader({ cartData }) {
   }, []);
 
   // after complete order cart will be reset
-  useEffect(()=>{
+  useEffect(() => {
     const profile = JSON.parse(localStorage.getItem('profile'));
-    if(profile?.success){
+    if (profile?.success) {
       localStorage.removeItem('cart');
       setCartItems([]);
       setCartCount(0);
       localStorage.removeItem('profile');
       setKeepProf(profile);
     }
-  },[keepProf]);
+  }, [keepProf]);
 
   // Initial cart item addition
   const initialCartDataSet = () => {
@@ -88,14 +88,14 @@ export default function CustomerHeader({ cartData }) {
     setUser(null);
     setCartCount(0);
     setCartItems([]);
-    router.push('/user'); 
+    router.push('/user');
   };
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
-    console.log('user',user);
+    console.log('user', user);
     if (user && user?.email) {
-      const initials = user?.email?.charAt(0).toUpperCase(); 
+      const initials = user?.email?.charAt(0).toUpperCase();
       return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold">
           {initials}
@@ -114,23 +114,47 @@ export default function CustomerHeader({ cartData }) {
     setIsModalOpen(!isModalOpen);
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    const currentY = e.touches[0].clientY;
+    if (touchStartY - currentY > 50) {
+      // Swipe up detected
+      setIsMenuOpen(false);
+    }
+  };
+
   return (
-    <header className="bg-gradient-to-r from-black via-indigo-600 to-blue-700 shadow-lg">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-orange-700 to-black shadow-lg py-1">
       <div className="max-w-screen-xl mx-auto px-6 py-2 flex items-center justify-between">
         {/* Logo */}
         <div className="text-white text-xl font-semibold">
-          <Link href="/" className="flex flex-col justify-start items-center cursor-pointer">
-            <div className="h-14 w-14 mr-2 rounded-full border border-white overflow-hidden">
-              <Image
-                src="/images/delevery_logo.jpg"
-                alt="CustomerApp Logo"
-                width={76}
-                height={76}
-                className="object-cover"
-                priority
+          <Link
+            href="/"
+            className="flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity duration-300"
+          >
+            {/* Logo Wrapper */}
+            <div className="relative h-16 w-16 overflow-hidden rounded-full border-4 border-yellow-500 shadow-md bg-white">
+              <img
+                src={user?.imageUrl || '/images/2.png'}
+                alt="Restaurant Logo"
+                className="object-cover w-full h-full"
               />
+              {/* Add a subtle gradient overlay for style */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 rounded-full"></div>
             </div>
-            <span className="hidden sm:block">CustomerApp</span>
+
+            {/* Restaurant Name */}
+            <div className="flex flex-col">
+              <span className="block text-2xl font-serif font-extrabold italic text-gray-300 uppercase tracking-wide">
+                {user?.restaurantName || 'Food Hunter'}
+              </span>
+              <span className="block text-sm font-light text-gray-300 italic">
+                Delivering Excellence
+              </span>
+            </div>
           </Link>
         </div>
 
@@ -173,10 +197,10 @@ export default function CustomerHeader({ cartData }) {
           {/* Profile Image or Initials */}
           <button
             onClick={() => {
-              user ? 
-              router.push('/your-profile')
-              :
-              router.push('/user');
+              user ?
+                router.push('/your-profile')
+                :
+                router.push('/user');
             }}
             className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
           >
@@ -186,30 +210,51 @@ export default function CustomerHeader({ cartData }) {
         </nav>
 
         {/* Mobile Hamburger Icon */}
+        {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden text-white focus:outline-none"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle Menu"
         >
-          <svg
-            className="w-8 h-8"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+          {isMenuOpen ? (
+            <svg
+              className="w-8 h-8"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            <svg
+              className="w-8 h-8"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          )}
         </button>
+
       </div>
 
       {/* Mobile Menu */}
       <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
@@ -249,10 +294,10 @@ export default function CustomerHeader({ cartData }) {
         {/* Profile Image or Initials */}
         <button
           onClick={() => {
-            user ? 
-            router.push('/your-profile')
-            :
-            router.push('/user');
+            user ?
+              router.push('/your-profile')
+              :
+              router.push('/user');
           }}
           className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
         >
