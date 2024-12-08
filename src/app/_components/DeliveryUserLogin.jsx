@@ -44,6 +44,7 @@ export default function DeliveryUserLogin({ redirect }) {
             });
 
             response = await response.json();
+            // console.log(response.success)
 
             if (response.success) {
                 const { loggedUser } = response;
@@ -59,7 +60,6 @@ export default function DeliveryUserLogin({ redirect }) {
                     router.push('/dashboard');
                 } else {
                     alert('Login failed!');
-                    // router.push('/');
                 }
             } else {
                 setError(response.message || 'Login failed. Please try again.');

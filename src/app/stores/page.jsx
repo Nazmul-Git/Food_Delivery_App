@@ -7,7 +7,6 @@ import Footer from '../_components/Footer';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ScrollToTop from '../_components/ScrollToTop';
-import Loading from '../loading';
 
 export default function Store() {
   const [locations, setLocations] = useState([]);
@@ -15,13 +14,12 @@ export default function Store() {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
     loadLocations();
-  }, []); // Load locations once on mount
+  }, []);
 
   useEffect(() => {
     loadRestaurants();
@@ -54,13 +52,11 @@ export default function Store() {
       url += `restaurant=${encodeURIComponent(searchQuery)}&`;
     }
 
-    setLoading(true);
     try {
       let response = await fetch(url);
       response = await response.json();
       if (response.success) {
         setRestaurants(response.result);
-        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching restaurants:", error);
@@ -104,10 +100,6 @@ export default function Store() {
       (searchQuery ? (restaurant.restaurantName && restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())) : true)
     );
   });
-
-  if(loading){
-    return <Loading/>
-  }
 
   return (
     <div>
@@ -213,7 +205,7 @@ export default function Store() {
               </div>
             ))
           ) : (
-            <p className="text-center p-10 text-gray-500">No restaurants found</p>
+            <p className="flex justify-center items-right w-full h-80">No restaurants found</p>
           )}
         </div>
       </div>

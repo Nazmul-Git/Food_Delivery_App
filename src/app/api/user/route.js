@@ -1,20 +1,36 @@
-import { connectionUrl } from '@/app/lib/db';
-import UserModel from '@/app/lib/UserModel';
-import mongoose from 'mongoose';
-import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import { connectionUrl } from "@/app/lib/db";
+import UserModel from "@/app/lib/UserModel";
+import mongoose from "mongoose";
+import { NextResponse } from "next/server";
 
-// API Route for User Registration (POST)
 export async function POST(req) {
-  let payload = await req.json();
-  let signedUser;
-  let success = false;
-  await mongoose.connect(connectionUrl);
+    let payload = await req.json();
+    let success = false;
+    let signedUser = null;
 
-  const user = new UserModel(payload);
-  signedUser = await user.save();
-  if (signedUser) {
-    success = true;
-  }
-  // console.log(signedUser);
-  return NextResponse.json({ signedUser, success });
+    await mongoose.connect(connectionUrl);
+
+    if (payload) {
+        try {
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(payload.password, 10); // 10 is the salt rounds
+
+            signedUser = new UserModel({
+                fullName: payload.fullName,
+                email: payload.email,
+                phone: payload.phone,
+                address: payload.address,
+                password: hashedPassword,
+            });
+
+            await signedUser.save();
+            success = true;
+        } catch (err) {
+            console.error(err);
+            return NextResponse.json({ error: "Error saving user!" });
+        }
+    }
+
+    return NextResponse.json({ signedUser, success });
 }
