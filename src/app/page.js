@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ScrollToTop from "./_components/ScrollToTop";
+import WhyChooseUs from "./_components/WhyChooseUs";
 
 export default function Home() {
 
@@ -30,21 +31,34 @@ export default function Home() {
               Savor the taste of your favorite meals from top restaurants, delivered fresh and fast.
             </p>
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center md:justify-start">
-              <Link href='/stores' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
+              <Link
+                href="/stores"
+                className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 hover:shadow-lg hover:scale-105 transition duration-300"
+              >
                 Order Now
               </Link>
-              <Link href='/restaurants' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
-                Become a seller
-              </Link>
-              <Link href='/dashboard' className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 transition">
+              <Link
+                href="/restaurants"
+                className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 hover:shadow-lg hover:scale-105 transition duration-300"
+              >
                 Become a supplier
+              </Link>
+              <Link
+                href="/dashboard"
+                className="bg-white text-indigo-600 font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-100 hover:shadow-lg hover:scale-105 transition duration-300"
+              >
+                Become a distributor
               </Link>
             </div>
             <div className="my-6">
-              <Link href='/about' className="bg-indigo-700 text-white font-semibold  py-2 px-6 rounded-lg shadow hover:bg-indigo-800 transition">
+              <Link
+                href="/about"
+                className="bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-800 hover:shadow-lg hover:scale-105 transition duration-300"
+              >
                 Learn More
               </Link>
             </div>
+
           </div>
 
           {/* Image section */}
@@ -61,48 +75,7 @@ export default function Home() {
       <ScrollToTop />
 
       {/* Features Section */}
-      <section className="py-12 px-6 md:py-16 md:px-12">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-8">
-            Why Choose Us?
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-              <img
-                src="https://thumbs.dreamstime.com/z/d-render-illustration-delivery-woman-character-riding-scooter-motorcycle-large-box-online-food-order-service-289057531.jpg"
-                alt="Fast Delivery"
-                className="mx-auto mb-4"
-              />
-              <h3 className="text-lg font-semibold mb-2">Fast Delivery</h3>
-              <p className="text-gray-600">
-                Get your food delivered to your doorstep within minutes.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-              <img
-                src="https://png.pngtree.com/png-clipart/20200727/original/pngtree-restaurant-logo-design-vector-template-png-image_5441058.jpg"
-                alt="Top Restaurants"
-                className="mx-auto mb-4"
-              />
-              <h3 className="text-lg font-semibold mb-2">Top Restaurants</h3>
-              <p className="text-gray-600">
-                Choose from a wide variety of cuisines from the best restaurants.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-              <img
-                src="https://thumbs.dreamstime.com/b/little-asian-boy-money-hand-flat-vector-illustration-rich-happy-child-holding-banknotes-cartoon-character-earnings-savings-196051551.jpg"
-                alt="Affordable Prices"
-                className="mx-auto mb-4"
-              />
-              <h3 className="text-lg font-semibold mb-2">Affordable Prices</h3>
-              <p className="text-gray-600">
-                Enjoy delicious food at prices that won't break the bank.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <WhyChooseUs/>
 
       {/* Food Categories Section */}
       <section className="py-12 px-6 md:py-16 md:px-12 bg-gray-100">
@@ -110,7 +83,7 @@ export default function Home() {
           <h2 className="text-2xl md:text-4xl font-bold text-gray-800 text-center mb-8">
             Browse Food Categories
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
             {categories.map(
               (category, index) => (
                 <div
