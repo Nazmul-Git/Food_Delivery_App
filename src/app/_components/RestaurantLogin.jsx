@@ -37,7 +37,7 @@ export default function RestaurantLogin() {
             });
             const data = await response.json();
 
-            if (data.success) {
+            if (data.success && data.token) {
                 const { signedUser } = data;
                 delete signedUser.password;
                 localStorage.setItem('restaurantUser', JSON.stringify(signedUser));

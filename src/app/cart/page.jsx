@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,34 +13,34 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Sync cartStorage and userStorage with localStorage and initialize state
+  // Load cart and user storage on initial render
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedCart = localStorage.getItem('cart');
       const storedUser = localStorage.getItem('user');
-      if (storedCart) setCartStorage(JSON.parse(storedCart));
+      if (storedCart) {
+        const parsedCart = JSON.parse(storedCart).map((item) => ({
+          ...item,
+          quantity: item.quantity || 1,
+        }));
+        setCartStorage(parsedCart);
+      }
       if (storedUser) setUserStorage(JSON.parse(storedUser));
-      setLoading(false); // Data has been fetched, set loading to false
+      setLoading(false);
     }
   }, []);
 
-  // Re-sync cartStorage with localStorage when it changes
+  // Update localStorage when cartStorage changes
   useEffect(() => {
     if (cartStorage.length > 0) {
       localStorage.setItem('cart', JSON.stringify(cartStorage));
     }
   }, [cartStorage]);
 
-  // Ensure each cart item has a quantity field
-  const ensureQuantity = (item) => ({
-    ...item,
-    quantity: item.quantity || 1,
-  });
-
-  // Update item quantity and persist to localStorage
+  // Update quantity of cart items
   const updateQuantity = (id, action) => {
-    setCartStorage((prevCartStorage) => {
-      const updatedCart = prevCartStorage.map((item) => {
+    setCartStorage((prevCart) => {
+      const updatedCart = prevCart.map((item) => {
         if (item._id === id) {
           const updatedItem = { ...item };
           if (action === 'increase') {
@@ -52,8 +52,6 @@ export default function Cart() {
         }
         return item;
       });
-
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
       return updatedCart;
     });
   };
@@ -63,31 +61,21 @@ export default function Cart() {
     return cartStorage.reduce((acc, item) => {
       const price = parseFloat(item.price);
       const quantity = item.quantity || 1;
-
-      if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
-        return acc + (price * quantity);
-      }
-      return acc;
-    }, 0);
+      return acc + (price * quantity);
+    }, 1);
   }, [cartStorage]);
 
   const vat = total * vatPercentage;
   const totalWithVat = total + vat;
   const finalTotal = totalWithVat + deliveryCharge;
 
-  const formattedTotal = total ? parseFloat(total.toFixed(2)) : 0;
-  const formattedVat = vat ? parseFloat(vat.toFixed(2)) : 0;
-  const formattedTotalWithVat = totalWithVat ? parseFloat(totalWithVat.toFixed(2)) : 0;
-  const formattedFinalTotal = finalTotal ? parseFloat(finalTotal.toFixed(2)) : 0;
-
-  // Handle item removal
+  // Remove an item from the cart
   const handleRemoveItem = (itemId) => {
     const updatedCart = cartStorage.filter((item) => item._id !== itemId);
     setCartStorage(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  // Limit description to first 10 words
+  // Limit the description length
   const limitDescription = (description) => {
     if (!description) return '';
     const words = description.split(' ');
@@ -95,17 +83,18 @@ export default function Cart() {
     return truncated.length < description.length ? truncated + '...' : truncated;
   };
 
-  // Navigate back to stores page
+  // Navigate back to the stores page
   const handleBackClick = () => {
     router.push('/stores');
   };
 
   // Proceed to checkout
   const orderNow = () => {
-    if (userStorage && cartStorage.length) {
-      localStorage.setItem('orderSummery', JSON.stringify({formattedTotal,formattedVat,deliveryCharge,formattedFinalTotal}))
+    // console.log(userStorage, cartStorage)
+    localStorage.setItem('orderSummary', JSON.stringify({ total, vat, deliveryCharge, finalTotal }));
+    if (userStorage && cartStorage.length > 0) {
       router.push('/order');
-    } else if (!userStorage) {
+    } else{
       router.push('/user?order=true');
     }
   };
@@ -133,23 +122,25 @@ export default function Cart() {
         </div>
         <div className="space-y-4">
           {cartStorage.length === 0 ? (
-            <div className='flex flex-col items-center justify-center gap-4'>
+            <div className="flex flex-col items-center justify-center gap-4">
               <p className="text-lg text-gray-600">Your cart is empty.</p>
-              <button onClick={() => router.push('/stores')} className='px-3 py-2 rounded-md bg-orange-600 text-white font-semibold'>Shop Now</button>
+              <button
+                onClick={() => router.push('/stores')}
+                className="px-3 py-2 rounded-md bg-orange-600 text-white font-semibold"
+              >
+                Shop Now
+              </button>
             </div>
           ) : (
-            cartStorage.map((item) => {
-              const itemWithQuantity = ensureQuantity(item);
-              return (
-                <CartItem
-                  key={itemWithQuantity._id}
-                  item={itemWithQuantity}
-                  updateQuantity={updateQuantity}
-                  handleRemoveItem={handleRemoveItem}
-                  limitDescription={limitDescription}
-                />
-              );
-            })
+            cartStorage.map((item) => (
+              <CartItem
+                key={item._id}
+                item={item}
+                updateQuantity={updateQuantity}
+                handleRemoveItem={handleRemoveItem}
+                limitDescription={limitDescription}
+              />
+            ))
           )}
         </div>
       </div>
@@ -160,44 +151,34 @@ export default function Cart() {
         <div className="space-y-5">
           {/* Subtotal */}
           <div className="flex justify-between">
-            <span className="text-lg text-gray-700">Subtotal ({cartStorage.length} items):</span>
-            <span className="text-lg font-semibold text-gray-900">${formattedTotal}</span>
+            <span>Subtotal:</span>
+            <span>${total.toFixed(2)}</span>
           </div>
 
           {/* VAT */}
           <div className="flex justify-between">
-            <span className="text-lg text-gray-700">VAT (10%):</span>
-            <span className="text-lg font-semibold text-gray-900">${formattedVat}</span>
+            <span>VAT (10%):</span>
+            <span>${vat.toFixed(2)}</span>
           </div>
 
           {/* Shipping */}
           <div className="flex justify-between">
-            <span className="text-lg text-gray-700">Shipping:</span>
-            <span className="text-lg text-gray-900">${deliveryCharge.toFixed(2)}</span>
+            <span>Shipping:</span>
+            <span>${deliveryCharge.toFixed(2)}</span>
           </div>
 
-          {/* Discount (if any) */}
-          <div className="flex justify-between">
-            <span className="text-lg text-gray-700">Discount:</span>
-            <span className="text-lg text-gray-500">-</span>
-          </div>
-
-          {/* Total (incl. VAT) */}
-          <div className="flex justify-between text-xl font-bold text-gray-900 mt-6">
-            <span>Total (incl. VAT):</span>
-            <span>${formattedTotalWithVat}</span>
-          </div>
-
-          {/* Final Total (incl. VAT & Delivery) */}
-          <div className="flex justify-between text-xl font-bold text-gray-900 mt-6">
-            <span>Final Total (incl. VAT & Delivery):</span>
-            <span>${formattedFinalTotal}</span>
+          {/* Total */}
+          <div className="flex justify-between text-lg font-bold">
+            <span>Total:</span>
+            <span>${finalTotal.toFixed(2)}</span>
           </div>
         </div>
 
         {/* Checkout Button */}
-        <button onClick={orderNow}
-          className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3 px-6 rounded-full mt-6 hover:bg-gradient-to-r hover:from-pink-600 hover:to-pink-700 transition-all duration-300">
+        <button
+          onClick={orderNow}
+          className="w-full bg-pink-600 text-white py-3 px-6 rounded-lg mt-6 hover:bg-pink-700"
+        >
           Proceed to Checkout
         </button>
       </div>

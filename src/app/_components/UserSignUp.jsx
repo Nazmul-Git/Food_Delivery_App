@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 export default function UserSignUp({ redirect }) {
+    const [user, setUser] = useState();
+    const [cart, setCart] = useState([]);
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -13,7 +15,7 @@ export default function UserSignUp({ redirect }) {
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false); // Added loading state
+    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
@@ -90,10 +92,12 @@ export default function UserSignUp({ redirect }) {
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
+            if (response.ok && data.success && data.token) {
                 const { signedUser } = data;
                 delete signedUser.password;
                 localStorage.setItem('user', JSON.stringify(signedUser));
+                setUser(JSON.parse(localStorage.getItem('user')));
+                setCart(JSON.parse(localStorage.getItem('cart')));
                 setMessage('Sign up successful!');
                 setFullName('');
                 setEmail('');
@@ -103,9 +107,10 @@ export default function UserSignUp({ redirect }) {
                 setConfirmPassword('');
                 setPasswordStrength(0);
 
-                if (redirect?.order) {
+                if (redirect?.order || user && cart.length ) {
                     router.push('/order');
-                } else if (JSON.parse(localStorage.getItem('user'))) {
+                }
+                 else {
                     router.push('/stores');
                 }
             } else {

@@ -52,7 +52,7 @@ export default function CustomerHeader({ cartData }) {
     setCartCount(1);
     setCartItems([cartData]);
     localStorage.setItem('cart', JSON.stringify([cartData]));
-    alert('Item added successfully');
+    alert('Item added to cart!');
   };
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function CustomerHeader({ cartData }) {
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
-    console.log('user', user);
+    // console.log('user', user);
     if (user && user?.email) {
       const initials = user?.email?.charAt(0).toUpperCase();
       return (

@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { FaCcVisa, FaCcMastercard, FaCcDiscover, FaCcAmex } from 'react-icons/fa';
 import { IoMdRadioButtonOn, IoMdRadioButtonOff } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
-import { vatPercentage, deliveryCharge } from '../lib/constant';
 import { TiArrowBack } from "react-icons/ti";
 import Image from 'next/image';
 import Loading from '../loading';
@@ -11,12 +10,11 @@ import Loading from '../loading';
 export default function Order() {
     const [userStorage, setUserStorage] = useState();
     const [cartStorage, setCartStorage] = useState([]);
-    const [orderSummery, setOrderSummery] = useState({});
+    const [orderSummery, setOrderSummery] = useState();
     const [loading, setLoading] = useState(false);
 
-    // console.log(orderSummery)
     const router = useRouter();
-
+    
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
     const [bankPaymentDetails, setBankPaymentDetails] = useState({
         bankName: '',
@@ -25,28 +23,30 @@ export default function Order() {
     });
     // const [removeCartData,setRemoveCartData] = useState(false);
     const [errors, setErrors] = useState({});
-
-
+    
+    useEffect(() => {
+        // Only update the orderSummary state if it has not been set before
+        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
+        if (storedOrderSummary && !orderSummery) {  // Only update if orderSummery is not already set
+            setOrderSummery(storedOrderSummary);
+        } else if (!storedOrderSummary) {
+            router.push('/stores');
+        }
+    }, []);  // Empty dependency array ensures this effect runs only once, on mount
+    
     useEffect(() => {
         setLoading(true);
         const cartData = localStorage.getItem('cart');
         const userData = localStorage.getItem('user');
-        const orderSummery = JSON.parse(localStorage.getItem('orderSummery'));
-        setOrderSummery(orderSummery);
 
         if (cartData) {
             setCartStorage(JSON.parse(cartData));
-        } else {
-            setCartStorage([]);
         }
-
         if (userData) {
             setUserStorage(JSON.parse(userData));
         }
         setLoading(false);
     }, []);
-
-
 
     // Handle payment method selection
     const handlePaymentMethodChange = (method) => {
@@ -81,15 +81,6 @@ export default function Order() {
         }
     };
 
-
-
-
-    useEffect(() => {
-        if (!orderSummery) {
-            router.push('/stores')
-        }
-    }, [orderSummery]);
-
     // Store cart items in localStorage whenever cartStorage changes
     useEffect(() => {
         if (cartStorage.length > 0) {
@@ -107,25 +98,25 @@ export default function Order() {
             alert('Please select a payment method.');
             return;
         }
-    
+
         if (!cartStorage || cartStorage.length === 0) {
             alert('Your cart is empty.');
             return;
         }
-    
+
         let user_Id = JSON.parse(localStorage.getItem('user'))._id;
         let user_Address = JSON.parse(localStorage.getItem('user')).address;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
-    
+
         // Break down the user address into keywords
         const addressKeywords = user_Address
             .toLowerCase()
             .replace(/[\-,]/g, '') // Remove punctuation
             .split(/\s*,\s*|\s+/); // Split by commas or spaces
-    
+
         let deliveryBoyResponse = null;
-    
+
         // Try searching delivery partners progressively with broader keywords
         for (let i = 0; i < addressKeywords.length; i++) {
             const searchKeyword = addressKeywords.slice(i).join(' '); // Join remaining keywords
@@ -135,7 +126,7 @@ export default function Order() {
                     `http://localhost:3000/api/deliveryPartners/${encodeURIComponent(searchKeyword)}`
                 );
                 deliveryBoyResponse = await deliveryBoyResponse.json();
-    
+
                 // Break the loop if results are found
                 if (deliveryBoyResponse.result && deliveryBoyResponse.result.length > 0) {
                     break;
@@ -144,30 +135,30 @@ export default function Order() {
                 console.error(`Error searching for keyword "${searchKeyword}":`, error);
             }
         }
-    
+
         // Check if delivery partners were found
         if (!deliveryBoyResponse || !deliveryBoyResponse.result || deliveryBoyResponse.result.length === 0) {
             alert('No delivery partner found for your address.');
             return;
         }
-    
+
         const deliveryBoysIds = deliveryBoyResponse.result.map((deliveryMan) => deliveryMan._id);
-    
+
         // Select a random delivery boy
         let delivery_Id = deliveryBoysIds[Math.floor(Math.random() * deliveryBoysIds.length)];
         // console.log("Selected Delivery Boy ID:", delivery_Id);
-        if(!delivery_Id) alert('Delivery man are not available at this moment!');
-    
+        if (!delivery_Id) alert('Delivery man are not available at this moment!');
+
         let orderDetails = {
             user_Id,
             foodItemId,
             restaurantId,
             delivery_Id,
             status: 'confirm',
-            amount: orderSummery?.formattedFinalTotal,
+            amount: orderSummery?.finalTotal,
             paymentMethod: selectedPaymentMethod,
         };
-    
+
         try {
             let response = await fetch('http://localhost:3000/api/order', {
                 method: 'POST',
@@ -176,16 +167,15 @@ export default function Order() {
                 },
                 body: JSON.stringify(orderDetails),
             });
-    
+
             response = await response.json();
-    
+
             if (response.success) {
                 const orderDetailsStorage = {
                     ...orderDetails,
                     success: response.success,
                 };
                 localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
-                localStorage.removeItem('orderSummery');
                 alert('Order Confirmed Successfully');
                 router.push('/your-profile');
             } else {
@@ -197,7 +187,7 @@ export default function Order() {
             alert('Something went wrong. Please try again later.');
         }
     };
-        
+
     if (loading) return <Loading />
 
     // console.log(cartStorage);
@@ -406,11 +396,11 @@ export default function Order() {
                 <div className="space-y-4">
                     <div className="flex justify-between">
                         <span>Subtotal:</span>
-                        <span>$ {orderSummery?.formattedTotal}</span>
+                        <span>$ {orderSummery?.total}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>VAT (10%):</span>
-                        <span>$ {orderSummery?.formattedVat}</span>
+                        <span>$ {orderSummery?.vat}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>Delivery Charge:</span>
@@ -418,7 +408,7 @@ export default function Order() {
                     </div>
                     <div className="flex justify-between font-semibold text-lg text-pink-500">
                         <span>Total:</span>
-                        <span>$ {orderSummery?.formattedFinalTotal}</span>
+                        <span>$ {orderSummery?.finalTotal}</span>
                     </div>
                 </div>
             </div>

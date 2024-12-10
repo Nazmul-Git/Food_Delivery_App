@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { TiArrowForward } from "react-icons/ti";
 
 export default function CartModal({ setCartCount, onClose }) {
-  // Get the cart from local storage initially
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('cart');
     return savedCart ? JSON.parse(savedCart) : [];
@@ -12,7 +11,7 @@ export default function CartModal({ setCartCount, onClose }) {
   // Update localStorage whenever cartItems change
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]); 
+  }, [cartItems]);
 
   // Handle item removal from cart
   const handleRemoveItem = (itemId) => {
@@ -41,18 +40,10 @@ export default function CartModal({ setCartCount, onClose }) {
   return (
     <div
       id="modal-overlay"
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 "
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
-      <div className="bg-white p-6 sm:p-8 rounded-lg max-w-lg w-full shadow-lg relative">
-        <h2 className="text-4xl text-black font-bold mb-6 text-center">Your Cart</h2>
-
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-4 text-3xl font-bold hover:text-red-700 text-black sm:text-2xl"
-        >
-          &times;
-        </button>
+      <div className="bg-white bg-opacity-50 p-6 sm:p-8 rounded-lg max-w-lg w-full shadow-lg relative group hover:bg-opacity-70 hover:bg-black hover:bg-blend-darken">
+        <h2 className="text-4xl text-white font-bold mb-6 text-center">Your Cart</h2>
 
         <div className="overflow-y-auto max-h-96">
           {cartItems.length === 0 ? (
@@ -87,7 +78,24 @@ export default function CartModal({ setCartCount, onClose }) {
             </ul>
           )}
         </div>
-        <Link href='/cart' className='absolute mt-4 flex items-center justify-center gap-2 bottom-2 right-4 text-md hover:underline font-semibold hover:text-blue-600  text-blue-400 '><TiArrowForward/> View Cart</Link>
+
+        {/* View Cart Button */}
+        <Link
+          href="/cart"
+          className="absolute bottom-2 right-1/2 transform translate-x-1/2 text-md font-semibold flex items-center bg-blue-600  bg-blend-lighten px-4 py-2 font-semibold rounded-md text-white hover:underline hover:font-bold transition-all ease-in-out opacity-0 group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 translate-y-8 scale-90"
+          aria-label="Go to Cart"
+        >
+          <TiArrowForward className="text-xl" />
+          View Cart
+        </Link>
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-4 text-6xl font-bold text-red-700 sm:text-2xl transform transition-transform duration-300 ease-in-out hover:rotate-180 origin-center"
+        >
+          &times;
+        </button>
       </div>
     </div>
   );

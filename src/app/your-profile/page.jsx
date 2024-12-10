@@ -35,6 +35,7 @@ const Profile = () => {
     response = await response.json();
     if (response.success) {
       setOrders(response.orders);
+      localStorage.removeItem('orderSummary');
       setLoading(false);
     }
   };

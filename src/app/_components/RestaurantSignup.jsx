@@ -70,7 +70,7 @@ export default function RestaurantSignup() {
             // Parse the response
             response = await response.json();
 
-            if (response.success) {
+            if (response.success && response.token) {
                 localStorage.setItem('restaurantUser', JSON.stringify(response.signedUser));
                 setSuccessMessage('Restaurant registered successfully!');
                 setErrorMessage('');

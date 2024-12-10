@@ -32,7 +32,7 @@ const RestaurantDetails = ({ restaurantDetails }) => {
                 </div>
 
                 {/* Right Section: Email and Phone Number */}
-                <div className="space-y-10">
+                <div className="space-y-10 p-4">
                     {/* Email */}
                     <div className="flex justify-start items-center space-x-4">
                         <FaEnvelope className="text-indigo-600 text-4xl" />

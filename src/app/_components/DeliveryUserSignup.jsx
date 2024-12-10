@@ -84,7 +84,7 @@ export default function DeliveryUserSignup({ redirect }) {
 
             response = await response.json();
 
-            if (response.success) {
+            if (response.success && response.token) {
                 const { signedUser } = response;
                 console.log(signedUser);
                 delete signedUser.password;

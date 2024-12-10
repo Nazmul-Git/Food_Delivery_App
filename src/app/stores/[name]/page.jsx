@@ -17,7 +17,6 @@ export default function StoreDetails({ params, searchParams }) {
     const [cartData, setCartData] = useState();
     const [isSaveData, setIsSaveData] = useState([]);
 
-    
 
     useEffect(() => {
         // Only execute this code in the browser
@@ -54,7 +53,7 @@ export default function StoreDetails({ params, searchParams }) {
     if (!restaurantDetails || foodItems.length === 0) {
         return <p>No data found</p>;
     }
-    
+
     const addToCart = (item) => {
         setCartData(item);
     }
@@ -90,16 +89,20 @@ export default function StoreDetails({ params, searchParams }) {
                             <img src={item.imagePath} alt={item.foodName} className="w-full h-64 object-cover" />
                             <div className="flex flex-col flex-grow p-4">
                                 <h3 className="text-2xl font-semibold text-gray-800 mb-2">{item.foodName}</h3>
-                                {/* Truncate the description to 10 words */}
-                                <p className="text-lg text-gray-700 mt-2 flex-grow">{item.description}</p>
+
+                                {/* Truncate description to a limited number of words */}
+                                <p className="text-lg text-gray-700 mt-2 flex-grow">
+                                    {item.description.split(' ').slice(0, 10).join(' ')}{item.description.split(' ').length > 10 && '...'}
+                                </p>
+
                                 <div className="flex justify-between items-center mt-4">
                                     <span className="text-lg font-bold text-green-500">${item.price}</span>
 
                                     {
-                                        isSaveData.find((i)=>i._id === item._id) ? 
-                                        <button onClick={() => addToCart(item)} className='bg-gray-300 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition'>Already added</button>
-                                        :
-                                        <button onClick={() => addToCart(item)} className='bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition'>Add to Cart</button>
+                                        isSaveData.find((i) => i._id === item._id) ?
+                                            <button onClick={() => addToCart(item)} className='bg-gray-300 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition'>Added</button>
+                                            :
+                                            <button onClick={() => addToCart(item)} className='bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition'>Add to Cart</button>
                                     }
                                 </div>
                             </div>

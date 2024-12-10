@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function UserLogin({ redirect }) {
+    const [user, setUser] = useState();
+    const [cart, setCart] = useState([]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -43,19 +45,20 @@ export default function UserLogin({ redirect }) {
 
             response = await response.json();
 
-            if (response.success) {
+            if (response.success && response.token) {
                 const { loggedUser } = response;
                 delete loggedUser.password;
                 localStorage.setItem('user', JSON.stringify(loggedUser));
+                setUser(JSON.parse(localStorage.getItem('user')));
+                setCart(JSON.parse(localStorage.getItem('cart')));
 
                 setMessage('Logged in successfully!');
-                setTimeout(() => {
-                    if (redirect?.order) {
-                        router.push('/order');
-                    } else {
-                        router.push('/stores');
-                    }
-                }, 2000);
+                if (redirect?.order || user && cart.length ) {
+                    router.push('/order');
+                }
+                 else {
+                    router.push('/stores');
+                }
             } else {
                 setError(response.message || 'Login failed. Please try again.');
             }

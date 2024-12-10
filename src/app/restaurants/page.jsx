@@ -12,8 +12,8 @@ export default function Restaurant() {
     return (
         <>
             <RestaurantHeader />
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className={`bg-white p-8 rounded-xl shadow-lg ${login ? 'w-96' : 'w-2/4' }`}>
+            <div className="min-h-screen flex items-center justify-center bg-gray-100 p-16">
+                <div className={`bg-white p-8 rounded-xl shadow-lg ${login ? 'w-96' : 'w-4/4' }`}>
                     {
                         login ?
                             <RestaurantLogin /> :

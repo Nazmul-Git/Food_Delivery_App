@@ -44,7 +44,7 @@ export default function DeliveryUserLogin({ redirect }) {
 
             const data = await response.json();
 
-            if (data.success) {
+            if (data.success && data.token) {
                 const { loggedUser } = data;
                 delete loggedUser.password;
                 localStorage.setItem('deliveryUser', JSON.stringify(loggedUser));
