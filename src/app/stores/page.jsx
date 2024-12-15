@@ -167,7 +167,7 @@ export default function Store() {
       <div className="p-16">
         <h3 className="text-xl sm:text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredRestaurants.length > 0 ? (
+          {filteredRestaurants.length > 0 && (
             filteredRestaurants.map((restaurant) => (
               <div
                 key={restaurant._id}
@@ -196,10 +196,6 @@ export default function Store() {
                 </div>
               </div>
             ))
-          ) : (
-            <div className=''>
-              <p className=" flex justify-center text-red-600 items-center w-full h-80 text-center mt">No restaurants found</p>
-            </div>
           )}
         </div>
       </div>

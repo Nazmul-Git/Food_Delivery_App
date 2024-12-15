@@ -27,11 +27,11 @@ const Profile = () => {
   }, []);
 
   const fetchOrders = async () => {
-    const userLStorage = JSON.parse(localStorage.getItem('user'));
-    setUser(userLStorage);
-    setUserEmail(userLStorage?.email);
+    const orderedProfile = JSON.parse(localStorage.getItem('profile'));
+    setUser(orderedProfile);
+    setUserEmail(orderedProfile?.email);
 
-    let response = await fetch(`http://localhost:3000/api/order?id=${userLStorage?._id}`);
+    let response = await fetch(`http://localhost:3000/api/order?id=${orderedProfile?.user_Id}`);
     response = await response.json();
     if (response.success) {
       setOrders(response.orders);
@@ -82,7 +82,7 @@ const Profile = () => {
 
           {/* User Info */}
           <div className="space-y-2">
-            <h2 className="text-3xl font-semibold text-gray-900">{user?.fullName}</h2>
+            <h2 className="text-3xl font-semibold text-gray-900">{user?.customerName}</h2>
             <p className="text-lg text-gray-700">{userEmail}</p>
             <p className="text-lg text-gray-600">{user?.address}</p>
 

@@ -5,6 +5,7 @@ import Footer from '@/app/_components/Footer'
 import RestaurantDetails from '@/app/_components/RestaurantDetails';
 import ScrollToTop from '@/app/_components/ScrollToTop';
 import Loading from '@/app/loading';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 export default function StoreDetails({ params, searchParams }) {
@@ -16,6 +17,7 @@ export default function StoreDetails({ params, searchParams }) {
     const [loading, setLoading] = useState(true);
     const [cartData, setCartData] = useState();
     const [isSaveData, setIsSaveData] = useState([]);
+    const router = useRouter();
 
 
     useEffect(() => {
@@ -100,9 +102,16 @@ export default function StoreDetails({ params, searchParams }) {
 
                                     {
                                         isSaveData.find((i) => i._id === item._id) ?
-                                            <button onClick={() => addToCart(item)} className='bg-gray-300 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition'>Added</button>
+                                            <button onClick={() => addToCart(item)}
+                                                className='bg-gray-300 hover:bg-gray-700 text-white px-4 py-2 rounded-full transition'>Added</button>
                                             :
-                                            <button onClick={() => addToCart(item)} className='bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition'>Add to Cart</button>
+                                            <div className='flex items-center gap-2'>
+                                                <button onClick={() => {
+                                                    addToCart(item);
+                                                    router.push('/cart');
+                                                }} className='bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-full transition'>Buy Now</button>
+                                                <button onClick={() => addToCart(item)} className='bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded-full transition'>Add to Cart</button>
+                                            </div>
                                     }
                                 </div>
                             </div>

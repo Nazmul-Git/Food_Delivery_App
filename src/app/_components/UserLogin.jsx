@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+import { signIn } from 'next-auth/react';
+import { FaGithub } from 'react-icons/fa6';
 
 export default function UserLogin({ redirect }) {
-    const [user, setUser] = useState();
-    const [cart, setCart] = useState([]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -14,12 +14,45 @@ export default function UserLogin({ redirect }) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    // console.log(redirect);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'email') setEmail(value);
         if (name === 'password') setPassword(value);
     };
+
+    const handleLogin = async (provider) => {
+        try {
+            // console.log("Attempting login with provider:", provider);
+    
+            const result = await signIn(provider, {
+                callbackUrl: `${redirect?.order ? '/order' : '/stores'}`
+            });
+    
+            // Save result to localStorage
+            try {
+                localStorage.setItem('signInData', JSON.stringify(result));
+                console.log("SignIn data saved to localStorage.");
+            } catch (storageError) {
+                console.error("Failed to save data to localStorage:", storageError);
+            }
+    
+            if (result?.error) {
+                throw new Error(result.error);
+            }
+    
+            // Perform manual redirection
+            if (result?.url) {
+                console.log("Redirecting to:", result.url);
+                window.location.href = result.url;
+            }
+        } catch (error) {
+            console.error("Login failed:", error);
+            setError(error.message || 'Login failed');
+        }
+    };    
+    
 
     const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
@@ -45,18 +78,13 @@ export default function UserLogin({ redirect }) {
 
             response = await response.json();
 
+            
             if (response.success && response.token) {
-                const { loggedUser } = response;
-                delete loggedUser.password;
-                localStorage.setItem('user', JSON.stringify(loggedUser));
-                setUser(JSON.parse(localStorage.getItem('user')));
-                setCart(JSON.parse(localStorage.getItem('cart')));
-
+                localStorage.setItem('user', JSON.stringify(response.loggedUser));
                 setMessage('Logged in successfully!');
-                if (redirect?.order || user && cart.length ) {
+                if (redirect?.order) {
                     router.push('/order');
-                }
-                 else {
+                }else{
                     router.push('/stores');
                 }
             } else {
@@ -121,6 +149,24 @@ export default function UserLogin({ redirect }) {
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
             </form>
+
+            <div className="mt-6">
+                <p className="text-center text-gray-600 mb-4">Or login with</p>
+                <div className="flex justify-center gap-4">
+                    <button
+                        onClick={() => handleLogin('google')}
+                        className="flex items-center gap-2 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all"
+                    >
+                        <FaGoogle /> Google
+                    </button>
+                    <button
+                        onClick={() => handleLogin('github')}
+                        className="flex items-center gap-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-all"
+                    >
+                        <FaGithub /> Github
+                    </button>
+                </div>
+            </div>
         </>
     );
 }

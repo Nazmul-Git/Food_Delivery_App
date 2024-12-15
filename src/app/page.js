@@ -64,7 +64,7 @@ export default function Home() {
           {/* Image section */}
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
             <img
-              src="https://img.freepik.com/premium-photo/young-delivery-girl_1368-61399.jpg"
+              src="https://img.freepik.com/premium-photo/young-beautiful-delivery-woman-isolates_1368-138592.jpg"
               alt="Delicious food"
               className="rounded-lg shadow-lg w-full max-w-md"
             />

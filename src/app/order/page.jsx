@@ -1,41 +1,49 @@
-'use client'
+'use client';
 import { useState, useEffect } from 'react';
-import { FaCcVisa, FaCcMastercard, FaCcDiscover, FaCcAmex } from 'react-icons/fa';
 import { IoMdRadioButtonOn, IoMdRadioButtonOff } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
-import { TiArrowBack } from "react-icons/ti";
-import Image from 'next/image';
+import { TiArrowBack } from 'react-icons/ti';
 import Loading from '../loading';
+import { getSession } from 'next-auth/react';
 
 export default function Order() {
     const [userStorage, setUserStorage] = useState();
     const [cartStorage, setCartStorage] = useState([]);
     const [orderSummery, setOrderSummery] = useState();
-    const [loading, setLoading] = useState(false);
-
-    const router = useRouter();
-    
+    const [loading, setLoading] = useState(true);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
     const [bankPaymentDetails, setBankPaymentDetails] = useState({
         bankName: '',
         accountNumber: '',
         accountHolderName: '',
     });
-    // const [removeCartData,setRemoveCartData] = useState(false);
     const [errors, setErrors] = useState({});
-    
+    const router = useRouter();
+    const [session, setSession] = useState(null);
+    const [address, setAddress] = useState('');
+    const [mobile, setMobile] = useState('');
+
     useEffect(() => {
-        // Only update the orderSummary state if it has not been set before
-        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
-        if (storedOrderSummary && !orderSummery) {  // Only update if orderSummery is not already set
-            setOrderSummery(storedOrderSummary);
-        } else if (!storedOrderSummary) {
-            router.push('/stores');
-        }
-    }, []);  // Empty dependency array ensures this effect runs only once, on mount
-    
+        const fetchSession = async () => {
+            const currentSession = await getSession();
+            // console.log('current session = ',currentSession);
+            setSession(currentSession);
+        };
+
+        fetchSession();
+    }, []);
+
+    console.log('session is = ', session);
+
+    const handleAddressChange = (value) => {
+        setAddress(value);
+    };
+    const handlePhoneChange = (value) => {
+        setMobile(value);
+    };
+
     useEffect(() => {
-        setLoading(true);
+        // Fetch cart and user data from localStorage
         const cartData = localStorage.getItem('cart');
         const userData = localStorage.getItem('user');
 
@@ -45,16 +53,27 @@ export default function Order() {
         if (userData) {
             setUserStorage(JSON.parse(userData));
         }
-        setLoading(false);
-    }, []);
 
-    // Handle payment method selection
+        // Fetch order summary
+        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
+        if (storedOrderSummary) {
+            setOrderSummery(storedOrderSummary);
+        } else {
+            router.push('/stores');
+        }
+
+        setLoading(false);
+    }, [router]);
+
     const handlePaymentMethodChange = (method) => {
         setSelectedPaymentMethod(method);
         setErrors({});
     };
 
-    // Handle bank payment details change
+    const handleBackClick = () => {
+        router.push('/cart');
+    };
+
     const handleBankPaymentChange = (e) => {
         const { name, value } = e.target;
         setBankPaymentDetails((prev) => ({
@@ -63,7 +82,6 @@ export default function Order() {
         }));
     };
 
-    // Validate bank payment details
     const validateBankPayment = () => {
         const errors = {};
         if (!bankPaymentDetails.bankName) errors.bankName = 'Bank name is required';
@@ -73,7 +91,6 @@ export default function Order() {
         return Object.keys(errors).length === 0;
     };
 
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
         if (selectedPaymentMethod === 'bank' && !validateBankPayment()) {
@@ -81,53 +98,45 @@ export default function Order() {
         }
     };
 
-    // Store cart items in localStorage whenever cartStorage changes
-    useEffect(() => {
-        if (cartStorage.length > 0) {
-            localStorage.setItem('cart', JSON.stringify(cartStorage));
-        }
-    }, [cartStorage]);
-
-    // Handle the back button click
-    const handleBackClick = () => {
-        router.push('/cart');
-    };
+    function generateObjectId() {
+        return new Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    }
 
     const confirmOrder = async () => {
+        // Check if a payment method has been selected
         if (!selectedPaymentMethod) {
             alert('Please select a payment method.');
             return;
         }
 
+        // Check if the cart is empty
         if (!cartStorage || cartStorage.length === 0) {
             alert('Your cart is empty.');
             return;
         }
 
-        let user_Id = JSON.parse(localStorage.getItem('user'))._id;
-        let user_Address = JSON.parse(localStorage.getItem('user')).address;
+        let randomObjectId = generateObjectId();
+        let user_Id = userStorage?._id || randomObjectId.toString();
+        let user_Address = userStorage?.address;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
 
-        // Break down the user address into keywords
-        const addressKeywords = user_Address
+        // Delivery boy lookup logic
+        const addressKeywords = (user_Address && user_Address || address && address)
             .toLowerCase()
-            .replace(/[\-,]/g, '') // Remove punctuation
-            .split(/\s*,\s*|\s+/); // Split by commas or spaces
+            .replace(/[\-,]/g, '')
+            .split(/\s*,\s*|\s+/);
 
         let deliveryBoyResponse = null;
 
-        // Try searching delivery partners progressively with broader keywords
+        // Iterate over address keywords to find a delivery boy
         for (let i = 0; i < addressKeywords.length; i++) {
-            const searchKeyword = addressKeywords.slice(i).join(' '); // Join remaining keywords
+            const searchKeyword = addressKeywords.slice(i).join(' ');
             try {
-                console.log(`Searching delivery partners for: ${searchKeyword}`);
                 deliveryBoyResponse = await fetch(
                     `http://localhost:3000/api/deliveryPartners/${encodeURIComponent(searchKeyword)}`
                 );
                 deliveryBoyResponse = await deliveryBoyResponse.json();
-
-                // Break the loop if results are found
                 if (deliveryBoyResponse.result && deliveryBoyResponse.result.length > 0) {
                     break;
                 }
@@ -136,24 +145,30 @@ export default function Order() {
             }
         }
 
-        // Check if delivery partners were found
         if (!deliveryBoyResponse || !deliveryBoyResponse.result || deliveryBoyResponse.result.length === 0) {
             alert('No delivery partner found for your address.');
             return;
         }
 
         const deliveryBoysIds = deliveryBoyResponse.result.map((deliveryMan) => deliveryMan._id);
-
-        // Select a random delivery boy
         let delivery_Id = deliveryBoysIds[Math.floor(Math.random() * deliveryBoysIds.length)];
-        // console.log("Selected Delivery Boy ID:", delivery_Id);
-        if (!delivery_Id) alert('Delivery man are not available at this moment!');
 
+        if (!delivery_Id) {
+            alert('Delivery men are not available at this moment!');
+            return;
+        }
+
+        // Assemble order details
         let orderDetails = {
             user_Id,
             foodItemId,
             restaurantId,
             delivery_Id,
+            customerName: userStorage?.fullName || session?.user?.name,
+            image: session?.user?.image ? session.user.image : 'N/A',
+            email: userStorage?.email || session?.user?.email,
+            mobile: userStorage?.phone || session?.user?.mobile || mobile,
+            address: userStorage?.address || session?.user?.location || address,
             status: 'confirm',
             amount: orderSummery?.finalTotal,
             paymentMethod: selectedPaymentMethod,
@@ -168,27 +183,29 @@ export default function Order() {
                 body: JSON.stringify(orderDetails),
             });
 
-            response = await response.json();
+            const data = await response.json();
 
-            if (response.success) {
+            // Check the response success
+            if (data?.success || session?.user) {
                 const orderDetailsStorage = {
                     ...orderDetails,
-                    success: response.success,
+                    success: data.success || session?.user && true,
                 };
                 localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
                 alert('Order Confirmed Successfully');
                 router.push('/your-profile');
             } else {
-                alert(response.message || 'Order Failed!');
+                alert(data.message || 'Order Failed!');
                 router.push('/stores');
             }
         } catch (error) {
-            console.error(error);
+            console.error('Error confirming order:', error);
             alert('Something went wrong. Please try again later.');
         }
     };
 
-    if (loading) return <Loading />
+
+    if (loading) return <Loading />;
 
     // console.log(cartStorage);
     return (
@@ -207,15 +224,53 @@ export default function Order() {
                     </button>
 
                     {/* Shopping Cart Title */}
-                    <h1 className="text-3xl font-bold text-pink-700 mt-4">Order Details of <span className='text-green-500'>{userStorage?.fullName}</span> </h1>
+                    <h1 className="text-3xl font-bold text-pink-700 mt-4">Order Details of <span className='text-green-500'>{userStorage?.fullName || session?.user?.name}</span> </h1>
                 </div>
 
                 {/* Shipping Address Section */}
                 <div className="bg-white rounded-lg p-8 mt-8 shadow-md">
                     <div className="space-y-5">
-                        <p className='text-green-700 font-bold'>Address : <span className='text-black text-sm'>{userStorage?.address}</span></p>
-                        <p className='text-green-700 font-bold'>Email : <span className='text-black text-sm'>{userStorage?.email}</span></p>
-                        <p className='text-green-700 font-bold'>Mobile : <span className='text-black text-sm'>{userStorage?.phone}</span></p>
+                        <p className='text-xl text-teal-800 font-semibold'>
+                            Address:
+                            {userStorage?.address || session?.user?.location ? (
+                                <span className='text-black text-sm italic'>{userStorage.address || session.user.location}</span>
+                            ) : (
+                                <input
+                                    type="text"
+                                    name="address"
+                                    id="address"
+                                    value={address}
+                                    onChange={(e) => handleAddressChange(e.target.value)}
+                                    className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 ml-2 focus:ring-2 focus:ring-teal-300 transition duration-300"
+                                    placeholder="Enter your delivery address (City, Zone, Street)"
+                                    required
+                                />
+                            )}
+                        </p>
+
+                        {/* Email Section */}
+                        <p className='text-xl text-teal-800 font-semibold'>
+                            Email:
+                            <span className='text-black text-sm italic'>{userStorage?.email || session?.user?.name}</span>
+                        </p>
+
+                        {/* Mobile Section */}
+                        <p className='text-xl text-teal-800 font-semibold'>
+                            Mobile:
+                            {userStorage?.phone || session?.user?.mobile ? (
+                                <span className='text-black text-sm italic'>{userStorage.phone || session.user.mobile}</span>
+                            ) : (
+                                <input
+                                    type="tel"  // Change to "tel" for better support of phone numbers
+                                    placeholder="+1 234 567 890"  // Example placeholder with country code
+                                    className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 ml-2 focus:ring-2 focus:ring-teal-300 transition duration-300"
+                                    onInput={(e) => handlePhoneChange(e.target.value)}
+                                    pattern="^\+?\d{0,3}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4}$" // Pattern to match phone numbers
+                                    required
+                                />
+                            )}
+                        </p>
+
 
                         {
                             cartStorage && cartStorage.length > 0 && (
@@ -271,13 +326,10 @@ export default function Order() {
                                     <div className=' flex-1'>
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>Bkash</p>
-                                            <Image
+                                            <img
                                                 src="/images/bkash-Logo.png"
                                                 alt="RestaurantApp Logo"
-                                                width={76}
-                                                height={76}
-                                                className="object-cover"
-                                                priority
+                                                className="h-10 w-28 object-cover"
                                             />
                                         </div>
                                         <button
@@ -294,13 +346,10 @@ export default function Order() {
                                     <div className=' flex-1'>
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>Nagad</p>
-                                            <Image
+                                            <img
                                                 src="/images/nagad-Logo.png"
                                                 alt="RestaurantApp Logo"
-                                                width={76}
-                                                height={76}
-                                                className="object-cover"
-                                                priority
+                                                className="h-10 w-28 object-cover"
                                             />
                                         </div>
                                         <button
@@ -317,13 +366,10 @@ export default function Order() {
                                     <div className=' flex-1'>
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>PayPal</p>
-                                            <Image
+                                            <img
                                                 src="/images/paypal-Logo.png"
                                                 alt="RestaurantApp Logo"
-                                                width={76}
-                                                height={76}
-                                                className="object-cover"
-                                                priority
+                                                className="h-10 w-28 object-cover"
                                             />
                                         </div>
                                         <button

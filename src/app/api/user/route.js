@@ -44,7 +44,6 @@ export async function POST(req) {
                 { expiresIn: '1d' } 
             );
             // console.log(token)
-
             success = true;
         }
     } catch (err) {

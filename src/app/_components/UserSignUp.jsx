@@ -107,10 +107,10 @@ export default function UserSignUp({ redirect }) {
                 setConfirmPassword('');
                 setPasswordStrength(0);
 
-                if (redirect?.order || user && cart.length ) {
+                if (redirect?.order || user && cart.length) {
                     router.push('/order');
                 }
-                 else {
+                else {
                     router.push('/stores');
                 }
             } else {
@@ -174,7 +174,9 @@ export default function UserSignUp({ redirect }) {
 
                 {/* Address */}
                 <div className="mb-4">
-                    <label htmlFor="address" className="block text-lg font-medium text-gray-700">Address</label>
+                    <label htmlFor="address" className="block text-lg font-medium text-gray-700">
+                        Address
+                    </label>
                     <input
                         type="text"
                         name="address"
@@ -182,7 +184,7 @@ export default function UserSignUp({ redirect }) {
                         value={address}
                         onChange={handleChange}
                         className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-600 focus:outline-none"
-                        placeholder="Enter your delivery address"
+                        placeholder="Enter your delivery address (City, Zone, Street)"
                         required
                     />
                 </div>

@@ -6,12 +6,24 @@ import CartItem from '../_components/CartItem';
 import { vatPercentage, deliveryCharge } from '../lib/constant';
 import { TiArrowBack } from "react-icons/ti";
 import Loading from '../loading';
+import { getSession } from 'next-auth/react';
 
 export default function Cart() {
   const [cartStorage, setCartStorage] = useState([]);
   const [userStorage, setUserStorage] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const currentSession = await getSession()
+      // console.log('current session = ',currentSession);
+      setSession(currentSession);
+    };
+
+    fetchSession();
+  }, []);
 
   // Load cart and user storage on initial render
   useEffect(() => {
@@ -92,10 +104,12 @@ export default function Cart() {
   const orderNow = () => {
     // console.log(userStorage, cartStorage)
     localStorage.setItem('orderSummary', JSON.stringify({ total, vat, deliveryCharge, finalTotal }));
-    if (userStorage && cartStorage.length > 0) {
-      router.push('/order');
-    } else{
-      router.push('/user?order=true');
+    if (cartStorage.length > 0) {
+      if (userStorage || session?.user) {
+        router.push('/order');
+      } else {
+        router.push('/user?order=true');
+      }
     }
   };
 

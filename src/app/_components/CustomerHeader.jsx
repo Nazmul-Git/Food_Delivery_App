@@ -8,6 +8,8 @@ import { TbUserQuestion } from "react-icons/tb";
 import { MdForwardToInbox } from "react-icons/md";
 import CartModal from './CartModal';
 import { useRouter } from 'next/navigation';
+import { getSession, signOut } from 'next-auth/react';
+
 
 export default function CustomerHeader({ cartData }) {
   const [user, setUser] = useState(null);
@@ -19,6 +21,20 @@ export default function CustomerHeader({ cartData }) {
   const [touchStartY, setTouchStartY] = useState(0);
   const [activeMenu, setActiveMenu] = useState('');
   const router = useRouter();
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const currentSession = await getSession()
+      // console.log('current session = ',currentSession);
+      setSession(currentSession);
+    };
+
+    fetchSession();
+  }, []);
+
+  console.log('header session is = ', session);
+
 
   // This effect will handle clearing the cart when the order is confirmed
   useEffect(() => {
@@ -83,21 +99,31 @@ export default function CustomerHeader({ cartData }) {
 
   // Logout functionality
   const handleLogout = () => {
-    // Clear user and cart data from localStorage
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart');
+    if(session){
+      signOut({
+        callbackUrl: '/user',
+      });
+    }
+    else if(user){
+      localStorage.removeItem('user');
+      setUser(null);
+      router.push('/user');
+    }
+    else{
+      alert('No user found!');
+    }
+    
     // Reset state
-    setUser(null);
+    localStorage.removeItem('cart');
     setCartCount(0);
     setCartItems([]);
-    router.push('/user');
   };
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
     // console.log('user', user);
-    if (user && user?.email) {
-      const initials = user?.email?.charAt(0).toUpperCase();
+    if (user && user?.email || session && session?.user?.email) {
+      const initials = (user?.email || session?.user?.email)?.charAt(0).toUpperCase() || '';
       return (
         <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold">
           {initials}
@@ -168,26 +194,26 @@ export default function CustomerHeader({ cartData }) {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
           <Link
-          onClick={()=>handleMenuClick('home')}
-          href="/" className={`${activeMenu === 'home' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            onClick={() => handleMenuClick('home')}
+            href="/" className={`${activeMenu === 'home' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
             Home
             <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link
-          onClick={()=>handleMenuClick('about')}
-          href="/about" className={`${activeMenu === 'about' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            onClick={() => handleMenuClick('about')}
+            href="/about" className={`${activeMenu === 'about' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
             About
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link
-           onClick={()=>handleMenuClick('contact')}
-           href="/contact" className={`${activeMenu === 'contact' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            onClick={() => handleMenuClick('contact')}
+            href="/contact" className={`${activeMenu === 'contact' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
             Contact
             <MdForwardToInbox className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
 
           {/* Conditional Rendering for User */}
-          {user ? (
+          {user || session?.user ? (
             <button onClick={handleLogout} className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
               Logout
               <FaUserCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -203,7 +229,7 @@ export default function CustomerHeader({ cartData }) {
             onClick={() => {
               toggleModal();
               handleMenuClick('cart');
-            }}            
+            }}
             className={`flex items-center gap-2 ${activeMenu === 'cart' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition relative group`}
           >
             Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
@@ -217,7 +243,7 @@ export default function CustomerHeader({ cartData }) {
           {/* Profile Image or Initials */}
           <button
             onClick={() => {
-              user ?
+              user || session?.user ?
                 router.push('/your-profile')
                 :
                 router.push('/user');
@@ -284,21 +310,21 @@ export default function CustomerHeader({ cartData }) {
           Home
         </Link>
         <Link
-         href="/about" onClick={() => {
-          setIsMenuOpen(false);
-          handleMenuClick('about');
-         }} className={`${activeMenu === 'about' ? 'text-yellow-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          href="/about" onClick={() => {
+            setIsMenuOpen(false);
+            handleMenuClick('about');
+          }} className={`${activeMenu === 'about' ? 'text-yellow-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
           <FaInfoCircle className="w-5 h-5 text-yellow-500" />
           About
         </Link>
         <Link
-        onClick={()=>handleMenuClick('contact')}
-        href="/contact" className={`${activeMenu === 'contact' ? 'text-yellow-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          onClick={() => handleMenuClick('contact')}
+          href="/contact" className={`${activeMenu === 'contact' ? 'text-yellow-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
           <MdForwardToInbox className="w-5 h-5 opacity-100 text-yellow-300 transition-opacity duration-300" />
           Contact
         </Link>
         {/* Conditional Rendering for User */}
-        {user ? (
+        {user || session?.user ? (
           <button onClick={handleLogout} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
             <FaUserCircle className="w-5 h-5 text-yellow-500" />
             Logout
@@ -311,7 +337,7 @@ export default function CustomerHeader({ cartData }) {
         )}
 
         <button
-          onClick={()=>{
+          onClick={() => {
             toggleModal();
             handleMenuClick('cart');
           }}
@@ -323,7 +349,7 @@ export default function CustomerHeader({ cartData }) {
         {/* Profile Image or Initials */}
         <button
           onClick={() => {
-            user ?
+            user || session?.user ?
               router.push('/your-profile')
               :
               router.push('/user');
