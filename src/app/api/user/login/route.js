@@ -16,33 +16,52 @@ export async function POST(req) {
             await mongoose.connect(connectionUrl);
         }
 
-        if (payload) {
-            // Find the user by email
-            loggedUser = await UserModel.findOne({ email: payload.email });
+        try {
+            if (payload.socialAuth) {
+                // Check if the user already exists in the database by email
+                loggedUser = await UserModel.findOne({ email: payload.email });
 
-            // Verify the password
-            if (loggedUser && await bcrypt.compare(payload.password, loggedUser.password)) {
-                success = true;
+                if (!loggedUser) {
+                    // If the user doesn't exist, create a new one
+                    loggedUser = new UserModel({
+                        email: payload.email,
+                        fullName: payload.fullName,
+                        image: payload.image,
+                        socialAuth: true, 
+                    });
+                    await loggedUser.save(); 
+                }
+            } else {
+                if (payload) {
+                    // Find the user by email
+                    loggedUser = await UserModel.findOne({ email: payload.email });
 
-                // Generate JWT token
-                const secret = process.env.JWT_SECRET;
-                if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
+                    // Verify the password if the user exists
+                    if (loggedUser && await bcrypt.compare(payload.password, loggedUser.password)) {
+                        success = true;
 
-                token = jwt.sign(
-                    { userId: loggedUser._id, email: loggedUser.email },
-                    secret,
-                    { expiresIn: '1d' } 
-                );
+                        // Generate JWT token
+                        const secret = process.env.JWT_SECRET;
+                        if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
 
-                // Exclude password from the user object returned in the response
-                const { password, ...userWithoutPassword } = loggedUser._doc;
+                        token = jwt.sign(
+                            { userId: loggedUser._id, email: loggedUser.email },
+                            secret,
+                            { expiresIn: '1d' }
+                        );
 
-                return NextResponse.json({ success, loggedUser: userWithoutPassword, token });
+                        // Exclude password from the user object returned in the response
+                        const { password, ...userWithoutPassword } = loggedUser._doc;
+
+                        return NextResponse.json({ success, loggedUser: userWithoutPassword, token });
+                    }
+                }
             }
-        }
 
-        // If login is unsuccessful
-        return NextResponse.json({ success, error: "Invalid email or password!" }, { status: 401 });
+        } catch (err) {
+            // If login is unsuccessful
+            return NextResponse.json({ success, error: err.message || "Invalid email or password!" }, { status: 401 });
+        }
 
     } catch (err) {
         console.error("Error:", err.message);

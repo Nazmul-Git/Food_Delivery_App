@@ -33,7 +33,7 @@ export default function CustomerHeader({ cartData }) {
     fetchSession();
   }, []);
 
-  console.log('header session is = ', session);
+  // console.log('header session is = ', session);
 
 
   // This effect will handle clearing the cart when the order is confirmed
@@ -103,6 +103,7 @@ export default function CustomerHeader({ cartData }) {
       signOut({
         callbackUrl: '/user',
       });
+      localStorage.removeItem('signInData');
     }
     else if(user){
       localStorage.removeItem('user');

@@ -24,16 +24,34 @@ export default function Order() {
     const [mobile, setMobile] = useState('');
 
     useEffect(() => {
-        const fetchSession = async () => {
+        let signedData = JSON.parse(localStorage.getItem('signInData'));
+        if (!signedData) {
+          const fetchSession = async () => {
             const currentSession = await getSession();
-            // console.log('current session = ',currentSession);
             setSession(currentSession);
-        };
-
-        fetchSession();
-    }, []);
-
-    console.log('session is = ', session);
+            if (currentSession) {
+              try {
+                localStorage.setItem('signInData', JSON.stringify(currentSession));
+                const { name, email, image } = currentSession?.user || {};
+                const response = await fetch('http://localhost:3000/api/user/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
+                });
+                if (response.success) {
+                  alert('Information saved!');
+                }
+              } catch (storageError) {
+                console.error('Failed to save data to localStorage:', storageError);
+              }
+            }
+          };
+    
+          fetchSession();
+        }else{
+            setSession(signedData);
+        }
+      }, []);
 
     const handleAddressChange = (value) => {
         setAddress(value);
@@ -145,18 +163,8 @@ export default function Order() {
             }
         }
 
-        if (!deliveryBoyResponse || !deliveryBoyResponse.result || deliveryBoyResponse.result.length === 0) {
-            alert('No delivery partner found for your address.');
-            return;
-        }
-
-        const deliveryBoysIds = deliveryBoyResponse.result.map((deliveryMan) => deliveryMan._id);
+        const deliveryBoysIds = deliveryBoyResponse?.result?.map((deliveryMan) => deliveryMan._id);
         let delivery_Id = deliveryBoysIds[Math.floor(Math.random() * deliveryBoysIds.length)];
-
-        if (!delivery_Id) {
-            alert('Delivery men are not available at this moment!');
-            return;
-        }
 
         // Assemble order details
         let orderDetails = {
@@ -251,7 +259,7 @@ export default function Order() {
                         {/* Email Section */}
                         <p className='text-xl text-teal-800 font-semibold'>
                             Email:
-                            <span className='text-black text-sm italic'>{userStorage?.email || session?.user?.name}</span>
+                            <span className='text-black text-sm italic ml-4'>{userStorage?.email || session?.user?.name}</span>
                         </p>
 
                         {/* Mobile Section */}
@@ -428,7 +436,14 @@ export default function Order() {
                             )}
 
                             {/* Submit Button */}
-                            <button onClick={confirmOrder} type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md mt-6">
+                            <button onClick={() => {
+                                if (address && mobile) {
+                                    confirmOrder();
+                                } else {
+                                    alert('Address & mobile number fields are required!');
+                                }
+                            }
+                            } type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md mt-6">
                                 Confirm your Order
                             </button>
                         </div>

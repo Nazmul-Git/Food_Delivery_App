@@ -1,18 +1,14 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  fullName: { type: String, required: true },
+  fullName: { type: String, },
   email: { type: String, required: true, unique: true },
-  phone: { type: String, required: true },
-  address: { type: String, required: true },
-  password: { type: String, required: true},
+  phone: { type: String, },
+  address: { type: String, },
+  password: { type: String, },
+  image: { type: String },
+  socialAuth: { type: Boolean, default: false }
 }, { timestamps: true });
-
-userSchema.virtual('confirmPassword').get(function() {
-    return this._confirmPassword;
-  }).set(function(value) {
-    this._confirmPassword = value;
-  });
 
 const UserModel = mongoose.models.users || mongoose.model('users', userSchema);
 

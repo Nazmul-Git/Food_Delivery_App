@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { FaSearch } from 'react-icons/fa'; 
+import { FaSearch } from 'react-icons/fa';
 import CustomerHeader from '../_components/CustomerHeader';
 import Footer from '../_components/Footer';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ScrollToTop from '../_components/ScrollToTop';
 import Loading from '../loading';
+import { getSession } from 'next-auth/react';
 
 export default function Store() {
   const [loading, setLoading] = useState(false);
@@ -16,8 +17,40 @@ export default function Store() {
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [session, setSession] = useState(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    let signedData = JSON.parse(localStorage.getItem('signInData'));
+    if (!signedData) {
+      const fetchSession = async () => {
+        const currentSession = await getSession();
+        setSession(currentSession);
+        if (currentSession) {
+          try {
+            localStorage.setItem('signInData', JSON.stringify(currentSession));
+            const { name, email, image } = currentSession?.user || {};
+            const response = await fetch('http://localhost:3000/api/user/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
+            });
+            if (response.success) {
+              alert('Information saved!');
+            }
+          } catch (storageError) {
+            console.error('Failed to save data to localStorage:', storageError);
+          }
+        }
+      };
+
+      fetchSession();
+    }else{
+        setSession(signedData);
+    }
+  }, []);
+
 
   // Show loading spinner only on the first visit
   useEffect(() => {
@@ -34,7 +67,7 @@ export default function Store() {
 
   useEffect(() => {
     loadRestaurants();
-  }, [selectedLocation, searchQuery]); 
+  }, [selectedLocation, searchQuery]);
 
   // Fetch all locations
   const loadLocations = async () => {
@@ -109,7 +142,7 @@ export default function Store() {
   return (
     <div>
       <CustomerHeader />
-      
+
       {/* Show loading spinner only on the first time */}
       {loading && <Loading />}
 
@@ -188,7 +221,7 @@ export default function Store() {
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300"></div>
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <Link
-                    href={`/stores/${restaurant.restaurantName}?id=${restaurant._id}`} 
+                    href={`/stores/${restaurant.restaurantName}?id=${restaurant._id}`}
                     className="px-6 py-2 font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-xl transform hover:scale-110 transition-all duration-300"
                   >
                     Visit

@@ -25,23 +25,14 @@ export default function UserLogin({ redirect }) {
     const handleLogin = async (provider) => {
         try {
             // console.log("Attempting login with provider:", provider);
-    
             const result = await signIn(provider, {
                 callbackUrl: `${redirect?.order ? '/order' : '/stores'}`
             });
-    
-            // Save result to localStorage
-            try {
-                localStorage.setItem('signInData', JSON.stringify(result));
-                console.log("SignIn data saved to localStorage.");
-            } catch (storageError) {
-                console.error("Failed to save data to localStorage:", storageError);
-            }
-    
+            
             if (result?.error) {
                 throw new Error(result.error);
             }
-    
+
             // Perform manual redirection
             if (result?.url) {
                 console.log("Redirecting to:", result.url);
@@ -51,8 +42,8 @@ export default function UserLogin({ redirect }) {
             console.error("Login failed:", error);
             setError(error.message || 'Login failed');
         }
-    };    
-    
+    };
+
 
     const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
@@ -78,13 +69,13 @@ export default function UserLogin({ redirect }) {
 
             response = await response.json();
 
-            
+
             if (response.success && response.token) {
                 localStorage.setItem('user', JSON.stringify(response.loggedUser));
                 setMessage('Logged in successfully!');
                 if (redirect?.order) {
                     router.push('/order');
-                }else{
+                } else {
                     router.push('/stores');
                 }
             } else {
