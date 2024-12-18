@@ -20,9 +20,11 @@ export default function Order() {
     const [errors, setErrors] = useState({});
     const router = useRouter();
     const [session, setSession] = useState(null);
-    const [address, setAddress] = useState('');
     const [mobile, setMobile] = useState('');
     const [countryCode, setCountryCode] = useState('+088');
+    const [city, setCity] = useState('');
+    const [street, setStreet] = useState('');
+    const [zone, setZone] = useState('');
 
     // console.log('user', userStorage);
 
@@ -75,9 +77,19 @@ export default function Order() {
         }
     }, []);
 
-    const handleAddressChange = (value) => {
-        setAddress(value);
+
+    const handleCityChange = (value) => {
+        setCity(value);
     };
+
+    const handleZoneChange = (value) => {
+        setZone(value);
+    };
+
+    const handleStreetChange = (value) => {
+        setStreet(value);
+    };
+
     const handlePhoneChange = (value) => {
         setMobile(value);
     };
@@ -157,36 +169,39 @@ export default function Order() {
 
         // let randomObjectId = generateObjectId();
         let user_Id = userStorage?._id || userStorage?.loggedUser?._id;
-        let user_Address = userStorage?.address;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
+        let delivery_Id = null;
 
-        // Delivery boy lookup logic
-        const addressKeywords = (user_Address && user_Address || address && address)
-            .toLowerCase()
-            .replace(/[\-,]/g, '')
-            .split(/\s*,\s*|\s+/);
+        // Normalize the city and zone inputs
+        const normalizeString = (str) => str.toLowerCase().replace(/[-\d]/g, '').trim();
 
-        let deliveryBoyResponse = null;
+        const normalizedCity = normalizeString(city);
+        const normalizedZone = normalizeString(zone);
 
-        // Iterate over address keywords to find a delivery boy
-        for (let i = 0; i < addressKeywords.length; i++) {
-            const searchKeyword = addressKeywords.slice(i).join(' ');
+        if (normalizedCity && normalizedZone) {
             try {
-                deliveryBoyResponse = await fetch(
-                    `http://localhost:3000/api/deliveryPartners/${encodeURIComponent(searchKeyword)}`
+                const deliveryBoyResponse = await fetch(
+                    `http://localhost:3000/api/deliveryPartners?city=${encodeURIComponent(normalizedCity)}&zone=${encodeURIComponent(normalizedZone)}`
                 );
-                deliveryBoyResponse = await deliveryBoyResponse.json();
-                if (deliveryBoyResponse.result && deliveryBoyResponse.result.length > 0) {
-                    break;
+                const deliveryBoyData = await deliveryBoyResponse.json();
+                console.log(deliveryBoyData);
+
+                if (deliveryBoyData.success && deliveryBoyData.result.length > 0) {
+                    // Generate a random index between 0 and the length of the result array
+                    const randomIndex = Math.floor(Math.random() * deliveryBoyData.result.length);
+                    // Select the delivery boy at the random index and get their _id
+                    delivery_Id = deliveryBoyData.result[randomIndex]._id;
+                    console.log('Random Delivery Boy ID:', delivery_Id);
+                } else {
+                    console.log('Failed to find a matching delivery boy.');
                 }
             } catch (error) {
-                console.error(`Error searching for keyword "${searchKeyword}":`, error);
+                console.error('Error fetching delivery boy data:', error);
             }
+        } else {
+            console.log('City and zone must be provided.');
         }
-
-        const deliveryBoysIds = deliveryBoyResponse?.result?.map((deliveryMan) => deliveryMan._id);
-        let delivery_Id = deliveryBoysIds[Math.floor(Math.random() * deliveryBoysIds.length)];
 
         // Assemble order details
         let orderDetails = {
@@ -199,7 +214,9 @@ export default function Order() {
             email: userStorage?.loggedUser?.email || userStorage?.email,
             countryCode: countryCode || 'N/A',
             mobile: mobile,
-            address: address,
+            city: city,
+            zone: zone,
+            street: street,
             status: 'confirm',
             amount: orderSummery?.finalTotal,
             paymentMethod: selectedPaymentMethod,
@@ -258,16 +275,42 @@ export default function Order() {
                 </div>
 
                 {/* Shipping Address Section */}
-                <div className="bg-white rounded-lg p-8 mt-8 shadow-md">
+                <div className="bg-white rounded-lg p-8 mt-8 shadow-sm">
                     <div className="space-y-5">
                         <div className='text-xl text-teal-800 font-semibold'>
-                            Address: <span className='text-red-600'>*</span>  <span className='text-sm'>(Street, Zone, City)</span>
+                            City/Division: <span className='text-red-600'>*</span>
                             <input
                                 type="text"
-                                name="address"
-                                id="address"
-                                value={address}
-                                onChange={(e) => handleAddressChange(e.target.value)}
+                                name="city"
+                                id="city"
+                                value={city}
+                                onChange={(e) => handleCityChange(e.target.value)}
+                                className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 focus:ring-2 focus:ring-teal-300 transition duration-300 w-full"
+                                placeholder="Enter your delivery address "
+                                required
+                            />
+                        </div>
+                        <div className='text-xl text-teal-800 font-semibold'>
+                            Zone/District: <span className='text-red-600'>*</span>
+                            <input
+                                type="text"
+                                name="zone"
+                                id="zone"
+                                value={zone}
+                                onChange={(e) => handleZoneChange(e.target.value)}
+                                className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 focus:ring-2 focus:ring-teal-300 transition duration-300 w-full"
+                                placeholder="Enter your delivery address "
+                                required
+                            />
+                        </div>
+                        <div className='text-xl text-teal-800 font-semibold'>
+                            Street: <span className='text-red-600'>*</span>  <span className='text-sm'>(Road no, House no etc.)</span>
+                            <input
+                                type="text"
+                                name="street"
+                                id="street"
+                                value={street}
+                                onChange={(e) => handleStreetChange(e.target.value)}
                                 className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 focus:ring-2 focus:ring-teal-300 transition duration-300 w-full"
                                 placeholder="Enter your delivery address "
                                 required
@@ -277,7 +320,7 @@ export default function Order() {
                         {/* Email Section */}
                         <div className='text-xl text-teal-800 font-semibold'>
                             Email:
-                            <span className='text-black text-sm italic ml-4'>{userStorage?.loggedUser?.email}</span>
+                            <span className='text-black text-sm italic ml-4'>{userStorage?.loggedUser?.email || userStorage?.email}</span>
                         </div>
 
                         {/* Mobile Section */}
@@ -340,7 +383,7 @@ export default function Order() {
                 </div>
 
                 {/* Payment Method Section */}
-                <div className="bg-white p-8 rounded-lg shadow-md  mx-auto mt-8">
+                <div className="bg-white p-8 rounded-lg shadow-sm  mx-auto mt-8">
                     <h2 className="text-2xl font-semibold text-pink-500 mb-6">Payment Method</h2>
 
                     <form onSubmit={handleSubmit}>
@@ -468,7 +511,7 @@ export default function Order() {
 
                             {/* Submit Button */}
                             <button onClick={() => {
-                                if (address && mobile) {
+                                if (city && zone && street && mobile) {
                                     confirmOrder();
                                 } else {
                                     alert('Address & mobile number fields are required!');

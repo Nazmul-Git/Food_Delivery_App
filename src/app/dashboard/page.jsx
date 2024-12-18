@@ -11,6 +11,7 @@ import { FaHome } from 'react-icons/fa';
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
+  const [deliveryData, setDeliveryData] = useState(null);
   const [deliveryMan, setDeliveryMan] = useState(null);
   const [clientData, setClientData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,14 +31,18 @@ const Dashboard = () => {
 
   const fetchOrders = async () => {
     try {
-      const deliveryBoyData = JSON.parse(localStorage.getItem('deliveryUser'));
-      setDeliveryMan(deliveryBoyData);
-      if (!deliveryBoyData) {
+      const deliveryDatas = JSON.parse(localStorage.getItem('profile'));
+      const deliveryUser = JSON.parse(localStorage.getItem('deliveryUser'));
+      setDeliveryData(deliveryDatas);
+      setDeliveryMan(deliveryUser?.signedUser);
+
+      if (!deliveryData) {
         setLoading(false);
         return;
       }
+      // console.log('delivery user ',deliveryData.delivery_Id);
 
-      const deliveryManId = deliveryBoyData._id;
+      const deliveryManId = deliveryDatas.delivery_Id;
       const response = await fetch(`http://localhost:3000/api/deliveryPartners/orders/${deliveryManId}`);
       const data = await response.json();
       if (data.success) {
@@ -69,7 +74,7 @@ const Dashboard = () => {
 
   const userIdentity = deliveryMan?.email || deliveryMan?.fullName;
 
-  console.log(deliveryMan)
+  console.log('delivery man',deliveryMan);
 
   return (
     <div>
@@ -96,7 +101,7 @@ const Dashboard = () => {
 
             <div className="space-y-2">
               <h2 className="text-3xl font-semibold text-gray-900">{deliveryMan?.fullName}</h2>
-              <p className="text-lg text-gray-700">{deliveryMan?.address}</p>
+              <p className="text-lg text-gray-700">{`${deliveryMan?.street}, ${deliveryMan?.zone}, ${deliveryMan?.city}`}</p>
               <p className="text-lg text-gray-600">{deliveryMan?.phone}</p>
               <div className="flex space-x-4 mt-4">
                 <button

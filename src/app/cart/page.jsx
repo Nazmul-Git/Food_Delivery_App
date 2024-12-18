@@ -131,7 +131,7 @@ export default function Cart() {
   return (
     <div className="flex flex-col mt-10 lg:flex-row lg:space-x-8 p-6 lg:px-16 lg:py-10">
       {/* Cart Items Section */}
-      <div className="flex-1 bg-white rounded-lg shadow-xl p-8 space-y-6 max-h-[480px] overflow-y-auto">
+      <div className="flex-1 bg-white rounded-lg shadow-sm p-8 space-y-6 max-h-[480px] overflow-y-auto">
         <div className="mb-6">
           {/* Back Button */}
           <button

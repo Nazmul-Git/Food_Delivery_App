@@ -170,7 +170,7 @@ export default function CustomerHeader({ cartData }) {
             className="flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity duration-300"
           >
             {/* Logo Wrapper */}
-            <div className="relative h-16 w-16 overflow-hidden rounded-full border-4 border-yellow-500 shadow-md bg-white">
+            <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-teal-500 shadow-md bg-white">
               <img
                 src={user?.imageUrl || '/images/2.png'}
                 alt="Restaurant Logo"
@@ -196,31 +196,31 @@ export default function CustomerHeader({ cartData }) {
         <nav className="hidden md:flex space-x-6 items-center">
           <Link
             onClick={() => handleMenuClick('home')}
-            href="/" className={`${activeMenu === 'home' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            href="/" className={`${activeMenu === 'home' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Home
             <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link
             onClick={() => handleMenuClick('about')}
-            href="/about" className={`${activeMenu === 'about' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            href="/about" className={`${activeMenu === 'about' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             About
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link
             onClick={() => handleMenuClick('contact')}
-            href="/contact" className={`${activeMenu === 'contact' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            href="/contact" className={`${activeMenu === 'contact' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Contact
             <MdForwardToInbox className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
 
           {/* Conditional Rendering for User */}
           {user || session?.user ? (
-            <button onClick={handleLogout} className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+            <button onClick={handleLogout} className="text-white font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group">
               Logout
               <FaUserCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
           ) : (
-            <Link href="/user" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+            <Link href="/user" className="text-white font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group">
               Login/Signup
               <TbUserQuestion className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
@@ -231,7 +231,7 @@ export default function CustomerHeader({ cartData }) {
               toggleModal();
               handleMenuClick('cart');
             }}
-            className={`flex items-center gap-2 ${activeMenu === 'cart' ? 'text-yellow-300' : 'text-white'} font-semibold hover:text-yellow-300 transition relative group`}
+            className={`flex items-center gap-2 ${activeMenu === 'cart' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition relative group`}
           >
             Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
             {cartCount ? (
@@ -249,7 +249,7 @@ export default function CustomerHeader({ cartData }) {
                 :
                 router.push('/user');
             }}
-            className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+            className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group"
           >
             {getProfileImage()}
           </button>
@@ -306,33 +306,33 @@ export default function CustomerHeader({ cartData }) {
         <Link href="/" onClick={() => {
           setIsMenuOpen(false);
           handleMenuClick('home')
-        }} className={`${activeMenu === 'home' ? 'text-yellow-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
-          <FaHome className="w-5 h-5 text-yellow-500" />
+        }} className={`${activeMenu === 'home' ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
+          <FaHome className="w-5 h-5 text-teal-500" />
           Home
         </Link>
         <Link
           href="/about" onClick={() => {
             setIsMenuOpen(false);
             handleMenuClick('about');
-          }} className={`${activeMenu === 'about' ? 'text-yellow-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
-          <FaInfoCircle className="w-5 h-5 text-yellow-500" />
+          }} className={`${activeMenu === 'about' ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          <FaInfoCircle className="w-5 h-5 text-teal-500" />
           About
         </Link>
         <Link
           onClick={() => handleMenuClick('contact')}
-          href="/contact" className={`${activeMenu === 'contact' ? 'text-yellow-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
-          <MdForwardToInbox className="w-5 h-5 opacity-100 text-yellow-300 transition-opacity duration-300" />
+          href="/contact" className={`${activeMenu === 'contact' ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          <MdForwardToInbox className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           Contact
         </Link>
         {/* Conditional Rendering for User */}
         {user || session?.user ? (
-          <button onClick={handleLogout} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-            <FaUserCircle className="w-5 h-5 text-yellow-500" />
+          <button onClick={handleLogout} className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group">
+            <FaUserCircle className="w-5 h-5 text-teal-500" />
             Logout
           </button>
         ) : (
-          <Link href="/user" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-            <TbUserQuestion className="w-5 h-5 text-yellow-500" />
+          <Link href="/user" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group">
+            <TbUserQuestion className="w-5 h-5 text-teal-500" />
             Login/Signup
           </Link>
         )}
@@ -342,9 +342,9 @@ export default function CustomerHeader({ cartData }) {
             toggleModal();
             handleMenuClick('cart');
           }}
-          className={`block text-lg ${activeMenu === 'cart' ? 'text-yellow-300' : 'text-white'} flex gap-2 items-center relative group`}
+          className={`block text-lg ${activeMenu === 'cart' ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
         >
-          <HiOutlineShoppingCart className="w-5 h-5 text-yellow-500" />
+          <HiOutlineShoppingCart className="w-5 h-5 text-teal-500" />
           Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
         </button>
         {/* Profile Image or Initials */}

@@ -6,7 +6,9 @@ import React, { useState } from 'react';
 export default function DeliveryUserSignup({ redirect }) {
     const [fullName, setFullName] = useState('');
     const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
+    const [city, setCity] = useState('');
+    const [street, setStreet] = useState('');
+    const [zone, setZone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordStrength, setPasswordStrength] = useState(0);
@@ -27,8 +29,14 @@ export default function DeliveryUserSignup({ redirect }) {
             case 'phone':
                 setPhone(value);
                 break;
-            case 'address':
-                setAddress(value);
+            case 'city':
+                setCity(value);
+                break;
+            case 'zone':
+                setZone(value);
+                break;
+            case 'street':
+                setStreet(value);
                 break;
             case 'password':
                 setPassword(value);
@@ -69,7 +77,9 @@ export default function DeliveryUserSignup({ redirect }) {
             const { confirmPassword, ...formDataToSend } = {
                 fullName,
                 phone,
-                address,
+                city,
+                zone,
+                street,
                 password,
             };
 
@@ -86,7 +96,7 @@ export default function DeliveryUserSignup({ redirect }) {
 
             if (response.success && response.token) {
                 const { signedUser } = response;
-                console.log(signedUser);
+                // console.log(signedUser);
                 delete signedUser.password;
                 localStorage.setItem('deliveryUser', JSON.stringify({ signedUser }));
                 setMessage(response.message || 'User registered successfully');
@@ -95,7 +105,9 @@ export default function DeliveryUserSignup({ redirect }) {
                     // Clear the form fields after successful registration
                     setFullName('');
                     setPhone('');
-                    setAddress('');
+                    setCity('');
+                    setZone('');
+                    setStreet('');
                     setPassword('');
                     setConfirmPassword('');
                 } else if (JSON.parse(localStorage.getItem('deliveryUser'))) {
@@ -144,14 +156,42 @@ export default function DeliveryUserSignup({ redirect }) {
                     />
                 </div>
 
-                {/* Address */}
+                {/* City */}
                 <div className="mb-4">
-                    <label htmlFor="address" className="block text-lg font-medium text-gray-700">Address</label>
+                    <label htmlFor="city" className="block text-lg font-medium text-gray-700">City/Division</label>
                     <input
                         type="text"
-                        name="address"
-                        id="address"
-                        value={address}
+                        name="city"
+                        id="city"
+                        value={city}
+                        onChange={handleChange}
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+                        placeholder="Enter your delivery address"
+                        required
+                    />
+                </div>
+                {/* Zone */}
+                <div className="mb-4">
+                    <label htmlFor="zone" className="block text-lg font-medium text-gray-700">Zone/District</label>
+                    <input
+                        type="text"
+                        name="zone"
+                        id="zone"
+                        value={zone}
+                        onChange={handleChange}
+                        className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
+                        placeholder="Enter your delivery address"
+                        required
+                    />
+                </div>
+                {/* street */}
+                <div className="mb-4">
+                    <label htmlFor="address" className="block text-lg font-medium text-gray-700">Street</label>
+                    <input
+                        type="text"
+                        name="street"
+                        id="street"
+                        value={street}
                         onChange={handleChange}
                         className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-600 focus:outline-none"
                         placeholder="Enter your delivery address"

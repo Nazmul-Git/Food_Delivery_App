@@ -91,7 +91,7 @@ const Profile = () => {
       <div className="p-8 space-y-8">
         <div className="md:flex flex-row items-center space-x-8 border-b border-green-500 pb-6">
           {/* Profile Image with First Letter of Email */}
-          <div className="w-28 h-28 ml-6 rounded-full flex items-center justify-center text-white text-4xl font-semibold shadow-xl transition-transform transform hover:scale-110">
+          <div className="w-20 h-20 ml-6 rounded-full flex items-center justify-center text-blue-400 text-4xl font-semibold shadow-xl transition-transform transform hover:scale-110">
             {
               user?.image ? (
                 <img
@@ -140,7 +140,7 @@ const Profile = () => {
         ) : (
           orders.map((order, index) => (
             <div key={index} className="border-b border-gray-300 pb-6">
-              <h2 className="text-2xl font-semibold text-purple-700">Order #{index + 1}</h2>
+              <h2 className="text-2xl font-semibold text-red-600">Order #{index + 1}</h2>
 
               {/* Order Status */}
               <div className="flex items-center gap-2 mt-4">
@@ -195,7 +195,7 @@ const Profile = () => {
                 <div>
                   <h3 className="text-xl font-semibold text-indigo-500">Payment Method</h3>
                   <div className="flex items-center space-x-4">
-                    <p className="text-lg text-red-700 font-semibold">{order?.paymentMethod}</p>
+                    {/* <p className="text-lg text-red-700 font-semibold">{order?.paymentMethod}</p> */}
                     <Image
                       src={`/images/${order?.paymentMethod}-Logo.png`}
                       alt="Icon"

@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req, { params }) {
     const { id } = await params; 
+    console.log(id);
 
     // Connect to the database
     await mongoose.connect(connectionUrl);
