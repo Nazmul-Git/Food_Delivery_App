@@ -3,10 +3,10 @@ import { FaPlus, FaMinus } from "react-icons/fa6";
 
 const CartItem = ({ item, updateQuantity, handleRemoveItem, limitDescription }) => {
     return (
-        <div className="cart-item flex justify-between items-center bg-white shadow-md rounded-lg p-4 my-4 hover:scale-105 transform transition duration-200 ease-in-out">
+        <div className="cart-item md:flex flex-row justify-between md:items-center md:bg-white shadow-md rounded-lg p-4 hover:scale-105 transform transition duration-200 ease-in-out">
 
             {/* Left section with image and item details */}
-            <div className="cart-item-details flex items-center gap-6">
+            <div className="cart-item-details md:flex flex-row md:items-center">
                 <button
                     onClick={() => handleRemoveItem(item._id)}
                     className="text-red-500 hover:text-red-700 text-2xl"
@@ -35,7 +35,7 @@ const CartItem = ({ item, updateQuantity, handleRemoveItem, limitDescription }) 
             </div>
 
             {/* Quantity Section */}
-            <div className="cart-item-actions flex items-center gap-4 bg-gray-50 rounded-lg py-2 px-4">
+            <div className="pl-36 cart-item-actions flex items-center rounded-lg py-2 px-4">
                 {/* Decrease Button */}
                 <button
                     onClick={() => updateQuantity(item._id, 'decrease')}
@@ -46,7 +46,7 @@ const CartItem = ({ item, updateQuantity, handleRemoveItem, limitDescription }) 
                 </button>
 
                 {/* Quantity */}
-                <span className="text-lg font-medium text-gray-800">{item.quantity}</span>
+                <span className="text-lg font-medium text-gray-800 p-1">{item.quantity}</span>
 
                 {/* Increase Button */}
                 <button

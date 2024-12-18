@@ -6,48 +6,49 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 // Secret key for signing the JWT (store this securely, such as in an environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req) {
-  let payload = await req.json();
-  let loggedUser;
-  let success = false;
+  try {
+    const payload = await req.json();
 
-  await mongoose.connect(connectionUrl);
-
-  if (payload) {
-    try {
-      // Find the user by phone
-      loggedUser = await DeliveryUserModel.findOne({ phone: payload.phone });
-
-      // Check if the user exists and the password is correct
-      if (loggedUser && await bcrypt.compare(payload.password, loggedUser.password)) {
-        success = true;
-
-        // Generate JWT token after successful login
-        const token = jwt.sign(
-          { userId: loggedUser._id, fullName: loggedUser.fullName, phone: loggedUser.phone },
-          JWT_SECRET,
-          { expiresIn: '1h' }
-        );
-
-        // Optionally, you could exclude sensitive information like the password
-        const userWithoutPassword = { ...loggedUser.toObject() };
-        delete userWithoutPassword.password;
-
-        // Return the logged-in user and the token
-        return NextResponse.json({
-          success,
-          loggedUser: userWithoutPassword,
-          token,
-        });
-      }
-    } catch (err) {
-      console.error('Error during login:', err);
-      return NextResponse.json({ error: "Error during login!" });
+    // Validate payload
+    if (!payload || !payload.phone || !payload.password) {
+      return NextResponse.json({ success: false, error: "Phone and password are required!" }, { status: 400 });
     }
-  }
 
-  // If login fails
-  return NextResponse.json({ success: false, error: "Invalid credentials!" });
+    // Connect to the database
+    await mongoose.connect(connectionUrl);
+
+    // Find the user by phone
+    const loggedUser = await DeliveryUserModel.findOne({ phone: payload.phone });
+
+    // Check if the user exists and the password matches
+    if (loggedUser && await bcrypt.compare(payload.password, loggedUser.password)) {
+      // Generate JWT token after successful login
+      const token = jwt.sign(
+        { userId: loggedUser._id, fullName: loggedUser.fullName, phone: loggedUser.phone },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      // Exclude sensitive information like the password
+      const userWithoutPassword = { ...loggedUser.toObject() };
+      delete userWithoutPassword.password;
+
+      // Return the logged-in user and the token
+      return NextResponse.json({
+        success: true,
+        loggedUser: userWithoutPassword,
+        token,
+      }, { status: 200 });
+    }
+
+    // If credentials are invalid
+    return NextResponse.json({ success: false, error: "Invalid credentials!" }, { status: 401 });
+
+  } catch (err) {
+    console.error('Error during login:', err);
+    return NextResponse.json({ success: false, error: "Internal server error!" }, { status: 500 });
+  }
 }

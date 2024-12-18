@@ -9,8 +9,8 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 export default function StoreDetails({ params, searchParams }) {
-    const { name } = React.use(params);
-    const { id } = React.use(searchParams);
+    const { name } = React.use(params) || {};
+    const { id } = React.use(searchParams) || {};
 
     const [restaurantDetails, setRestaurantDetails] = useState(null);
     const [foodItems, setFoodItems] = useState([]);
@@ -66,7 +66,7 @@ export default function StoreDetails({ params, searchParams }) {
             <div
                 className="relative bg-cover bg-center min-h-screen"
                 style={{
-                    backgroundImage: `url(${restaurantDetails.imageUrl})`,
+                    backgroundImage: `url(${restaurantDetails?.imageUrl || ''})`,
                 }}
             >
                 {/* Apply blur effect to the background image */}

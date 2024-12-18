@@ -28,8 +28,10 @@ const Profile = () => {
 
   const fetchOrders = async () => {
     const orderedProfile = JSON.parse(localStorage.getItem('profile'));
-    setUser(orderedProfile);
-    setUserEmail(orderedProfile?.email);
+    if (orderedProfile) {
+      setUser(orderedProfile);
+      setUserEmail(orderedProfile?.email);
+    }
 
     let response = await fetch(`http://localhost:3000/api/order?id=${orderedProfile?.user_Id}`);
     response = await response.json();
@@ -54,7 +56,20 @@ const Profile = () => {
     router.push('/stores');
   };
 
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem('profile');
+    localStorage.removeItem('signInData');
+    
+    // Reset the user state
+    setUser({});
+    setUserEmail('');
+
+    router.push('/user');
+  };
+
   if (loading) return <Loading />;
+  console.log('asdjhd',user);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col space-y-8 px-6 lg:px-16 py-10">
@@ -73,11 +88,22 @@ const Profile = () => {
       </div>
 
       {/* User Profile Section */}
-      <div className="bg-white   p-8 space-y-8">
-        <div className="flex items-center space-x-8 border-b border-gray-200 pb-6">
+      <div className="p-8 space-y-8">
+        <div className="md:flex flex-row items-center space-x-8 border-b border-green-500 pb-6">
           {/* Profile Image with First Letter of Email */}
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white text-4xl font-semibold shadow-xl transition-transform transform hover:scale-110">
-            {getInitialsFromEmail(userEmail)}
+          <div className="w-28 h-28 ml-6 rounded-full flex items-center justify-center text-white text-4xl font-semibold shadow-xl transition-transform transform hover:scale-110">
+            {
+              user?.image ? (
+                <img
+                  src={user?.image}
+                  alt="User Avatar"
+                  className="w-full h-full rounded-full object-cover text-black p-2"
+                  onError={(e) => e.target.src = 'https://via.placeholder.com/150'} 
+                />
+              ) : (
+                getInitialsFromEmail(userEmail)
+              )
+            }
           </div>
 
           {/* User Info */}

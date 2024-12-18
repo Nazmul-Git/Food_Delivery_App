@@ -102,8 +102,18 @@ export default function Cart() {
 
   // Proceed to checkout
   const orderNow = () => {
-    // console.log(userStorage, cartStorage)
-    localStorage.setItem('orderSummary', JSON.stringify({ total, vat, deliveryCharge, finalTotal }));
+    // Format numbers to 2 decimal places
+    const formattedTotal = total.toFixed(2);
+    const formattedVat = vat.toFixed(2);
+    const formattedDeliveryCharge = deliveryCharge.toFixed(2);
+    const formattedFinalTotal = finalTotal.toFixed(2);
+
+    // Store the formatted values in localStorage
+    localStorage.setItem(
+      'orderSummary',
+      JSON.stringify({ total: formattedTotal, vat: formattedVat, deliveryCharge: formattedDeliveryCharge, finalTotal: formattedFinalTotal })
+    );
+
     if (cartStorage.length > 0) {
       if (userStorage || session?.user) {
         router.push('/order');
@@ -112,6 +122,7 @@ export default function Cart() {
       }
     }
   };
+
 
   if (loading) {
     return <Loading />;

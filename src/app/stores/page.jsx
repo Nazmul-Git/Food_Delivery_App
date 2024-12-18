@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import ScrollToTop from '../_components/ScrollToTop';
 import Loading from '../loading';
 import { getSession } from 'next-auth/react';
+import CryptoJS from 'crypto-js';
 
 export default function Store() {
   const [loading, setLoading] = useState(false);
@@ -22,32 +23,39 @@ export default function Store() {
   const router = useRouter();
 
   useEffect(() => {
-    let signedData = JSON.parse(localStorage.getItem('signInData'));
+    let signedData = JSON.parse(localStorage.getItem('authUser'));
+
     if (!signedData) {
       const fetchSession = async () => {
         const currentSession = await getSession();
-        setSession(currentSession);
+
         if (currentSession) {
+          setSession(currentSession);
+
           try {
-            localStorage.setItem('signInData', JSON.stringify(currentSession));
-            const { name, email, image } = currentSession?.user || {};
+            const { name, email, image } = currentSession.user || {};
             const response = await fetch('http://localhost:3000/api/user/login', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
             });
-            if (response.success) {
-              alert('Information saved!');
+            const responseData = await response.json();
+            // console.log('respons after auth user save on DB',responseData); //ok
+            if (response.ok && responseData.success) {
+              // Save session data with userId to localStorage
+              localStorage.setItem('authUser', JSON.stringify(responseData));
+            } else {
+              console.error('Failed to save user data:', responseData.error);
             }
-          } catch (storageError) {
-            console.error('Failed to save data to localStorage:', storageError);
+          } catch (err) {
+            console.error('Failed to fetch session data:', err);
           }
         }
       };
 
       fetchSession();
-    }else{
-        setSession(signedData);
+    } else {
+      setSession(signedData);
     }
   }, []);
 
@@ -61,7 +69,6 @@ export default function Store() {
       sessionStorage.setItem('firstVisit', 'true');
     }
 
-    // Load the locations and restaurants once the page is loaded
     loadLocations();
   }, []);
 
@@ -76,11 +83,11 @@ export default function Store() {
       response = await response.json();
       if (response.success) {
         setLocations(response.result);
-        setLoading(false); // Once locations are loaded, stop the loading state
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error fetching locations:", error);
-      setLoading(false); // Stop loading even if there's an error
+      setLoading(false);
     }
   };
 

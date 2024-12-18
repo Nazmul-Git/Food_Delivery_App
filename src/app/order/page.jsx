@@ -22,36 +22,58 @@ export default function Order() {
     const [session, setSession] = useState(null);
     const [address, setAddress] = useState('');
     const [mobile, setMobile] = useState('');
+    const [countryCode, setCountryCode] = useState('+088');
+
+    // console.log('user', userStorage);
+
+    const countryCodes = [
+        { code: '+088', label: 'BD' },
+        { code: '+1', label: 'US' },
+        { code: '+44', label: 'UK' },
+        { code: '+91', label: 'IN' },
+        // Add more country codes as needed
+    ];
+
+    const handleCountryCodeChange = (newCode) => {
+        setCountryCode(newCode);
+    };
 
     useEffect(() => {
-        let signedData = JSON.parse(localStorage.getItem('signInData'));
+        let signedData = JSON.parse(localStorage.getItem('authUser'));
+
         if (!signedData) {
-          const fetchSession = async () => {
-            const currentSession = await getSession();
-            setSession(currentSession);
-            if (currentSession) {
-              try {
-                localStorage.setItem('signInData', JSON.stringify(currentSession));
-                const { name, email, image } = currentSession?.user || {};
-                const response = await fetch('http://localhost:3000/api/user/login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
-                });
-                if (response.success) {
-                  alert('Information saved!');
+            const fetchSession = async () => {
+                const currentSession = await getSession();
+
+                if (currentSession) {
+                    setSession(currentSession);
+
+                    try {
+                        const { name, email, image } = currentSession.user || {};
+                        const response = await fetch('http://localhost:3000/api/user/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
+                        });
+                        const responseData = await response.json();
+                        // console.log('auth user ',responseData);
+                        if (response.ok && responseData.success) {
+                            // Save session data with userId to localStorage
+                            localStorage.setItem('authUser', JSON.stringify(responseData));
+                        } else {
+                            console.error('Failed to save user data:', responseData.error);
+                        }
+                    } catch (err) {
+                        console.error('Failed to fetch session data:', err);
+                    }
                 }
-              } catch (storageError) {
-                console.error('Failed to save data to localStorage:', storageError);
-              }
-            }
-          };
-    
-          fetchSession();
-        }else{
+            };
+
+            fetchSession();
+        } else {
             setSession(signedData);
         }
-      }, []);
+    }, []);
 
     const handleAddressChange = (value) => {
         setAddress(value);
@@ -64,12 +86,16 @@ export default function Order() {
         // Fetch cart and user data from localStorage
         const cartData = localStorage.getItem('cart');
         const userData = localStorage.getItem('user');
+        const authUser = localStorage.getItem('authUser');
 
         if (cartData) {
             setCartStorage(JSON.parse(cartData));
         }
         if (userData) {
             setUserStorage(JSON.parse(userData));
+        }
+        if (authUser) {
+            setUserStorage(JSON.parse(authUser));
         }
 
         // Fetch order summary
@@ -116,10 +142,6 @@ export default function Order() {
         }
     };
 
-    function generateObjectId() {
-        return new Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-    }
-
     const confirmOrder = async () => {
         // Check if a payment method has been selected
         if (!selectedPaymentMethod) {
@@ -133,8 +155,8 @@ export default function Order() {
             return;
         }
 
-        let randomObjectId = generateObjectId();
-        let user_Id = userStorage?._id || randomObjectId.toString();
+        // let randomObjectId = generateObjectId();
+        let user_Id = userStorage?._id || userStorage?.loggedUser?._id;
         let user_Address = userStorage?.address;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
@@ -172,11 +194,12 @@ export default function Order() {
             foodItemId,
             restaurantId,
             delivery_Id,
-            customerName: userStorage?.fullName || session?.user?.name,
-            image: session?.user?.image ? session.user.image : 'N/A',
-            email: userStorage?.email || session?.user?.email,
-            mobile: userStorage?.phone || session?.user?.mobile || mobile,
-            address: userStorage?.address || session?.user?.location || address,
+            customerName: userStorage?.loggedUser?.fullName || userStorage?.fullName,
+            image: userStorage?.loggedUser?.image || userStorage?.image,
+            email: userStorage?.loggedUser?.email || userStorage?.email,
+            countryCode: countryCode || 'N/A',
+            mobile: mobile,
+            address: address,
             status: 'confirm',
             amount: orderSummery?.finalTotal,
             paymentMethod: selectedPaymentMethod,
@@ -215,11 +238,10 @@ export default function Order() {
 
     if (loading) return <Loading />;
 
-    // console.log(cartStorage);
     return (
         <div className="flex flex-col mt-10 lg:flex-row lg:space-x-8 p-6 lg:px-16 lg:py-10">
             {/* Cart Items Section */}
-            <div className="flex-1 bg-white rounded-lg shadow-xl p-8 space-y-6 max-h-[480px] overflow-y-auto">
+            <div className="flex-1  rounded-lg p-8 space-y-6 max-h-[480px] overflow-y-auto">
                 <div className="mb-6">
                     {/* Back Button */}
                     <button
@@ -238,51 +260,60 @@ export default function Order() {
                 {/* Shipping Address Section */}
                 <div className="bg-white rounded-lg p-8 mt-8 shadow-md">
                     <div className="space-y-5">
-                        <p className='text-xl text-teal-800 font-semibold'>
-                            Address:
-                            {userStorage?.address || session?.user?.location ? (
-                                <span className='text-black text-sm italic'>{userStorage.address || session.user.location}</span>
-                            ) : (
-                                <input
-                                    type="text"
-                                    name="address"
-                                    id="address"
-                                    value={address}
-                                    onChange={(e) => handleAddressChange(e.target.value)}
-                                    className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 ml-2 focus:ring-2 focus:ring-teal-300 transition duration-300"
-                                    placeholder="Enter your delivery address (City, Zone, Street)"
-                                    required
-                                />
-                            )}
-                        </p>
+                        <div className='text-xl text-teal-800 font-semibold'>
+                            Address: <span className='text-red-600'>*</span>  <span className='text-sm'>(Street, Zone, City)</span>
+                            <input
+                                type="text"
+                                name="address"
+                                id="address"
+                                value={address}
+                                onChange={(e) => handleAddressChange(e.target.value)}
+                                className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 focus:ring-2 focus:ring-teal-300 transition duration-300 w-full"
+                                placeholder="Enter your delivery address "
+                                required
+                            />
+                        </div>
 
                         {/* Email Section */}
-                        <p className='text-xl text-teal-800 font-semibold'>
+                        <div className='text-xl text-teal-800 font-semibold'>
                             Email:
-                            <span className='text-black text-sm italic ml-4'>{userStorage?.email || session?.user?.name}</span>
-                        </p>
+                            <span className='text-black text-sm italic ml-4'>{userStorage?.loggedUser?.email}</span>
+                        </div>
 
                         {/* Mobile Section */}
-                        <p className='text-xl text-teal-800 font-semibold'>
-                            Mobile:
-                            {userStorage?.phone || session?.user?.mobile ? (
-                                <span className='text-black text-sm italic'>{userStorage.phone || session.user.mobile}</span>
-                            ) : (
+                        <div className='text-xl text-teal-800 font-semibold'>
+                            Mobile: <span className='text-red-600'>*</span>
+
+                            <div className="flex items-center gap-2">
+                                {/* Country Code Dropdown */}
+                                <select
+                                    className="border-2 border-teal-500 rounded-lg p-2 text-sm focus:ring-2 focus:ring-teal-300 transition duration-300"
+                                    onChange={(e) => handleCountryCodeChange(e.target.value)}
+                                    value={countryCode}
+                                >
+                                    {countryCodes.map((country) => (
+                                        <option key={country.code} value={country.code}>
+                                            {country.code} ({country.label})
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {/* Phone Number Input */}
                                 <input
-                                    type="tel"  // Change to "tel" for better support of phone numbers
-                                    placeholder="+1 234 567 890"  // Example placeholder with country code
-                                    className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 ml-2 focus:ring-2 focus:ring-teal-300 transition duration-300"
+                                    type="tel"
+                                    placeholder="123 456 7890"
+                                    className="text-black text-sm border-2 border-teal-500 rounded-lg p-2 focus:ring-2 focus:ring-teal-300 transition duration-300 w-full"
                                     onInput={(e) => handlePhoneChange(e.target.value)}
-                                    pattern="^\+?\d{0,3}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4}$" // Pattern to match phone numbers
+                                    pattern="\d{3}[\s\-]?\d{3}[\s\-]?\d{4}"
                                     required
                                 />
-                            )}
-                        </p>
+                            </div>
+                        </div>
 
 
                         {
                             cartStorage && cartStorage.length > 0 && (
-                                <div className="bg-white rounded-lg p-8 mt-8 shadow-md">
+                                <div className="bg-white rounded-lg p-8 mt-8 ">
                                     <h2 className="text-2xl font-semibold text-pink-500 mb-6">Order Items</h2>
                                     <table className="min-w-full table-auto">
                                         <thead>
@@ -309,7 +340,7 @@ export default function Order() {
                 </div>
 
                 {/* Payment Method Section */}
-                <div className="bg-white p-8 rounded-lg shadow-xl  mx-auto mt-8">
+                <div className="bg-white p-8 rounded-lg shadow-md  mx-auto mt-8">
                     <h2 className="text-2xl font-semibold text-pink-500 mb-6">Payment Method</h2>
 
                     <form onSubmit={handleSubmit}>
