@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import CustomerHeader from '../_components/CustomerHeader';
 import Footer from '../_components/Footer';
@@ -9,24 +9,24 @@ import { useRouter } from 'next/navigation';
 import ScrollToTop from '../_components/ScrollToTop';
 import Loading from '../loading';
 import { getSession } from 'next-auth/react';
-import CryptoJS from 'crypto-js';
+import { debounce } from 'lodash';
 
 export default function Store() {
   const [loading, setLoading] = useState(false);
   const [locations, setLocations] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [session, setSession] = useState(null);
 
   const router = useRouter();
 
   useEffect(() => {
-    let signedData = JSON.parse(localStorage.getItem('authUser'));
+    const initializeSession = async () => {
+      let signedData = JSON.parse(localStorage.getItem('authUser'));
 
-    if (!signedData) {
-      const fetchSession = async () => {
+      if (!signedData) {
         const currentSession = await getSession();
 
         if (currentSession) {
@@ -40,9 +40,8 @@ export default function Store() {
               body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
             });
             const responseData = await response.json();
-            // console.log('respons after auth user save on DB',responseData); //ok
+
             if (response.ok && responseData.success) {
-              // Save session data with userId to localStorage
               localStorage.setItem('authUser', JSON.stringify(responseData));
             } else {
               console.error('Failed to save user data:', responseData.error);
@@ -51,48 +50,55 @@ export default function Store() {
             console.error('Failed to fetch session data:', err);
           }
         }
-      };
+      } else {
+        setSession(signedData);
+      }
+    };
 
-      fetchSession();
-    } else {
-      setSession(signedData);
-    }
+    initializeSession();
   }, []);
 
-
-  // Show loading spinner only on the first visit
   useEffect(() => {
-    const isFirstVisit = sessionStorage.getItem('firstVisit');
-
-    if (!isFirstVisit) {
+    const loadInitialData = async () => {
       setLoading(true);
+      await loadLocations();
       sessionStorage.setItem('firstVisit', 'true');
-    }
+      setLoading(false);
+    };
 
-    loadLocations();
+    const isFirstVisit = sessionStorage.getItem('firstVisit');
+    if (!isFirstVisit) {
+      loadInitialData();
+    } else {
+      loadLocations();
+    }
   }, []);
 
+  // Debounce search query updates
   useEffect(() => {
-    loadRestaurants();
+    const delayedSearch = debounce(() => {
+      loadRestaurants();
+    }, 300); // Adjust the delay as needed
+
+    delayedSearch();
+
+    return () => delayedSearch.cancel();
   }, [selectedLocation, searchQuery]);
 
-  // Fetch all locations
   const loadLocations = async () => {
     try {
-      let response = await fetch('http://localhost:3000/api/customer/locations');
-      response = await response.json();
-      if (response.success) {
-        setLocations(response.result);
-        setLoading(false);
+      const response = await fetch('http://localhost:3000/api/customer/locations');
+      const responseData = await response.json();
+      if (responseData.success) {
+        setLocations(responseData.result);
       }
     } catch (error) {
-      console.error("Error fetching locations:", error);
-      setLoading(false);
+      console.error('Error fetching locations:', error);
     }
   };
 
-  // Fetch restaurants based on selected location or search query
   const loadRestaurants = async () => {
+    setLoading(true); // Start loading indicator
     let url = `http://localhost:3000/api/customer?`;
 
     if (selectedLocation) {
@@ -104,13 +110,18 @@ export default function Store() {
     }
 
     try {
-      let response = await fetch(url);
-      response = await response.json();
-      if (response.success) {
-        setRestaurants(response.result);
+      const response = await fetch(url);
+      const responseData = await response.json();
+
+      if (responseData.success) {
+        setRestaurants(responseData.result);
+      } else {
+        console.error('Failed to fetch restaurants:', responseData.error);
       }
     } catch (error) {
-      console.error("Error fetching restaurants:", error);
+      console.error('Error fetching restaurants:', error);
+    } finally {
+      setLoading(false); // Stop loading indicator
     }
   };
 
@@ -119,7 +130,7 @@ export default function Store() {
     setSelectedLocation(value);
 
     if (value) {
-      const filtered = locations.filter(location =>
+      const filtered = locations.filter((location) =>
         location.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredLocations(filtered);
@@ -137,23 +148,25 @@ export default function Store() {
     if (!description) return '';
     const words = description.split(' ');
     const truncated = words.slice(0, 10).join(' ');
-    return truncated.length < description.length ? truncated + '...' : truncated;
+    return truncated.length < description.length ? `${truncated}...` : truncated;
   };
 
-  const filteredRestaurants = restaurants.filter(restaurant => {
-    return (
-      (searchQuery ? (restaurant.restaurantName && restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())) : true)
-    );
-  });
+  const filteredRestaurants = restaurants.filter((restaurant) =>
+    searchQuery
+      ? restaurant.restaurantName &&
+      restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())
+      : true
+  );
 
   return (
     <div>
       <CustomerHeader />
-
-      {/* Show loading spinner only on the first time */}
       {loading && <Loading />}
 
-      <div className="flex items-center justify-center min-h-screen bg-cover bg-center relative" style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/background-cooking-black-wooden-background-top-view-free-space-your-text_187166-5650.jpg')" }}>
+      <div
+        className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
+        style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/background-cooking-black-wooden-background-top-view-free-space-your-text_187166-5650.jpg')" }}
+      >
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative z-10 text-white p-4">
           <div className="text-center mb-8">
@@ -170,18 +183,16 @@ export default function Store() {
                 className="w-full px-4 py-2 text-black shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               {filteredLocations.length > 0 && selectedLocation && (
-                <ul className='absolute bg-white w-full max-h-40 overflow-y-auto z-10 mt-2 shadow-md'>
-                  {
-                    filteredLocations.map((location, index) => (
-                      <li
-                        key={index}
-                        className="px-4 py-2 text-black hover:bg-gray-200 cursor-pointer"
-                        onClick={() => handleLocationSelect(location)}
-                      >
-                        {location}
-                      </li>
-                    ))
-                  }
+                <ul className="absolute bg-white w-full max-h-40 overflow-y-auto z-10 mt-2 shadow-md">
+                  {filteredLocations.map((location, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 text-black hover:bg-gray-200 cursor-pointer"
+                      onClick={() => handleLocationSelect(location)}
+                    >
+                      {location}
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>
@@ -207,7 +218,7 @@ export default function Store() {
       <div className="p-16">
         <h3 className="text-xl sm:text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredRestaurants.length > 0 && (
+          {filteredRestaurants.length > 0 &&
             filteredRestaurants.map((restaurant) => (
               <div
                 key={restaurant._id}
@@ -235,8 +246,7 @@ export default function Store() {
                   </Link>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
       </div>
 

@@ -34,7 +34,7 @@ const Dashboard = () => {
       const deliveryDatas = JSON.parse(localStorage.getItem('profile'));
       const deliveryUser = JSON.parse(localStorage.getItem('deliveryUser'));
       setDeliveryData(deliveryDatas);
-      setDeliveryMan(deliveryUser?.signedUser);
+      setDeliveryMan(deliveryUser?.signedUser || deliveryUser);
 
       if (!deliveryData) {
         setLoading(false);
@@ -172,7 +172,7 @@ const Dashboard = () => {
                   <button
                     className="mt-4 w-full py-2 text-white bg-indigo-600 rounded hover:bg-indigo-700 transition-colors"
                   >
-                    View Details
+                    Confirm Order
                   </button>
                 </div>
               ))}

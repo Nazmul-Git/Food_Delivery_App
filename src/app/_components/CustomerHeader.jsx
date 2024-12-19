@@ -3,12 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaHome, FaInfoCircle, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
+import { TfiUser } from "react-icons/tfi";
 import { HiOutlineShoppingCart } from "react-icons/hi2";
+import { VscSignOut } from "react-icons/vsc";
 import { TbUserQuestion } from "react-icons/tb";
 import { MdForwardToInbox } from "react-icons/md";
 import CartModal from './CartModal';
 import { useRouter } from 'next/navigation';
 import { getSession, signOut } from 'next-auth/react';
+import { FaBlog } from 'react-icons/fa6';
 
 
 export default function CustomerHeader({ cartData }) {
@@ -99,21 +102,21 @@ export default function CustomerHeader({ cartData }) {
 
   // Logout functionality
   const handleLogout = () => {
-    if(session){
+    if (session) {
       signOut({
         callbackUrl: '/user',
       });
       localStorage.removeItem('signInData');
     }
-    else if(user){
+    else if (user) {
       localStorage.removeItem('user');
       setUser(null);
       router.push('/user');
     }
-    else{
+    else {
       alert('No user found!');
     }
-    
+
     // Reset state
     localStorage.removeItem('cart');
     setCartCount(0);
@@ -161,7 +164,7 @@ export default function CustomerHeader({ cartData }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-orange-700 to-black shadow-lg py-1">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-black to-black shadow-lg py-1">
       <div className="max-w-screen-xl mx-auto px-6 py-2 flex items-center justify-between">
         {/* Logo */}
         <div className="text-white text-xl font-semibold">
@@ -207,6 +210,12 @@ export default function CustomerHeader({ cartData }) {
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link
+            onClick={() => handleMenuClick('blog')}
+            href="/blog" className={`${activeMenu === 'blog' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+            Blog
+            <FaBlog className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
+          <Link
             onClick={() => handleMenuClick('contact')}
             href="/contact" className={`${activeMenu === 'contact' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Contact
@@ -214,12 +223,7 @@ export default function CustomerHeader({ cartData }) {
           </Link>
 
           {/* Conditional Rendering for User */}
-          {user || session?.user ? (
-            <button onClick={handleLogout} className="text-white font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group">
-              Logout
-              <FaUserCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-          ) : (
+          {!user || !session?.user && (
             <Link href="/user" className="text-white font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group">
               Login/Signup
               <TbUserQuestion className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -233,7 +237,7 @@ export default function CustomerHeader({ cartData }) {
             }}
             className={`flex items-center gap-2 ${activeMenu === 'cart' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition relative group`}
           >
-            Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
+            Cart <p className="text-yellow-400 mb-6 text-xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
             {cartCount ? (
               <HiOutlineShoppingCart className="w-5 h-5 mr-2 mb-6 text-white" />
             ) : (
@@ -242,17 +246,44 @@ export default function CustomerHeader({ cartData }) {
           </button>
 
           {/* Profile Image or Initials */}
-          <button
-            onClick={() => {
-              user || session?.user ?
-                router.push('/your-profile')
-                :
-                router.push('/user');
-            }}
-            className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group"
-          >
-            {getProfileImage()}
-          </button>
+          <div className="relative group">
+            <button
+              onClick={() => {
+                user || session?.user
+                  ? router.push('/your-profile')
+                  : router.push('/user');
+              }}
+              className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative"
+            >
+              {getProfileImage()}
+            </button>
+
+            {/* Dropdown Menu */}
+            {(user || session?.user) && (
+              <div className="absolute right-0 mt-4 pl-4 w-48 bg-white border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+                <ul className="py-4">
+                  <li>
+                    <button
+                      onClick={() => router.push('/your-profile')}
+                      className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
+                    >
+                      <TfiUser className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      Your Profile
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="text-black font-semibold hover:text-red-700 transition flex items-center gap-2 relative group"
+                    >
+                      <VscSignOut className="w-5 h-5 mr-2 text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      Sign Out
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
 
         </nav>
 
@@ -324,11 +355,17 @@ export default function CustomerHeader({ cartData }) {
           <MdForwardToInbox className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           Contact
         </Link>
+        <Link
+          onClick={() => handleMenuClick('blog')}
+          href="/blog" className={`${activeMenu === 'blog' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+          <FaBlog  className="w-5 h-5 text-teal-500" />
+          Blog
+        </Link>
         {/* Conditional Rendering for User */}
         {user || session?.user ? (
           <button onClick={handleLogout} className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group">
-            <FaUserCircle className="w-5 h-5 text-teal-500" />
-            Logout
+            <VscSignOut className="w-5 h-5 text-teal-500" />
+            Sign Out
           </button>
         ) : (
           <Link href="/user" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group">
@@ -345,7 +382,7 @@ export default function CustomerHeader({ cartData }) {
           className={`block text-lg ${activeMenu === 'cart' ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
         >
           <HiOutlineShoppingCart className="w-5 h-5 text-teal-500" />
-          Cart (<p className="text-orange-600">{cartCount ? cartCount : 0}</p>)
+          Cart <p className="text-orange-600 text-2xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
         </button>
         {/* Profile Image or Initials */}
         <button

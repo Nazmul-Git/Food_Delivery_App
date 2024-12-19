@@ -61,7 +61,7 @@ export default function RestaurantHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-blue-700 to-black shadow-lg py-1">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-black to-black shadow-lg py-1">
       <div className="max-w-screen-xl mx-auto px-6 py-2 flex items-center justify-between">
         {/* Logo */}
         <div className="text-white text-xl font-semibold">

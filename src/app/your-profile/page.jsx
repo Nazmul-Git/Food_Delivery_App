@@ -31,14 +31,14 @@ const Profile = () => {
     if (orderedProfile) {
       setUser(orderedProfile);
       setUserEmail(orderedProfile?.email);
-    }
 
-    let response = await fetch(`http://localhost:3000/api/order?id=${orderedProfile?.user_Id}`);
-    response = await response.json();
-    if (response.success) {
-      setOrders(response.orders);
-      localStorage.removeItem('orderSummary');
-      setLoading(false);
+      let response = await fetch(`http://localhost:3000/api/order?id=${orderedProfile?.user_Id}`);
+      response = await response.json();
+      if (response.success) {
+        setOrders(response.orders);
+        localStorage.removeItem('orderSummary');
+        setLoading(false);
+      }
     }
   };
 
@@ -60,7 +60,7 @@ const Profile = () => {
     // Clear user data from localStorage
     localStorage.removeItem('profile');
     localStorage.removeItem('signInData');
-    
+
     // Reset the user state
     setUser({});
     setUserEmail('');
@@ -69,7 +69,7 @@ const Profile = () => {
   };
 
   if (loading) return <Loading />;
-  console.log('asdjhd',user);
+  console.log('asdjhd', user);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col space-y-8 px-6 lg:px-16 py-10">
@@ -98,7 +98,7 @@ const Profile = () => {
                   src={user?.image}
                   alt="User Avatar"
                   className="w-full h-full rounded-full object-cover text-black p-2"
-                  onError={(e) => e.target.src = 'https://via.placeholder.com/150'} 
+                  onError={(e) => e.target.src = 'https://via.placeholder.com/150'}
                 />
               ) : (
                 getInitialsFromEmail(userEmail)
@@ -110,7 +110,7 @@ const Profile = () => {
           <div className="space-y-2">
             <h2 className="text-3xl font-semibold text-gray-900">{user?.customerName}</h2>
             <p className="text-lg text-gray-700">{userEmail}</p>
-            <p className="text-lg text-gray-600">{user?.address}</p>
+            <p className="text-lg text-gray-600">{`${user?.city}, ${user?.zone}, ${user?.street}`}</p>
 
             {/* Additional info or action buttons (optional) */}
             <div className="flex space-x-4 mt-4">
@@ -153,39 +153,48 @@ const Profile = () => {
               </div>
 
               {/* Restaurant Info */}
-              <div className="mt-6 space-y-6 bg-white p-6 rounded-lg border border-gray-200">
-                {/* Restaurant & Amount Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-center space-x-2">
+              <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
+                {/* Restaurant Details Section */}
+                <div className="space-y-4">
+                  {/* Restaurant Name */}
+                  <div className="flex flex-wrap justify-between items-center">
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Restaurant:</strong>
                     </p>
                     <p className="text-lg text-gray-600">{order?.data?.restaurantName}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
+
+                  {/* Amount */}
+                  <div className="flex flex-wrap justify-between items-center">
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Amount:</strong>
                     </p>
-                    <p className="text-lg text-pink-600 font-semibold flex items-center">
+                    <div className="text-lg text-pink-600 font-semibold flex items-center">
                       <FaDollarSign className="mr-1" />
                       {order?.amount}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Restaurant Type & Delivery Address Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-center space-x-2">
+                {/* Divider */}
+                <hr className="my-6 border-gray-300" />
+
+                {/* Additional Information Section */}
+                <div className="space-y-4">
+                  {/* Restaurant Type */}
+                  <div className="flex flex-wrap justify-between items-center">
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Restaurant Type:</strong>
                     </p>
                     <p className="text-lg text-gray-600">{order?.data?.restaurantType}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
+
+                  {/* Delivery Address */}
+                  <div className="flex flex-wrap justify-between items-center">
                     <p className="text-lg font-semibold text-gray-800">
                       <strong>Delivery Address:</strong>
                     </p>
-                    <p className="text-lg text-gray-600">{user?.address}</p>
+                    <p className="text-lg text-gray-600">{`${user?.city}, ${user?.zone}, ${user?.street}`}</p>
                   </div>
                 </div>
               </div>

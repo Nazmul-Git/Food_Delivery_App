@@ -49,7 +49,7 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-grow bg-white p-2 rounded-md shadow-lg mx-4">
+        <div className="flex-grow p-2 rounded-md mx-4">
           {addItem ? (
             <RestaurantDashboard />
           ) : (
@@ -57,7 +57,7 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-      <div className='pt-20'>
+      <div className='pt-20 pb-4'>
         <p className='text-center'>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
       </div>
       <Footer />

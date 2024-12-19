@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req) {
     const userId = req.nextUrl.searchParams.get('id');
-    // console.log(userId)
+    console.log(userId)
     await mongoose.connect(connectionUrl);
     let success = false;
     let orders = await OrderModel.find({ user_Id: userId });

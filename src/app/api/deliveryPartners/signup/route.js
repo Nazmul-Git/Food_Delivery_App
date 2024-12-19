@@ -5,8 +5,7 @@ import DeliveryUserModel from '@/app/lib/DeliveryUserModel';
 import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 
-// Secret key for signing the JWT (store this securely, such as in an environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function POST(req) {
   let payload = await req.json();
@@ -16,6 +15,18 @@ export async function POST(req) {
   await mongoose.connect(connectionUrl);
 
   try {
+    // Check if the phone number already exists
+    const existingUser = await DeliveryUserModel.findOne({ phone: payload.phone });
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Phone number is already in use.',
+        },
+        { status: 400 }
+      );
+    }
+
     // Hash the password before saving the user
     const hashedPassword = await bcrypt.hash(payload.password, 10);
 
@@ -50,8 +61,22 @@ export async function POST(req) {
     }
   } catch (err) {
     console.error('Error saving user:', err);
-    return NextResponse.json({ error: 'Error saving user!' });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Error saving user!',
+      },
+      { status: 500 }
+    );
+  } finally {
+    mongoose.connection.close();
   }
 
-  return NextResponse.json({ error: 'Signup failed!' });
+  return NextResponse.json(
+    {
+      success: false,
+      error: 'Signup failed!',
+    },
+    { status: 400 }
+  );
 }
