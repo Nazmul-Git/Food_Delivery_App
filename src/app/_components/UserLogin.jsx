@@ -24,7 +24,6 @@ export default function UserLogin({ redirect }) {
 
     const handleLogin = async (provider) => {
         try {
-            // console.log("Attempting login with provider:", provider);
             const result = await signIn(provider, {
                 callbackUrl: `${redirect?.order ? '/order' : '/stores'}`
             });
@@ -59,7 +58,7 @@ export default function UserLogin({ redirect }) {
         setLoading(true);
 
         try {
-            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/user/login`, {
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

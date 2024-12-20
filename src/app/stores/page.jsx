@@ -34,7 +34,7 @@ export default function Store() {
 
           try {
             const { name, email, image } = currentSession.user || {};
-            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/user/login`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/login`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
@@ -86,8 +86,10 @@ export default function Store() {
   }, [selectedLocation, searchQuery]);
 
   const loadLocations = async () => {
+    // const domain = process.env.NEXT_PUBLIC_API_URL;
+    // console.log(domain);
     try {
-      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/customer/locations`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer/locations`);
       const responseData = await response.json();
       if (responseData.success) {
         setLocations(responseData.result);
@@ -99,7 +101,7 @@ export default function Store() {
 
   const loadRestaurants = async () => {
     setLoading(true); 
-    let url = `${process.env.NEXTAUTH_URL}/api/customer?`;
+    let url = `${process.env.NEXT_PUBLIC_API_URL}/api/customer?`;
 
     if (selectedLocation) {
       url += `location=${encodeURIComponent(selectedLocation)}&`;
@@ -121,7 +123,7 @@ export default function Store() {
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     } finally {
-      setLoading(false); // Stop loading indicator
+      setLoading(false);
     }
   };
 

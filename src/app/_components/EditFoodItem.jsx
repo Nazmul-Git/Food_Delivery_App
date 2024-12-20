@@ -25,7 +25,7 @@ const EditFoodItem = ({ params }) => {
 
     const handleLoadedItemData = async () => {
         try {
-            const response = await fetch(`${process.env.NEXTAUTH_URL}/restaurants/dashboard/${id}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurants/dashboard/${id}`);
             const data = await response.json();
 
             if (response.ok && data.success) {
@@ -48,7 +48,7 @@ const EditFoodItem = ({ params }) => {
         e.preventDefault();
 
         try {
-            const response = await fetch(`${process.env.NEXTAUTH_URL}/restaurants/dashboard/${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurants/dashboard/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ foodName, description, price, category, imagePath }),

@@ -23,7 +23,7 @@ const EditFoodItem = () => {
 
     const handleLoadedItemData = async () => {
         try {
-            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods/edit/${id}`);
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/foods/edit/${id}`);
             response = await response.json();
 
             if (response.success) {
@@ -50,7 +50,7 @@ const EditFoodItem = () => {
         }
 
         try {
-            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods/edit/${id}`, {
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/foods/edit/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

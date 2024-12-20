@@ -34,7 +34,7 @@ export default function DeliveryUserLogin({ redirect }) {
         setLoading(true);
 
         try {
-            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/deliveryPartners/login`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/deliveryPartners/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

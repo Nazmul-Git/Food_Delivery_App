@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaHome, FaInfoCircle, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
 import { TfiUser } from "react-icons/tfi";
+import { SiSimplelogin } from "react-icons/si";
+import { GoGoal } from "react-icons/go";
 import { HiOutlineShoppingCart } from "react-icons/hi2";
 import { VscSignOut } from "react-icons/vsc";
 import { TbUserQuestion } from "react-icons/tb";
@@ -248,18 +250,13 @@ export default function CustomerHeader({ cartData }) {
           {/* Profile Image or Initials */}
           <div className="relative group">
             <button
-              onClick={() => {
-                user || session?.user
-                  ? router.push('/your-profile')
-                  : router.push('/user');
-              }}
               className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative"
             >
               {getProfileImage()}
             </button>
 
             {/* Dropdown Menu */}
-            {(user || session?.user) && (
+            {(user || session?.user) ? (
               <div className="absolute right-0 mt-4 pl-4 w-48 bg-white border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
                 <ul className="py-4">
                   <li>
@@ -282,7 +279,35 @@ export default function CustomerHeader({ cartData }) {
                   </li>
                 </ul>
               </div>
-            )}
+            ) :
+              <div className="absolute right-0 mt-4 pl-4 w-48 bg-white border border-gray-300 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+                <ul className="py-4">
+
+                  <li>
+                    <button
+                      onClick={() => {
+                        user || session?.user
+                          ? router.push('/stores')
+                          : router.push('/user');
+                      }}
+                      className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
+                    >
+                      <SiSimplelogin className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      Sign In
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => router.push('/your-profile')}
+                      className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
+                    >
+                      <GoGoal className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      Vission
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            }
           </div>
 
         </nav>
@@ -358,7 +383,7 @@ export default function CustomerHeader({ cartData }) {
         <Link
           onClick={() => handleMenuClick('blog')}
           href="/blog" className={`${activeMenu === 'blog' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
-          <FaBlog  className="w-5 h-5 text-teal-500" />
+          <FaBlog className="w-5 h-5 text-teal-500" />
           Blog
         </Link>
         {/* Conditional Rendering for User */}

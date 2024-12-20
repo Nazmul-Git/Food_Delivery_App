@@ -82,7 +82,7 @@ export default function UserSignUp({ redirect }) {
             };
 
             // Send the data to the backend
-            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/user`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
