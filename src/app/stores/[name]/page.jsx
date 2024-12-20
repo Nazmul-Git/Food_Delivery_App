@@ -31,7 +31,7 @@ export default function StoreDetails({ params, searchParams }) {
     useEffect(() => {
         const loadRestaurantDetails = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/customer/${id}`);
+                const response = await fetch(`${process.env.NEXTAUTH_URL}/api/customer/${id}`);
                 const data = await response.json();
                 if (data.success) {
                     setRestaurantDetails(data.details);

@@ -29,7 +29,7 @@ export default function ContactUs() {
         setFeedback('');
 
         try {
-            const response = await fetch('/api/contact', {
+            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/contact`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)

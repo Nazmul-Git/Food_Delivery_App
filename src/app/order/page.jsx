@@ -52,7 +52,7 @@ export default function Order() {
 
                     try {
                         const { name, email, image } = currentSession.user || {};
-                        const response = await fetch('http://localhost:3000/api/user/login', {
+                        const response = await fetch(`${process.env.NEXTAUTH_URL}/api/user/login`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
@@ -182,7 +182,7 @@ export default function Order() {
         if (normalizedCity && normalizedZone) {
             try {
                 const deliveryBoyResponse = await fetch(
-                    `http://localhost:3000/api/deliveryPartners?city=${encodeURIComponent(normalizedCity)}&zone=${encodeURIComponent(normalizedZone)}`
+                    `${process.env.NEXTAUTH_URL}/api/deliveryPartners?city=${encodeURIComponent(normalizedCity)}&zone=${encodeURIComponent(normalizedZone)}`
                 );
                 const deliveryBoyData = await deliveryBoyResponse.json();
                 console.log(deliveryBoyData);
@@ -223,7 +223,7 @@ export default function Order() {
         };
 
         try {
-            let response = await fetch('http://localhost:3000/api/order', {
+            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/order`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -84,7 +84,7 @@ export default function DeliveryUserSignup({ redirect }) {
             };
 
             // Send the data to the backend
-            let response = await fetch('http://localhost:3000/api/deliveryPartners/signup', {
+            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/deliveryPartners/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

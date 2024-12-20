@@ -32,7 +32,7 @@ export default function AddFoodItem() {
         let restaurantId;
         const restaurantData = JSON.parse(localStorage.getItem('restaurantUser'));
         if (restaurantData) restaurantId = restaurantData._id;
-        let response = await fetch('http://localhost:3000/api/restaurants/foods', {
+        let response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

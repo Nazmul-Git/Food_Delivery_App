@@ -43,7 +43,7 @@ const Dashboard = () => {
       // console.log('delivery user ',deliveryData.delivery_Id);
 
       const deliveryManId = deliveryDatas.delivery_Id;
-      const response = await fetch(`http://localhost:3000/api/deliveryPartners/orders/${deliveryManId}`);
+      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/deliveryPartners/orders/${deliveryManId}`);
       const data = await response.json();
       if (data.success) {
         setOrders(data.orders);

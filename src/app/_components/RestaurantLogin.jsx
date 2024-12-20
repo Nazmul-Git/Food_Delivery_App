@@ -28,7 +28,7 @@ export default function RestaurantLogin() {
         setMessage(''); // Reset message before processing
 
         try {
-            const response = await fetch('http://localhost:3000/api/restaurants', {
+            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",

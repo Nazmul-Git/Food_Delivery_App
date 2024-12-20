@@ -18,7 +18,7 @@ export default function RestaurantDashboard() {
                 if (!restUser || !restUser._id) throw new Error('Invalid restaurant user data');
 
                 const restaurantId = restUser._id;
-                let response = await fetch(`http://localhost:3000/api/restaurants/foods/${restaurantId}`);
+                let response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods/${restaurantId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch food items');
                 }
@@ -42,7 +42,7 @@ export default function RestaurantDashboard() {
         try {
             setLoading(true);
 
-            const response = await fetch(`http://localhost:3000/api/restaurants/foods/${id}`, {
+            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods/${id}`, {
                 method: "DELETE",
             });
 

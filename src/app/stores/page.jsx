@@ -34,7 +34,7 @@ export default function Store() {
 
           try {
             const { name, email, image } = currentSession.user || {};
-            const response = await fetch('http://localhost:3000/api/user/login', {
+            const response = await fetch(`${process.env.NEXTAUTH_URL}/api/user/login`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, fullName: name, image, socialAuth: true }),
@@ -87,7 +87,7 @@ export default function Store() {
 
   const loadLocations = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/customer/locations');
+      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/customer/locations`);
       const responseData = await response.json();
       if (responseData.success) {
         setLocations(responseData.result);
@@ -98,8 +98,8 @@ export default function Store() {
   };
 
   const loadRestaurants = async () => {
-    setLoading(true); // Start loading indicator
-    let url = `http://localhost:3000/api/customer?`;
+    setLoading(true); 
+    let url = `${process.env.NEXTAUTH_URL}/api/customer?`;
 
     if (selectedLocation) {
       url += `location=${encodeURIComponent(selectedLocation)}&`;

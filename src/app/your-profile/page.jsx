@@ -32,7 +32,7 @@ const Profile = () => {
       setUser(orderedProfile);
       setUserEmail(orderedProfile?.email);
 
-      let response = await fetch(`http://localhost:3000/api/order?id=${orderedProfile?.user_Id}`);
+      let response = await fetch(`${process.env.NEXTAUTH_URL}/api/order?id=${orderedProfile?.user_Id}`);
       response = await response.json();
       if (response.success) {
         setOrders(response.orders);

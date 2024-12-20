@@ -23,7 +23,7 @@ const EditFoodItem = () => {
 
     const handleLoadedItemData = async () => {
         try {
-            let response = await fetch(`http://localhost:3000/api/restaurants/foods/edit/${id}`);
+            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods/edit/${id}`);
             response = await response.json();
 
             if (response.success) {
@@ -50,7 +50,7 @@ const EditFoodItem = () => {
         }
 
         try {
-            let response = await fetch(`http://localhost:3000/api/restaurants/foods/edit/${id}`, {
+            let response = await fetch(`${process.env.NEXTAUTH_URL}/api/restaurants/foods/edit/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const EditFoodItem = () => {
 
             if (response.success) {
                 setSuccessMessage('Food item updated successfully!');
-                router.push('/restaurants/dashboard'); // Navigate to dashboard after success
+                router.push('/restaurants/dashboard');
             } else {
                 setErrorMessage('Failed to update food item.');
             }
