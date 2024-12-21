@@ -30,6 +30,7 @@ export async function POST(req) {
                         email: payload.email,
                         fullName: payload.fullName,
                         image: payload.image,
+                        userType: 'customerUser',
                         socialAuth: true, 
                     });
                     await loggedUser.save(); 

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from 'react-toastify'; 
 import Loading from '../loading';
 
 export default function RestaurantSignup() {
@@ -13,10 +14,8 @@ export default function RestaurantSignup() {
     const [restaurantType, setRestaurantType] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [imageUrl, setImageUrl] = useState(''); 
+    const [imageUrl, setImageUrl] = useState('');
     const [description, setDescription] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
@@ -24,28 +23,33 @@ export default function RestaurantSignup() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Reset messages and set loading to true
+        setLoading(true);
+
         // Field validation
         if (!username || !restaurantName || !email || !phone || !address || !restaurantType || !password || !confirmPassword || !imageUrl || !description) {
-            setErrorMessage('All fields are required.');
+            toast.error('All fields are required.');
+            setLoading(false);
             return;
         }
 
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setErrorMessage('Invalid email format.');
+            toast.error('Invalid email format.');
+            setLoading(false);
             return;
         }
 
         if (phone.length < 10 || !/^\d+$/.test(phone)) {
-            setErrorMessage('Phone number must be at least 10 digits and numeric.');
+            toast.error('Phone number must be at least 10 digits and numeric.'); 
+            setLoading(false);
             return;
         }
 
         if (password !== confirmPassword) {
-            setErrorMessage('Passwords do not match.');
+            toast.error('Passwords do not match.');
+            setLoading(false);
             return;
         }
-
-        setLoading(true);
 
         try {
             // API call
@@ -62,29 +66,26 @@ export default function RestaurantSignup() {
                     address,
                     restaurantType,
                     password,
-                    imageUrl:imageUrl, 
-                    description, 
+                    imageUrl,
+                    description,
                 }),
             });
 
             // Parse the response
-            response = await response.json();
+            const data = await response.json();
 
-            if (response.success && response.token) {
-                localStorage.setItem('restaurantUser', JSON.stringify(response.signedUser));
-                setSuccessMessage('Restaurant registered successfully!');
-                setErrorMessage('');
+            if (response.ok && data.success && data.token) {
+                localStorage.setItem('restaurantUser', JSON.stringify(data.signedUser));
+                toast.success('Restaurant registered successfully!');
                 clearFields();
                 router.push('/restaurants/dashboard');
             } else {
-                setErrorMessage('Error registering restaurant: ' + response.message);
-                setSuccessMessage('');
+                toast.error(data.message || 'Error registering restaurant.'); 
             }
         } catch (error) {
-            setErrorMessage('There was an error submitting the form.');
-            setSuccessMessage('');
+            toast.error('There was an error submitting the form.'); 
         } finally {
-            setLoading(false);
+            setLoading(false); 
         }
     };
 
@@ -108,17 +109,9 @@ export default function RestaurantSignup() {
 
     return (
         <>
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
+            
             <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Restaurant Signup</h2>
-            {errorMessage && (
-                <div className="mb-4 p-2 text-red-600 bg-red-100 border border-red-300 rounded-md">
-                    {errorMessage}
-                </div>
-            )}
-            {successMessage && (
-                <div className="mb-4 p-2 text-green-600 bg-green-100 border border-green-300 rounded-md">
-                    {successMessage}
-                </div>
-            )}
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Left Side: Restaurant Details */}

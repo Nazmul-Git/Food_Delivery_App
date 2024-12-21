@@ -1,13 +1,15 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify'; 
 import Loading from '../loading';
 
 export default function RestaurantLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
@@ -20,18 +22,17 @@ export default function RestaurantLogin() {
         e.preventDefault();
 
         if (!email || !password) {
-            setMessage('Please enter both email and password');
+            toast.error('Please enter both email and password');
             return;
         }
 
         setLoading(true);
-        setMessage(''); // Reset message before processing
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants`, {
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, password, login: true }),
             });
@@ -42,13 +43,13 @@ export default function RestaurantLogin() {
                 delete signedUser.password;
                 localStorage.setItem('restaurantUser', JSON.stringify(signedUser));
 
-                setMessage('Login successful! Redirecting...');
+                toast.success('Login successful! Redirecting...');
                 setTimeout(() => router.push('/restaurants/dashboard'), 2000);
             } else {
-                setMessage('Invalid credentials, please try again.');
+                toast.error('Invalid credentials, please try again.');
             }
         } catch (error) {
-            setMessage('An error occurred, please try again later.');
+            toast.error('An error occurred, please try again later.');
         } finally {
             setLoading(false);
         }
@@ -60,18 +61,10 @@ export default function RestaurantLogin() {
 
     return (
         <>
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
+            
             <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Restaurant Login</h2>
-            {message && (
-                <div
-                    className={`mb-4 p-2 rounded-md ${
-                        message.includes('successful')
-                            ? 'text-green-600 bg-green-100 border-green-300'
-                            : 'text-red-600 bg-red-100 border-red-300'
-                    }`}
-                >
-                    {message}
-                </div>
-            )}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label htmlFor="email" className="block text-gray-700">Email</label>
@@ -90,7 +83,7 @@ export default function RestaurantLogin() {
                     <label htmlFor="password" className="block text-gray-700">Password</label>
                     <div className="relative">
                         <input
-                            type={isPasswordVisible ? "text" : "password"}
+                            type={isPasswordVisible ? 'text' : 'password'}
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}

@@ -1,18 +1,27 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Loading from '../loading';
 import { FaHome, FaInfoCircle, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { GrContact } from 'react-icons/gr';
+import { IoMdHelpCircle } from 'react-icons/io'; // For the "?" icon
+import { TfiUser } from 'react-icons/tfi';
+import { GoGoal } from 'react-icons/go';
+import { VscSignOut } from 'react-icons/vsc';
+import { FaSignInAlt } from 'react-icons/fa';
 
 export default function RestaurantHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [touchStartY, setTouchStartY] = useState(0);
+  const [userMenuOpen, setUserMenuOpen] = useState(false); // For handling user menu visibility
+  const [isHovered, setIsHovered] = useState(false); // Track hover state for desktop
   const router = useRouter();
   const path = usePathname();
+  const userMenuRef = useRef(null); // Ref for the user menu
+  const profileIconRef = useRef(null); // Ref for the profile icon
 
   useEffect(() => {
     const checkUser = () => {
@@ -32,10 +41,26 @@ export default function RestaurantHeader() {
     checkUser();
   }, [path, router]);
 
+  // Close the user menu if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        userMenuRef.current && !userMenuRef.current.contains(event.target) &&
+        profileIconRef.current && !profileIconRef.current.contains(event.target)
+      ) {
+        setUserMenuOpen(false); // Close menu if clicked outside
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('restaurantUser');
     setIsLoggedIn(null);
     setIsMenuOpen(false);
+    setUserMenuOpen(false); // Close user menu after logout
     router.replace('/restaurants');
   };
 
@@ -51,7 +76,6 @@ export default function RestaurantHeader() {
   const handleTouchMove = (e) => {
     const currentY = e.touches[0].clientY;
     if (touchStartY - currentY > 50) {
-      // Swipe up detected
       setIsMenuOpen(false);
     }
   };
@@ -92,7 +116,6 @@ export default function RestaurantHeader() {
           </Link>
         </div>
 
-
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
           <Link href="/" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
@@ -103,45 +126,98 @@ export default function RestaurantHeader() {
             About
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
+          <Link href="/contact" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+            Contact
+            <GrContact className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
+
+          {/* User Profile and Logout */}
           {isLoggedIn && isLoggedIn.username ? (
-            <>
-              <button
-                onClick={handleLogout}
-                className="text-white font-semibold hover:text-red-700 transition flex items-center gap-2 relative group"
-              >
-                Logout
-                <FaSignOutAlt className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </button>
-
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 text-white font-semibold hover:text-yellow-300 transition relative group"
-              >
-                {/* Desktop Profile Initials */}
-                {isLoggedIn.email ? (
-                  <div className="w-5 h-5 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
-                    {getInitials(isLoggedIn.email)}
-                  </div>
-                ) : (
-                  <FaUser className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                )}
-
-              </Link>
-
-
-            </>
-          ) : (
-            <Link
-              href="/restaurants"
-              className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group"
+            <div
+              className="relative flex items-center gap-2"
+              ref={profileIconRef}
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              onMouseEnter={() => setIsHovered(true)} 
+              onMouseLeave={() => setIsHovered(false)} 
             >
-              Login/Sign Up
-              <FaUser className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
+              <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
+                {getInitials(isLoggedIn?.email)}
+              </div>
+
+              {/* Show user menu if hovered or clicked */}
+              {(isHovered || userMenuOpen) && (
+                <div
+                  ref={userMenuRef}
+                  className="absolute top-16 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200"
+                >
+                  {/* Profile Link */}
+                  <Link
+                    href="/profile"
+                    className="block px-6 py-3 flex items-center space-x-2  hover:text-teal-600 transition-all duration-300 ease-in-out"
+                  >
+                    <TfiUser className="w-5 h-5 text-teal-600" />
+                    <span className="font-semibold text-sm">Profile</span>
+                  </Link>
+
+                  {/* Our Mission Link */}
+                  <Link
+                    href="/our-mission"
+                    className="block px-6 py-3 flex items-center space-x-2  hover:text-teal-600 transition-all duration-300 ease-in-out"
+                  >
+                    <GoGoal className="w-5 h-5 text-teal-600" />
+                    <span className="font-semibold text-sm">Our Mission</span>
+                  </Link>
+
+                  {/* Sign Out Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="block px-6 py-3 flex items-center space-x-2  hover:text-red-700 transition-all duration-300 ease-in-out"
+                  >
+                    <VscSignOut className="w-5 h-5 text-red-700 inline-block" />
+                    <span className="font-semibold text-sm">Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div
+              className="relative flex items-center gap-2"
+              ref={profileIconRef}
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
+                <IoMdHelpCircle className="w-6 h-6 text-yellow-500" />
+              </div>
+
+              {/* Show user menu if hovered or clicked */}
+              {(isHovered || userMenuOpen) && (
+                <div ref={userMenuRef} className="absolute top-12 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200">
+                  <Link
+                    href="/restaurants"
+                    className="block px-4 py-2 hover:text-blue-500 transition"
+                  >
+                    <div className='flex gap-2 items-center font-semibold'>
+                      <FaSignInAlt className="w-5 h-5 text-teal-600" />
+                      Sign In
+                    </div>
+                  </Link>
+                  <Link
+                    href="/our-mission"
+                    className="block px-4 py-2 hover:text-blue-500 transition"
+                  >
+                    <div className='flex gap-2 items-center font-semibold'>
+                      <GoGoal className="w-5 h-5 text-teal-600" />
+                      Our Mission
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
           )}
         </nav>
 
-        {/* Mobile Hamburger Icon */}
         {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden text-white focus:outline-none"
@@ -180,15 +256,13 @@ export default function RestaurantHeader() {
             </svg>
           )}
         </button>
-
       </div>
 
       {/* Mobile Menu */}
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
-          }`}
+        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link
           href="/"
@@ -206,7 +280,15 @@ export default function RestaurantHeader() {
           <FaInfoCircle className="w-5 h-5 text-yellow-500" />
           About
         </Link>
-        {isLoggedIn && isLoggedIn.username ? (
+        <Link
+          href="/contact"
+          onClick={() => setIsMenuOpen(false)}
+          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+        >
+          <GrContact className="w-5 h-5 text-yellow-500" />
+          Contact
+        </Link>
+        {isLoggedIn && isLoggedIn.email ? (
           <>
             <button
               onClick={() => {
@@ -215,16 +297,14 @@ export default function RestaurantHeader() {
               }}
               className="block w-full text-left text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
             >
-              <FaSignOutAlt className="w-5 h-5  text-red-700" />
-              Logout
+              <FaSignOutAlt className="w-5 h-5 text-red-700" />
+              Sign Out
             </button>
             <Link
               href="/profile"
               onClick={() => setIsMenuOpen(false)}
               className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
             >
-              {/* Mobile Profile Initials */}
-
               {isLoggedIn.email ? (
                 <div className="w-6 h-6 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
                   {getInitials(isLoggedIn.email)}
@@ -241,7 +321,7 @@ export default function RestaurantHeader() {
             className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
           >
             <FaUser className="w-5 h-5 mr-2 text-yellow-500" />
-            Login/Sign Up
+            Sign In
           </Link>
         )}
       </div>

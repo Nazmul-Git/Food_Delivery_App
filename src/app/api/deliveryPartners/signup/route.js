@@ -34,6 +34,7 @@ export async function POST(req) {
     const user = new DeliveryUserModel({
       ...payload,
       password: hashedPassword,
+      userType: 'deliveryUser',
     });
 
     signedUser = await user.save();

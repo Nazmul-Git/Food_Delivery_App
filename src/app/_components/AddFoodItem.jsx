@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify'; 
 
 export default function AddFoodItem() {
     const [foodName, setFoodName] = useState('');
@@ -6,8 +9,6 @@ export default function AddFoodItem() {
     const [price, setPrice] = useState('');
     const [category, setCategory] = useState('');
     const [imagePath, setImagePath] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,41 +16,45 @@ export default function AddFoodItem() {
 
         // Basic validation
         if (!foodName || !description || !price || !category || !imagePath) {
-            setErrorMessage('All fields are required.');
-            setSuccessMessage('');
+            toast.error('All fields are required.'); 
             return;
         }
 
         if (isNaN(price) || price <= 0) {
-            setErrorMessage('Price must be a valid positive number.');
-            setSuccessMessage('');
+            toast.error('Price must be a valid positive number.'); 
             return;
         }
 
         // Reset messages
-        setErrorMessage('');
+        toast.dismiss(); 
 
         let restaurantId;
         const restaurantData = JSON.parse(localStorage.getItem('restaurantUser'));
         if (restaurantData) restaurantId = restaurantData._id;
-        let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/foods`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ restaurantId, foodName, description, price, category, imagePath })
-        });
-        console.log(response)
-        response = await response.json();
-        if (response.success) {
-            setSuccessMessage('Food item added successfully!');
-            setFoodName('');
-            setDescription('');
-            setPrice('');
-            setCategory('');
-            setImagePath('');
-        } else {
-            setErrorMessage('Failed to add food list!');
+
+        try {
+            // API call
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/foods`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ restaurantId, foodName, description, price, category, imagePath }),
+            });
+
+            response = await response.json();
+            if (response.success) {
+                toast.success('Food item added successfully!');
+                setFoodName('');
+                setDescription('');
+                setPrice('');
+                setCategory('');
+                setImagePath('');
+            } else {
+                toast.error('Failed to add food item.'); 
+            }
+        } catch (error) {
+            toast.error('Error adding food item.'); 
         }
     };
 
@@ -57,16 +62,6 @@ export default function AddFoodItem() {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="w-full max-w-3xl bg-white/50 backdrop-blur-lg p-8 rounded-lg shadow-md">
                 <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Add Food Item</h2>
-                {errorMessage && (
-                    <div className="mb-4 p-3 text-red-600 bg-red-100 border border-red-300 rounded-md">
-                        {errorMessage}
-                    </div>
-                )}
-                {successMessage && (
-                    <div className="mb-4 p-3 text-green-600 bg-green-100 border border-green-300 rounded-md">
-                        {successMessage}
-                    </div>
-                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label htmlFor="foodName" className="block text-gray-700 font-medium">Food Name</label>
@@ -140,6 +135,9 @@ export default function AddFoodItem() {
                     </button>
                 </form>
             </div>
+
+            {/* Toast Container to display toasts */}
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} style={{ marginTop: '80px' }}/>
         </div>
     );
 }

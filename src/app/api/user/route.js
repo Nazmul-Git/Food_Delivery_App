@@ -28,6 +28,7 @@ export async function POST(req) {
                 phone: payload.phone,
                 address: payload.address,
                 password: hashedPassword,
+                userType: 'customerUser',
             });
 
             // Save the user to the database

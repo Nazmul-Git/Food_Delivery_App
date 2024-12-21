@@ -6,7 +6,7 @@ import { FaHome, FaInfoCircle, FaUserCircle } from 'react-icons/fa';
 import { TbUserQuestion } from "react-icons/tb";
 import { useRouter } from 'next/navigation';
 
-export default function deliveryHeader({ cartData }) {
+export default function DeliveryUserHeader({ cartData }) {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [touchStartY, setTouchStartY] = useState(0);

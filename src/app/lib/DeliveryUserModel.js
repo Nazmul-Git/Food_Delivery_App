@@ -7,6 +7,7 @@ const deliveryUserSchema = new mongoose.Schema({
   zone: { type: String, required: true },
   street: { type: String, required: true },
   password: { type: String, required: true },
+  userType: { type: String },
 }, { timestamps: true });
 
 

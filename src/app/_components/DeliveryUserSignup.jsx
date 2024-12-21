@@ -1,7 +1,9 @@
-'use client'
+'use client';
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function DeliveryUserSignup({ redirect }) {
     const [fullName, setFullName] = useState('');
@@ -13,8 +15,6 @@ export default function DeliveryUserSignup({ redirect }) {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
 
     const router = useRouter();
 
@@ -66,11 +66,10 @@ export default function DeliveryUserSignup({ redirect }) {
 
         // Validate password match
         if (password !== confirmPassword) {
-            setError('Passwords do not match!');
+            toast.error('Passwords do not match!');
             return;
         }
 
-        setError('');
         setLoading(true);
         try {
             // Prepare the request payload without `confirmPassword`
@@ -96,36 +95,41 @@ export default function DeliveryUserSignup({ redirect }) {
 
             if (response.success && response.token) {
                 const { signedUser } = response;
-                // console.log(signedUser);
                 delete signedUser.password;
                 localStorage.setItem('deliveryUser', JSON.stringify({ signedUser }));
-                setMessage(response.message || 'User registered successfully');
-                if (redirect.dashboard) {
+                toast.success(response.message || 'User registered successfully');
+
+                // Handle redirection
+                if (redirect?.dashboard) {
                     router.push('/dashboard');
-                    // Clear the form fields after successful registration
-                    setFullName('');
-                    setPhone('');
-                    setCity('');
-                    setZone('');
-                    setStreet('');
-                    setPassword('');
-                    setConfirmPassword('');
-                } else if (JSON.parse(localStorage.getItem('deliveryUser'))) {
-                    setMessage(response.message || 'User registered successfully');
+                } else {
                     router.push('/dashboard');
                 }
+
+                // Clear the form after successful registration
+                setFullName('');
+                setPhone('');
+                setCity('');
+                setZone('');
+                setStreet('');
+                setPassword('');
+                setConfirmPassword('');
             } else {
-                setError(response.error || 'Sign up failed!');
+                toast.error(response.error || 'Sign up failed!');
             }
         } catch (err) {
-            setError('Error connecting to server: ' + err.message);
+            toast.error('Error connecting to server: ' + err.message);
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
+
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Full Name */}
                 <div className="mb-4">
                     <label htmlFor="fullName" className="block text-lg font-medium text-gray-700">Full Name</label>
@@ -170,6 +174,7 @@ export default function DeliveryUserSignup({ redirect }) {
                         required
                     />
                 </div>
+
                 {/* Zone */}
                 <div className="mb-4">
                     <label htmlFor="zone" className="block text-lg font-medium text-gray-700">Zone/District</label>
@@ -184,9 +189,10 @@ export default function DeliveryUserSignup({ redirect }) {
                         required
                     />
                 </div>
-                {/* street */}
+
+                {/* Street */}
                 <div className="mb-4">
-                    <label htmlFor="address" className="block text-lg font-medium text-gray-700">Street</label>
+                    <label htmlFor="street" className="block text-lg font-medium text-gray-700">Street</label>
                     <input
                         type="text"
                         name="street"
@@ -238,12 +244,6 @@ export default function DeliveryUserSignup({ redirect }) {
                         required
                     />
                 </div>
-
-                {/* Error Message */}
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-                {/* Success Message */}
-                {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
 
                 {/* Submit Button */}
                 <button

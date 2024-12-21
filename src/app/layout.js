@@ -1,5 +1,6 @@
 // These styles apply to every route in the application
 import './globals.css';
+import 'react-toastify/dist/ReactToastify.css'; 
  
 export const metadata = {
   title: 'Create Next App',

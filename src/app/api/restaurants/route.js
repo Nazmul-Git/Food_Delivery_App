@@ -42,10 +42,17 @@ export async function POST(req) {
     await connectToDatabase();
 
     if (payload.login) {
-      // Login flow
       const restaurant = await RestaurantsSchema.findOne({ email: payload.email });
+      
+      if (!restaurant) {
+        return NextResponse.json({ success: false, error: "Invalid email or password!" }, { status: 401 });
+      }
 
-      if (restaurant && await bcrypt.compare(payload.password, restaurant.password)) {
+      console.log("Restaurant found:", restaurant); 
+      const isPasswordValid = await bcrypt.compare(payload.password, restaurant.password);
+      console.log("Password match result:", isPasswordValid); 
+
+      if (isPasswordValid) {
         signedUser = restaurant;
         success = true;
 
@@ -64,14 +71,18 @@ export async function POST(req) {
 
         return NextResponse.json({ success, signedUser: restaurantWithoutPassword, token });
       } else {
+        console.error("Password mismatch for email:", payload.email);
         return NextResponse.json({ success: false, error: "Invalid email or password!" }, { status: 401 });
       }
     } else {
       // Signup flow
+      console.log("Signup flow initiated"); 
       const hashedPassword = await bcrypt.hash(payload.password, 10);
+
       const restaurant = new RestaurantsSchema({
         ...payload,
         password: hashedPassword,
+        userType: 'restaurantUser', 
       });
 
       signedUser = await restaurant.save();

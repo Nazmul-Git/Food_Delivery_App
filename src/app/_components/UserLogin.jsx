@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
 import { signIn } from 'next-auth/react';
 import { FaGithub } from 'react-icons/fa6';
+import { ToastContainer, toast } from 'react-toastify'; 
+
 
 export default function UserLogin({ redirect }) {
     const [email, setEmail] = useState('');
@@ -14,7 +16,6 @@ export default function UserLogin({ redirect }) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    // console.log(redirect);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -25,9 +26,9 @@ export default function UserLogin({ redirect }) {
     const handleLogin = async (provider) => {
         try {
             const result = await signIn(provider, {
-                callbackUrl: `${redirect?.order ? '/order' : '/stores'}`
+                callbackUrl: `${redirect?.order ? '/order' : '/stores'}`,
             });
-            
+
             if (result?.error) {
                 throw new Error(result.error);
             }
@@ -40,9 +41,9 @@ export default function UserLogin({ redirect }) {
         } catch (error) {
             console.error("Login failed:", error);
             setError(error.message || 'Login failed');
+            toast.error(error.message || 'Login failed'); 
         }
     };
-
 
     const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
 
@@ -51,6 +52,7 @@ export default function UserLogin({ redirect }) {
 
         if (!email || !password) {
             setError('Please enter both email and password');
+            toast.error('Please enter both email and password'); 
             return;
         }
 
@@ -68,10 +70,10 @@ export default function UserLogin({ redirect }) {
 
             response = await response.json();
 
-
             if (response.success && response.token) {
                 localStorage.setItem('user', JSON.stringify(response.loggedUser));
                 setMessage('Logged in successfully!');
+                toast.success('Logged in successfully!'); 
                 if (redirect?.order) {
                     router.push('/order');
                 } else {
@@ -79,10 +81,12 @@ export default function UserLogin({ redirect }) {
                 }
             } else {
                 setError(response.message || 'Login failed. Please try again.');
+                toast.error(response.message || 'Login failed. Please try again.'); 
             }
         } catch (error) {
             console.error('Login Error:', error);
             setError('An error occurred. Please try again later.');
+            toast.error('An error occurred. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -157,6 +161,14 @@ export default function UserLogin({ redirect }) {
                     </button>
                 </div>
             </div>
+
+            {/* Toast Container with custom top margin */}
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={true}
+                style={{ marginTop: '80px' }} 
+            />
         </>
     );
 }

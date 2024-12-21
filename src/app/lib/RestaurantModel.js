@@ -55,13 +55,16 @@ const RestaurantModel = new Schema(
       type: Date,
       default: Date.now,
     },
+    userType: { 
+      type: String 
+    },
     updatedAt: {
       type: Date,
       default: Date.now,
     },
   },
   {
-    timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
+    timestamps: true, 
   }
 );
 

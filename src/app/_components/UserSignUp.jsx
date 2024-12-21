@@ -1,7 +1,8 @@
-'use client'
+'use client';
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify'; 
 
 export default function UserSignUp({ redirect }) {
     const [user, setUser] = useState();
@@ -13,8 +14,6 @@ export default function UserSignUp({ redirect }) {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordStrength, setPasswordStrength] = useState(0);
-    const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const router = useRouter();
@@ -63,13 +62,11 @@ export default function UserSignUp({ redirect }) {
 
         // Validate password match
         if (password !== confirmPassword) {
-            setError('Passwords do not match!');
+            toast.error('Passwords do not match!'); 
             return;
         }
 
-        setError('');
         setLoading(true);
-        setMessage('');
 
         try {
             // Prepare the request payload without `confirmPassword`
@@ -98,7 +95,10 @@ export default function UserSignUp({ redirect }) {
                 localStorage.setItem('user', JSON.stringify(signedUser));
                 setUser(JSON.parse(localStorage.getItem('user')));
                 setCart(JSON.parse(localStorage.getItem('cart')));
-                setMessage('Sign up successful!');
+
+                toast.success('Sign up successful!'); 
+
+                // Clear form data
                 setFullName('');
                 setEmail('');
                 setPhone('');
@@ -107,17 +107,17 @@ export default function UserSignUp({ redirect }) {
                 setConfirmPassword('');
                 setPasswordStrength(0);
 
-                if (redirect?.order || user && cart.length) {
+                // Redirect based on the presence of cart or redirect props
+                if (redirect?.order || (user && cart.length)) {
                     router.push('/order');
-                }
-                else {
+                } else {
                     router.push('/stores');
                 }
             } else {
-                setError(data.error || 'Sign up failed!');
+                toast.error(data.error || 'Sign up failed!'); 
             }
         } catch (err) {
-            setError('Error connecting to server: ' + err.message);
+            toast.error('Error connecting to server: ' + err.message); 
             console.error(err);
         } finally {
             setLoading(false);
@@ -229,21 +229,23 @@ export default function UserSignUp({ redirect }) {
                     />
                 </div>
 
-                {/* Error Message */}
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-                {/* Success Message */}
-                {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
-
                 {/* Submit Button */}
                 <button
                     type="submit"
                     className="w-full bg-orange-600 text-white py-3 rounded-lg mt-4 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
                     disabled={loading}
                 >
-                    {loading ? 'Signing...' : 'Sign up'}
+                    {loading ? 'Signing up...' : 'Sign up'}
                 </button>
             </form>
+
+            {/* Toast Container for toasts */}
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={true}
+                style={{ marginTop: '80px' }} 
+            />
         </>
     );
 }

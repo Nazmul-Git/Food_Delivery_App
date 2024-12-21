@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function DeliveryUserLogin({ redirect }) {
-
+export default function DeliveryUserLogin() {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -26,11 +26,10 @@ export default function DeliveryUserLogin({ redirect }) {
         e.preventDefault();
 
         if (!phone || !password) {
-            setMessage('Please enter both phone number and password');
+            toast.error('Please enter both phone number and password');
             return;
         }
 
-        setMessage('');
         setLoading(true);
 
         try {
@@ -49,14 +48,14 @@ export default function DeliveryUserLogin({ redirect }) {
                 delete loggedUser.password;
                 localStorage.setItem('deliveryUser', JSON.stringify(loggedUser));
 
-                setMessage('Logged in successfully!');
-                router.push('/dashboard');
+                toast.success('Logged in successfully! Redirecting...');
+                setTimeout(() => router.push('/dashboard'), 2000);
             } else {
-                setMessage(data.message || 'Login failed. Please try again.');
+                toast.error(data.message || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error('Login Error:', error);
-            setMessage('An error occurred. Please try again later.');
+            toast.error('An error occurred. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -64,13 +63,10 @@ export default function DeliveryUserLogin({ redirect }) {
 
     return (
         <>
-            {message && (
-                <div className={`mb-4 p-2 text-sm ${message.includes('success') ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'} border rounded-md`}>
-                    {message}
-                </div>
-            )}
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
                     <label htmlFor="phone" className="block text-lg font-medium text-gray-700">Mobile</label>
                     <input
                         type="number"
@@ -84,7 +80,7 @@ export default function DeliveryUserLogin({ redirect }) {
                     />
                 </div>
 
-                <div className="mb-6">
+                <div>
                     <label htmlFor="password" className="block text-lg font-medium text-gray-700">Password</label>
                     <div className="relative">
                         <input

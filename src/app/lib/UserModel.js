@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   address: { type: String, },
   password: { type: String, },
   image: { type: String },
+  userType: { type: String },
   socialAuth: { type: Boolean, default: false }
 }, { timestamps: true });
 
