@@ -1,5 +1,6 @@
-'use client'
+'use client';
 import React from 'react';
+import { motion } from 'framer-motion';
 import CustomerHeader from '../_components/CustomerHeader';
 import Footer from '../_components/Footer';
 import ScrollToTop from '../_components/ScrollToTop';
@@ -27,74 +28,141 @@ const BlogPage = () => {
         { id: 3, name: 'Author 3', imageUrl: 'https://i.huffpost.com/gadgets/slideshows/306562/slide_306562_2651832_free.jpg', bio: 'A passionate food enthusiast sharing their love for all things culinary.' },
     ];
 
+    const fadeInUp = {
+        initial: { opacity: 0, y: 50 },
+        animate: { opacity: 1, y: 0 },
+    };
+
     return (
-        <div className="blog-page">
+        <motion.div
+            className="blog-page"
+            initial="initial"
+            animate="animate"
+            transition={{ staggerChildren: 0.3 }}
+        >
             <CustomerHeader />
+
             {/* Featured Blog Section */}
-            <section className="featured-blog my-20 px-10">
+            <motion.section
+                className="featured-blog my-20 px-10"
+                variants={fadeInUp}
+                transition={{ duration: 0.8 }}
+            >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                    <img src="https://www.cerebruminfotech.com/blog/wp-content/uploads/2020/11/Food-Delivery-App.png" alt="Featured Blog" className="w-full rounded-lg shadow-md" />
-                    <div>
-                        <h3 className="text-3xl font-bold mb-4">The Secret Recipe to Perfect Pasta</h3>
-                        <p className="text-gray-600 mb-6">Learn the art of creating pasta dishes that are nothing short of perfection. From classic recipes to unique twists, this guide has it all!</p>
-                        <button className="bg-red-500 text-white py-2 px-6 rounded hover:bg-red-600">Read More</button>
-                    </div>
+                    <motion.img
+                        src="https://www.cerebruminfotech.com/blog/wp-content/uploads/2020/11/Food-Delivery-App.png"
+                        alt="Featured Blog"
+                        className="w-full rounded-lg shadow-md"
+                        whileHover={{ scale: 1.05 }}
+                    />
+                    <motion.div>
+                        <motion.h3 className="text-3xl font-bold mb-4"
+                            initial={{ opacity: 0, y: -50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                        >
+                            The Secret Recipe to Perfect Pasta
+                        </motion.h3>
+                        <motion.p
+                            className="text-gray-600 mb-6"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 1, ease: "easeInOut" }}
+                        >
+                            Learn the art of creating pasta dishes that are nothing short of perfection. From classic recipes to unique twists, this guide has it all!
+                        </motion.p>
+                        <motion.button
+                            className="bg-red-500 text-white py-2 px-6 rounded hover:bg-red-600"
+                            whileHover={{ scale: 1.1 }}
+                        >
+                            Read More
+                        </motion.button>
+                    </motion.div>
                 </div>
-            </section>
-            <ScrollToTop/>
+            </motion.section>
+
+            <ScrollToTop />
+
             {/* Blog Categories Section */}
-            <section className="categories-section bg-gray-100 py-16 px-10" id="categories">
-                <h3 className="text-3xl font-bold text-center mb-10">Explore Blog Categories</h3>
+            <motion.section
+                className="categories-section bg-gray-100 py-16 px-10"
+                id="categories"
+                variants={fadeInUp}
+                transition={{ duration: 0.8, delay: 0.2 }}
+            >
+                <motion.h3
+                    className="text-3xl font-bold text-center mb-10 "
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                >Explore Blog Categories</motion.h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     {categories.map((category) => (
-                        <div key={category.id} className="category-card text-center bg-white p-6 rounded shadow hover:shadow-lg transition">
-                            <img src={category.imageUrl} alt={category.name} className="w-full h-40 object-cover rounded mb-4" />
+                        <motion.div
+                            key={category.id}
+                            className="category-card text-center bg-white p-6 rounded shadow hover:shadow-lg transition"
+                            whileHover={{ scale: 1.05 }}
+                        >
+                            <img
+                                src={category.imageUrl}
+                                alt={category.name}
+                                className="w-full h-40 object-cover rounded mb-4"
+                            />
                             <h4 className="text-xl font-bold">{category.name}</h4>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
-            </section>
+            </motion.section>
 
             {/* Blog Grid Section */}
-            <section className="blog-grid py-16 px-10">
-                <h3 className="text-3xl font-bold text-center mb-10">Latest Blog Posts</h3>
+            <motion.section
+                className="blog-grid py-16 px-10"
+                variants={fadeInUp}
+                transition={{ duration: 0.8 }}
+            >
+                <motion.h3
+                    className="text-3xl font-bold text-center mb-10"
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                >Latest Blog Posts</motion.h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {blogPosts.map((blog) => (
-                        <div key={blog.id} className="blog-card bg-white p-4 rounded shadow hover:shadow-lg transition">
-                            <img src={blog.imageUrl} alt={`Blog Post ${blog.id}`} className="w-full h-40 object-cover rounded mb-4 hover:scale-105 transition-transform" />
+                        <motion.div
+                            key={blog.id}
+                            className="blog-card bg-white p-4 rounded shadow hover:shadow-lg transition"
+                            whileHover={{ scale: 1.05 }}
+                        >
+                            <img
+                                src={blog.imageUrl}
+                                alt={`Blog Post ${blog.id}`}
+                                className="w-full h-40 object-cover rounded mb-4 hover:scale-105 transition-transform"
+                            />
                             <h4 className="text-xl font-bold mb-2">{blog.title}</h4>
                             <p className="text-gray-600 mb-4">{blog.description}</p>
                             <span className="text-sm text-gray-400">Date: {blog.date}</span>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
-            </section>
-
-            {/* Author Spotlight Section */}
-            <section className="author-spotlight bg-gray-100 py-16 px-10">
-                <h3 className="text-3xl font-bold text-center mb-10">Meet Our Authors</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {authors.map((author) => (
-                        <div key={author.id} className="author-card text-center bg-white p-6 rounded shadow hover:shadow-lg transition">
-                            <img src={author.imageUrl} alt={`Author ${author.name}`} className="w-24 h-24 object-cover rounded-full mx-auto mb-4" />
-                            <h4 className="text-xl font-bold">{author.name}</h4>
-                            <p className="text-gray-600">{author.bio}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
+            </motion.section>
 
             {/* Subscription Section */}
-            <section className="subscription-section py-16 px-10 bg-red-500 text-white">
+            <motion.section
+                className="subscription-section py-16 px-10 bg-red-500 text-white"
+                variants={fadeInUp}
+            >
                 <h3 className="text-3xl font-bold text-center mb-6">Subscribe to Our Newsletter</h3>
                 <p className="text-center mb-6">Stay updated with the latest posts and exclusive content.</p>
-                <form className="flex justify-center">
+                <motion.form
+                    className="flex justify-center"
+                    whileHover={{ scale: 1.02 }}
+                >
                     <input type="email" placeholder="Enter your email" className="p-2 rounded-l w-80" />
                     <button className="bg-white text-red-500 px-6 rounded-r">Subscribe</button>
-                </form>
-            </section>
-            <Footer/>
-        </div>
+                </motion.form>
+            </motion.section>
+            <Footer />
+        </motion.div>
     );
 };
 

@@ -5,35 +5,34 @@ import About from '../_components/About'
 import Footer from '../_components/Footer'
 import RestaurantHeader from '../_components/RestaurantHeader';
 import DeliveryUserHeader from '../_components/DeliveryUserHeader';
+import CommonHeader from '../_components/CommonHeader'
 
-export default function about() {
-    const [cusUser, setCusUser] = useState({});
-    const [restUser, setRestUser] = useState({});
-    const [deliUser, setDeliUser] = useState({});
-    useEffect(()=>{
-        const customerUser = localStorage.getItem('user');
-        const restaurantUser = localStorage.getItem('restaurantUser');
-        const deliveryUser = localStorage.getItem('deliveryUser');
+export default function AboutPage() {
+  const [cusUser, setCusUser] = useState(null);
+  const [restUser, setRestUser] = useState(null);
+  const [deliUser, setDeliUser] = useState(null);
 
-        if(customerUser) setCusUser(customerUser);
-        if(restaurantUser) setRestUser(restaurantUser);
-        if(deliveryUser) setDeliUser(deliveryUser);
-    },[])
+  useEffect(() => {
+    const customerUser = localStorage.getItem('user');
+    const restaurantUser = localStorage.getItem('restaurantUser');
+    const deliveryUser = localStorage.getItem('deliveryUser');
 
-    console.log(restUser);
+    if (customerUser) setCusUser(JSON.parse(customerUser)); 
+    if (restaurantUser) setRestUser(JSON.parse(restaurantUser)); 
+    if (deliveryUser) setDeliUser(JSON.parse(deliveryUser));
+  }, []);
+
   return (
     <div>
-        {
-            cusUser?.userType === 'customerUser' && <CustomerHeader/>
-        }
-        {
-            restUser?.userType === 'restaurantUser' && <RestaurantHeader/>
-        }
-        {
-            deliUser?.userType === 'deliveryUser' && <DeliveryUserHeader/>
-        }
-      <About/>
-      <Footer/>
+      {/* Conditional Rendering for Headers */}
+      {cusUser?.userType === 'customerUser' && <CustomerHeader />}
+      {restUser?.userType === 'restaurantUser' && <RestaurantHeader />}
+      {deliUser?.userType === 'deliveryUser' && <DeliveryUserHeader />}
+      {!cusUser && !restUser && !deliUser && <CommonHeader />}
+
+      {/* Main Content */}
+      <About />
+      <Footer />
     </div>
-  )
+  );
 }

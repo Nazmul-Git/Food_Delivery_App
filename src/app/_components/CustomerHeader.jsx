@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaHome, FaInfoCircle, FaShoppingCart, FaUserCircle } from 'react-icons/fa';
 import { TfiUser } from "react-icons/tfi";
@@ -175,11 +175,11 @@ export default function CustomerHeader({ cartData }) {
             className="flex items-center gap-4 cursor-pointer hover:opacity-90 transition-opacity duration-300"
           >
             {/* Logo Wrapper */}
-            <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-teal-500 shadow-md bg-white">
+            <div className="relative h-16 w-16 overflow-hidden rounded-full border-1 border-black group">
               <img
-                src={user?.imageUrl || '/images/2.png'}
+                src={user?.imageUrl || 'https://cdn1.vectorstock.com/i/1000x1000/71/30/black-fast-delivery-icon-vector-9417130.jpg'}
                 alt="Restaurant Logo"
-                className="object-cover w-full h-full"
+                className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
               />
               {/* Add a subtle gradient overlay for style */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 rounded-full"></div>
@@ -223,15 +223,6 @@ export default function CustomerHeader({ cartData }) {
             Contact
             <MdForwardToInbox className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-
-          {/* Conditional Rendering for User */}
-          {!user || !session?.user && (
-            <Link href="/user" className="text-white font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group">
-              Login/Signup
-              <TbUserQuestion className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
-          )}
-
           <button
             onClick={() => {
               toggleModal();
@@ -261,7 +252,10 @@ export default function CustomerHeader({ cartData }) {
                 <ul className="py-4">
                   <li>
                     <button
-                      onClick={() => router.push('/your-profile')}
+                      onClick={() => {
+                        if (user || session.user) router.push('/your-profile');
+                        else router.push('/user');
+                      }}
                       className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
                     >
                       <TfiUser className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -357,7 +351,7 @@ export default function CustomerHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-black text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link href="/" onClick={() => {
           setIsMenuOpen(false);

@@ -1,72 +1,52 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import Loading from '../loading';
-import { FaHome, FaInfoCircle, FaUser, FaSignOutAlt } from 'react-icons/fa';
-import { GrContact } from 'react-icons/gr';
-import { IoMdHelpCircle } from 'react-icons/io'; // For the "?" icon
-import { TfiUser } from 'react-icons/tfi';
+import { FaHome, FaInfoCircle, FaSignInAlt, FaUserCircle } from 'react-icons/fa';
+import { TbUserQuestion } from "react-icons/tb";
+import { useRouter } from 'next/navigation';
+import { IoMdHelpCircle } from 'react-icons/io';
 import { GoGoal } from 'react-icons/go';
-import { VscSignOut } from 'react-icons/vsc';
-import { FaSignInAlt } from 'react-icons/fa';
+import { GrContact } from 'react-icons/gr';
 
-export default function RestaurantHeader() {
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
+export default function CommonHeader({ cartData }) {
+  const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [userMenuOpen, setUserMenuOpen] = useState(false); 
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
-  const path = usePathname();
-  const userMenuRef = useRef(null); 
-  const profileIconRef = useRef(null); 
+  const userMenuRef = useRef(null);
+  const profileIconRef = useRef(null);
 
   useEffect(() => {
-    const checkUser = () => {
-      let restUser = localStorage.getItem('restaurantUser');
-      if (!restUser && path === '/restaurants/dashboard') {
-        setLoading(false);
-        router.push('/restaurants');
-      } else if (restUser && path === '/restaurants') {
-        setLoading(false);
-        router.push('/restaurants/dashboard');
-      } else {
-        setIsLoggedIn(JSON.parse(restUser));
-        setLoading(false);
-      }
-    };
-
-    checkUser();
-  }, [path, router]);
-
-  // Close the user menu if clicked outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        userMenuRef.current && !userMenuRef.current.contains(event.target) &&
-        profileIconRef.current && !profileIconRef.current.contains(event.target)
-      ) {
-        setUserMenuOpen(false); 
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (typeof window !== 'undefined') {
+      const deliveryUserStorage = JSON.parse(localStorage.getItem('deliveryUser'));
+      setUser(deliveryUserStorage);
+    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('restaurantUser');
-    setIsLoggedIn(null);
-    setIsMenuOpen(false);
+    localStorage.removeItem('deliveryUser');
+    setUser(null);
     setUserMenuOpen(false);
-    router.replace('/restaurants');
+    router.push('/delivery-user');
   };
 
-  const getInitials = (email) => {
-    const name = email.split('@')[0];
-    return name.charAt(0).toUpperCase();
+  const getProfileImage = () => {
+    if (user && user?.fullName) {
+      const initials = user?.fullName?.charAt(0).toUpperCase();
+      return (
+        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-400 text-white font-semibold">
+          {initials}
+        </div>
+      );
+    }
+    return (
+      <div className="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center font-semibold">
+        ?
+      </div>
+    );
   };
 
   const handleTouchStart = (e) => {
@@ -76,13 +56,10 @@ export default function RestaurantHeader() {
   const handleTouchMove = (e) => {
     const currentY = e.touches[0].clientY;
     if (touchStartY - currentY > 50) {
+      // Swipe up detected
       setIsMenuOpen(false);
     }
   };
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-black via-black to-black shadow-lg py-1">
@@ -96,7 +73,7 @@ export default function RestaurantHeader() {
             {/* Logo Wrapper */}
             <div className="relative h-16 w-16 overflow-hidden rounded-full border-4 border-yellow-500 shadow-md bg-white">
               <img
-                src={isLoggedIn?.imageUrl || '/images/2.png'}
+                src={user?.imageUrl || '/images/2.png'}
                 alt="Restaurant Logo"
                 className="object-cover w-full h-full"
               />
@@ -106,8 +83,8 @@ export default function RestaurantHeader() {
 
             {/* Restaurant Name */}
             <div className="flex flex-col">
-              <span className="block md:text-2xl text-sm font-serif font-extrabold italic text-gray-300 uppercase tracking-wide">
-                {isLoggedIn?.restaurantName || 'Food Hunter Restaurant'}
+              <span className="block md:text-2xl text-lg font-serif font-extrabold italic text-gray-300 uppercase tracking-wide">
+                {user?.restaurantName || 'Food Hunter Delivery'}
               </span>
               <span className="block text-sm font-light text-gray-300 italic">
                 Delivering Excellence
@@ -130,18 +107,17 @@ export default function RestaurantHeader() {
             Contact
             <GrContact className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-
           {/* User Profile and Logout */}
-          {isLoggedIn && isLoggedIn.username ? (
+          {user ? (
             <div
               className="relative flex items-center gap-2"
               ref={profileIconRef}
               onClick={() => setUserMenuOpen((prev) => !prev)}
-              onMouseEnter={() => setIsHovered(true)} 
-              onMouseLeave={() => setIsHovered(false)} 
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
             >
               <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
-                {getInitials(isLoggedIn?.email)}
+                {getInitials(user?.email)}
               </div>
 
               {/* Show user menu if hovered or clicked */}
@@ -195,7 +171,7 @@ export default function RestaurantHeader() {
               {(isHovered || userMenuOpen) && (
                 <div ref={userMenuRef} className="absolute top-12 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200">
                   <Link
-                    href="/restaurants"
+                    href="/"
                     className="block px-4 py-2 hover:text-blue-500 transition"
                   >
                     <div className='flex gap-2 items-center font-semibold'>
@@ -256,71 +232,36 @@ export default function RestaurantHeader() {
             </svg>
           )}
         </button>
+
       </div>
 
       {/* Mobile Menu */}
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${
+            isMenuOpen
+              ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
+              : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
+          }`}
       >
-        <Link
-          href="/"
-          onClick={() => setIsMenuOpen(false)}
-          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-        >
+        <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
           <FaHome className="w-5 h-5 text-yellow-500" />
           Home
         </Link>
-        <Link
-          href="/about"
-          onClick={() => setIsMenuOpen(false)}
-          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-        >
+        <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
           <FaInfoCircle className="w-5 h-5 text-yellow-500" />
           About
         </Link>
-        <Link
-          href="/contact"
-          onClick={() => setIsMenuOpen(false)}
-          className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-        >
-          <GrContact className="w-5 h-5 text-yellow-500" />
-          Contact
-        </Link>
-        {isLoggedIn && isLoggedIn.email ? (
-          <>
-            <button
-              onClick={() => {
-                setIsMenuOpen(false);
-                handleLogout();
-              }}
-              className="block w-full text-left text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-            >
-              <FaSignOutAlt className="w-5 h-5 text-red-700" />
-              Sign Out
-            </button>
-            <Link
-              href="/profile"
-              onClick={() => setIsMenuOpen(false)}
-              className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-            >
-              {isLoggedIn.email ? (
-                <div className="w-6 h-6 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
-                  {getInitials(isLoggedIn.email)}
-                </div>
-              ) : (
-                <FaUser className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              )}
-            </Link>
-          </>
+
+        {user ? (
+          <button onClick={handleLogout} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
+            <FaUserCircle className="w-5 h-5 text-yellow-500" />
+            Sign Out
+          </button>
         ) : (
-          <Link
-            href="/restaurants"
-            onClick={() => setIsMenuOpen(false)}
-            className="block text-lg hover:text-yellow-300 transition flex items-center relative group"
-          >
-            <FaUser className="w-5 h-5 mr-2 text-yellow-500" />
+          <Link href="/login" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
+            <TbUserQuestion className="w-5 h-5 text-yellow-500" />
             Sign In
           </Link>
         )}

@@ -1,16 +1,25 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { FaHome, FaInfoCircle, FaUserCircle } from 'react-icons/fa';
+import { FaHome, FaInfoCircle, FaSignInAlt, FaUserCircle } from 'react-icons/fa';
 import { TbUserQuestion } from "react-icons/tb";
 import { useRouter } from 'next/navigation';
+import { IoMdHelpCircle } from 'react-icons/io';
+import { GoGoal } from 'react-icons/go';
+import { GrContact } from 'react-icons/gr';
+import { TfiUser } from 'react-icons/tfi';
+import { VscSignOut } from 'react-icons/vsc';
 
-export default function DeliveryUserHeader({ cartData }) {
+export default function CommonHeader({ cartData }) {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [touchStartY, setTouchStartY] = useState(0);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
+  const userMenuRef = useRef(null);
+  const profileIconRef = useRef(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -22,6 +31,7 @@ export default function DeliveryUserHeader({ cartData }) {
   const handleLogout = () => {
     localStorage.removeItem('deliveryUser');
     setUser(null);
+    setUserMenuOpen(false);
     router.push('/delivery-user');
   };
 
@@ -95,30 +105,97 @@ export default function DeliveryUserHeader({ cartData }) {
             About
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-
+          <Link href="/contact" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+            Contact
+            <GrContact className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
+          {/* User Profile and Logout */}
           {user ? (
-            <button onClick={handleLogout} className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
-              Logout
-              <FaUserCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </button>
-          ) : (
-            <Link href="/login" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
-              Login/Signup
-              <TbUserQuestion className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </Link>
-          )}
+            <div
+              className="relative flex items-center gap-2"
+              ref={profileIconRef}
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
+                {getProfileImage(user?.email)}
+              </div>
 
-          <button
-            onClick={() => {
-              user ? router.push('/profile') : router.push('/login');
-            }}
-            className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
-          >
-            {getProfileImage()}
-          </button>
+              {/* Show user menu if hovered or clicked */}
+              {(isHovered || userMenuOpen) && (
+                <div
+                  ref={userMenuRef}
+                  className="absolute top-16 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200"
+                >
+                  {/* Profile Link */}
+                  <Link
+                    href="/profile"
+                    className="block px-6 py-3 flex items-center space-x-2  hover:text-teal-600 transition-all duration-300 ease-in-out"
+                  >
+                    <TfiUser className="w-5 h-5 text-teal-600" />
+                    <span className="font-semibold text-sm">Profile</span>
+                  </Link>
+
+                  {/* Our Mission Link */}
+                  <Link
+                    href="/our-mission"
+                    className="block px-6 py-3 flex items-center space-x-2  hover:text-teal-600 transition-all duration-300 ease-in-out"
+                  >
+                    <GoGoal className="w-5 h-5 text-teal-600" />
+                    <span className="font-semibold text-sm">Our Mission</span>
+                  </Link>
+
+                  {/* Sign Out Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="block px-6 py-3 flex items-center space-x-2  hover:text-red-700 transition-all duration-300 ease-in-out"
+                  >
+                    <VscSignOut className="w-5 h-5 text-red-700 inline-block" />
+                    <span className="font-semibold text-sm">Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div
+              className="relative flex items-center gap-2"
+              ref={profileIconRef}
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
+                <IoMdHelpCircle className="w-6 h-6 text-yellow-500" />
+              </div>
+
+              {/* Show user menu if hovered or clicked */}
+              {(isHovered || userMenuOpen) && (
+                <div ref={userMenuRef} className="absolute top-12 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200">
+                  <Link
+                    href="/"
+                    className="block px-4 py-2 hover:text-blue-500 transition"
+                  >
+                    <div className='flex gap-2 items-center font-semibold'>
+                      <FaSignInAlt className="w-5 h-5 text-teal-600" />
+                      Sign In
+                    </div>
+                  </Link>
+                  <Link
+                    href="/our-mission"
+                    className="block px-4 py-2 hover:text-blue-500 transition"
+                  >
+                    <div className='flex gap-2 items-center font-semibold'>
+                      <GoGoal className="w-5 h-5 text-teal-600" />
+                      Our Mission
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
-        {/* Mobile Hamburger Icon */}
         {/* Mobile Hamburger Icon */}
         <button
           className="md:hidden text-white focus:outline-none"
@@ -164,7 +241,11 @@ export default function DeliveryUserHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-green-800 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${
+            isMenuOpen
+              ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
+              : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
+          }`}
       >
         <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
           <FaHome className="w-5 h-5 text-yellow-500" />
@@ -178,12 +259,12 @@ export default function DeliveryUserHeader({ cartData }) {
         {user ? (
           <button onClick={handleLogout} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
             <FaUserCircle className="w-5 h-5 text-yellow-500" />
-            Logout
+            Sign Out
           </button>
         ) : (
           <Link href="/login" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
             <TbUserQuestion className="w-5 h-5 text-yellow-500" />
-            Login/Signup
+            Sign In
           </Link>
         )}
       </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import ScrollToTop from "./_components/ScrollToTop";
 import WhyChooseUs from "./_components/WhyChooseUs";
+import { motion } from "framer-motion";
 
 export default function Home() {
 
@@ -24,12 +25,22 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center">
           {/* Text section */}
           <div className="md:w-1/2 text-center md:text-left">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+            <motion.h1
+              className="text-3xl md:text-5xl font-bold mb-4 leading-tight"
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
               Delicious Food, Delivered to Your Doorstep
-            </h1>
-            <p className="text-lg mb-6">
+            </motion.h1>
+            <motion.p
+              className="text-lg mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, ease: "easeInOut" }}
+            >
               Savor the taste of your favorite meals from top restaurants, delivered fresh and fast.
-            </p>
+            </motion.p>
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center md:justify-start">
               <Link
                 href="/stores"
@@ -75,7 +86,7 @@ export default function Home() {
       <ScrollToTop />
 
       {/* Features Section */}
-      <WhyChooseUs/>
+      <WhyChooseUs />
 
       {/* Food Categories Section */}
       <section className="py-12 px-6 md:py-16 md:px-12 bg-gray-100">

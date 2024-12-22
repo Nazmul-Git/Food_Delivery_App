@@ -88,9 +88,6 @@ const Dashboard = () => {
             <TiArrowBack size={24} />
             <span>Back</span>
           </button>
-          <button onClick={() => router.push('/')} className="text-3xl text-indigo-600 hover:text-blue-600 transition-colors">
-            <FaHome />
-          </button>
         </div>
 
         <div className="bg-white p-8 space-y-8">

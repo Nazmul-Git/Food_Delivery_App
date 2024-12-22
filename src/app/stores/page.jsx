@@ -10,6 +10,7 @@ import ScrollToTop from '../_components/ScrollToTop';
 import Loading from '../loading';
 import { getSession } from 'next-auth/react';
 import { debounce } from 'lodash';
+import { motion } from "framer-motion";
 
 export default function Store() {
   const [loading, setLoading] = useState(false);
@@ -100,7 +101,7 @@ export default function Store() {
   };
 
   const loadRestaurants = async () => {
-    setLoading(true); 
+    setLoading(true);
     let url = `${process.env.NEXT_PUBLIC_API_URL}/api/customer?`;
 
     if (selectedLocation) {
@@ -172,8 +173,22 @@ export default function Store() {
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative z-10 text-white p-4">
           <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">Discover Amazing Restaurants</h2>
-            <p className="text-lg sm:text-xl">Find the best places to eat and drink in your city</p>
+            <motion.h2
+              className="text-2xl sm:text-3xl font-bold mb-4"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              Discover Amazing Restaurants
+            </motion.h2>
+            <motion.p
+              className="text-lg sm:text-xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              Find the best places to eat and drink in your city
+            </motion.p>
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <div className="relative w-full sm:w-80">
