@@ -351,7 +351,7 @@ export default function CustomerHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 pb-8 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link href="/" onClick={() => {
           setIsMenuOpen(false);
