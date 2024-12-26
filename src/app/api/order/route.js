@@ -6,10 +6,16 @@ import { NextResponse } from "next/server";
 
 export async function GET(req) {
     const userId = req.nextUrl.searchParams.get('id');
-    console.log(userId)
+    const limit = parseInt(req.nextUrl.searchParams.get('limit')) || 10;
+    const skip = parseInt(req.nextUrl.searchParams.get('skip')) || 0;  
+    // console.log(userId, limit, skip);
+
     await mongoose.connect(connectionUrl);
+    
     let success = false;
-    let orders = await OrderModel.find({ user_Id: userId });
+    let orders = await OrderModel.find({ user_Id: userId })
+        .skip(skip)
+        .limit(limit);    
 
     if (orders) {
         let restaurantData = await Promise.all(
@@ -24,9 +30,9 @@ export async function GET(req) {
             })
         );
         orders = restaurantData;
-        //console.log(orders);
         success = true;
     }
+    
     return NextResponse.json({ orders, success });
 }
 

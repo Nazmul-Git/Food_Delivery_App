@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
@@ -20,6 +20,7 @@ export default function Store() {
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [session, setSession] = useState(null);
+  const [visibleRestaurantsCount, setVisibleRestaurantsCount] = useState(6); 
 
   const router = useRouter();
 
@@ -87,8 +88,6 @@ export default function Store() {
   }, [selectedLocation, searchQuery]);
 
   const loadLocations = async () => {
-    // const domain = process.env.NEXT_PUBLIC_API_URL;
-    // console.log(domain);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer/locations`);
       const responseData = await response.json();
@@ -157,9 +156,17 @@ export default function Store() {
   const filteredRestaurants = restaurants.filter((restaurant) =>
     searchQuery
       ? restaurant.restaurantName &&
-      restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())
+        restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())
       : true
   );
+
+  // Show only the first 'visibleRestaurantsCount' restaurants
+  const displayedRestaurants = filteredRestaurants.slice(0, visibleRestaurantsCount);
+
+  // Load more restaurants
+  const handleLoadMore = () => {
+    setVisibleRestaurantsCount(prevCount => prevCount + 6);
+  };
 
   return (
     <div>
@@ -235,8 +242,8 @@ export default function Store() {
       <div className="p-16">
         <h3 className="text-xl sm:text-2xl font-semibold text-center mb-6">Available Restaurants</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredRestaurants.length > 0 &&
-            filteredRestaurants.map((restaurant) => (
+          {displayedRestaurants.length > 0 &&
+            displayedRestaurants.map((restaurant) => (
               <div
                 key={restaurant._id}
                 onClick={() => router.push(`/stores/${restaurant.restaurantName}?id=${restaurant._id}`)}
@@ -265,6 +272,17 @@ export default function Store() {
               </div>
             ))}
         </div>
+
+        {filteredRestaurants.length > visibleRestaurantsCount && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleLoadMore}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold transition-all duration-300 hover:bg-blue-700"
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </div>
 
       <Footer />

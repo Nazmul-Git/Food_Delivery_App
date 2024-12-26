@@ -11,36 +11,32 @@ const Profile = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [loggedUser, setLoggedUser] = useState(null);
   const [userEmail, setUserEmail] = useState('');
+  const [orderCount, setOrderCount] = useState(10);
+  const [totalOrders, setTotalOrders] = useState(0);
   const router = useRouter();
-
-  // Helper function to format dates
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', options);
-  };
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const orderedProfile = JSON.parse(localStorage.getItem('profile'));
         const loggedUser = JSON.parse(localStorage.getItem('user'));
-        setLoggedUser(loggedUser);
+        const authUser = JSON.parse(localStorage.getItem('authUser'));
 
-        if (orderedProfile || loggedUser) {
-          const userInfo = orderedProfile || loggedUser;
+        if (orderedProfile || loggedUser || authUser) {
+          const userInfo = orderedProfile || loggedUser || authUser?.loggedUser;
           setUser(userInfo);
           setUserEmail(userInfo?.email);
 
+          // Fetch orders related to the logged-in user
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/order?id=${userInfo?.user_Id || userInfo._id}`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/order?id=${userInfo?.user_Id || userInfo._id}&limit=${orderCount}`
           );
           const data = await response.json();
 
           if (data.success) {
-            setOrders(data.orders);
+            setOrders(data.orders.reverse());
+            setTotalOrders(data.totalOrders || data.orders.length);
           }
         }
       } catch (error) {
@@ -51,9 +47,8 @@ const Profile = () => {
     };
 
     fetchOrders();
-  }, []);
+  }, [orderCount]);
 
-  // Helper function to get the first letter of the email
   const getInitialsFromEmail = (email) => {
     if (email) {
       const namePart = email.split('@')[0];
@@ -62,17 +57,20 @@ const Profile = () => {
     return '?';
   };
 
-  // Handle back button click
   const handleBackClick = () => {
     router.push('/stores');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('profile');
-    localStorage.removeItem('signInData');
+    localStorage.removeItem('authUser');
     setUser({});
     setUserEmail('');
     router.push('/user');
+  };
+
+  const loadMoreOrders = () => {
+    setOrderCount((prevCount) => prevCount + 10);
   };
 
   if (loading) return <Loading />;
@@ -96,7 +94,7 @@ const Profile = () => {
               <img
                 src={user?.image}
                 alt="User Avatar"
-                className="w-full h-full rounded-full object-cover text-black p-2"
+                className="w-full h-full rounded-full object-cover text-black border-2 border-green-600"
                 onError={(e) => (e.target.src = 'https://via.placeholder.com/150')}
               />
             ) : (
@@ -104,12 +102,8 @@ const Profile = () => {
             )}
           </div>
           <div className="space-y-2">
-            <h2 className="text-3xl font-semibold text-gray-900">{user?.customerName}</h2>
+            <h2 className="text-3xl font-semibold text-gray-900">{user?.customerName || user?.fullName}</h2>
             <p className="text-lg text-gray-700">{userEmail}</p>
-            <p className="text-lg text-gray-600">
-              {`${loggedUser?.address || `${user?.city || loggedUser?.city}, ${user?.zone || loggedUser?.zone}, ${user?.street || loggedUser?.street}`}`}
-            </p>
-
             <div className="flex space-x-4 mt-4">
               <button className="text-sm bg-indigo-600 text-white py-2 px-6 rounded-full hover:bg-indigo-700 transition-colors duration-300">
                 Edit Profile
@@ -162,11 +156,39 @@ const Profile = () => {
                       {order?.amount}
                     </div>
                   </div>
+                  {order?.paymentMethod && (
+                    <div className="flex justify-between items-center">
+                      <p className="text-lg font-semibold text-gray-800">
+                        <strong>Payment Method:</strong>
+                      </p>
+                      <img
+                        src={`/images/${order?.paymentMethod}-Logo.png`}
+                        alt={order?.paymentMethod}
+                        className="w-36 h-20"
+                      />
+                    </div>
+                  )}
+                  {order?.date && (
+                    <div className="flex justify-between items-center">
+                      <p className="text-lg font-semibold text-gray-800">
+                        <strong>Order Date:</strong>
+                      </p>
+                      <p className="text-lg text-gray-600">{order?.date}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           ))
         )}
+        <div className="text-center mt-4">
+          <button
+            onClick={loadMoreOrders}
+            className="text-lg text-indigo-600 hover:text-indigo-800"
+          >
+            Load More Orders
+          </button>
+        </div>
       </div>
     </div>
   );

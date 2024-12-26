@@ -8,12 +8,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID, 
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,  
-      authorization: {
-        params: {
-          redirect_uri: "https://food-delivery-app-sandy-zeta.vercel.app/auth/callback/google",
-        },
-      },
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     Facebook({
       clientId: process.env.FACEBOOK_CLIENT_ID,  

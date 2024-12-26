@@ -16,12 +16,12 @@ export default function RestaurantHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userMenuOpen, setUserMenuOpen] = useState(false); 
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
   const path = usePathname();
-  const userMenuRef = useRef(null); 
-  const profileIconRef = useRef(null); 
+  const userMenuRef = useRef(null);
+  const profileIconRef = useRef(null);
 
   useEffect(() => {
     const checkUser = () => {
@@ -48,7 +48,7 @@ export default function RestaurantHeader() {
         userMenuRef.current && !userMenuRef.current.contains(event.target) &&
         profileIconRef.current && !profileIconRef.current.contains(event.target)
       ) {
-        setUserMenuOpen(false); 
+        setUserMenuOpen(false);
       }
     };
 
@@ -137,8 +137,8 @@ export default function RestaurantHeader() {
               className="relative flex items-center gap-2"
               ref={profileIconRef}
               onClick={() => setUserMenuOpen((prev) => !prev)}
-              onMouseEnter={() => setIsHovered(true)} 
-              onMouseLeave={() => setIsHovered(false)} 
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
             >
               <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
                 {getInitials(isLoggedIn?.email)}
@@ -262,7 +262,7 @@ export default function RestaurantHeader() {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-12 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link
           href="/"
@@ -306,9 +306,11 @@ export default function RestaurantHeader() {
               className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
             >
               {isLoggedIn.email ? (
-                <div className="w-6 h-6 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
-                  {getInitials(isLoggedIn.email)}
-                </div>
+                <>
+                  <div className="w-6 h-6 rounded-full bg-gray-400 p-4 text-white flex items-center justify-center">
+                    {getInitials(isLoggedIn.email)}
+                  </div>
+                </>
               ) : (
                 <FaUser className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               )}

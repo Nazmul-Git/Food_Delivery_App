@@ -14,6 +14,7 @@ import CartModal from './CartModal';
 import { useRouter } from 'next/navigation';
 import { getSession, signOut } from 'next-auth/react';
 import { FaBlog } from 'react-icons/fa6';
+import { toast, ToastContainer } from 'react-toastify';
 
 
 export default function CustomerHeader({ cartData }) {
@@ -44,7 +45,7 @@ export default function CustomerHeader({ cartData }) {
   // This effect will handle clearing the cart when the order is confirmed
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const userStorage = JSON.parse(localStorage.getItem('user'));
+      const userStorage = JSON.parse(localStorage.getItem('user')) || JSON.parse(localStorage.getItem('authUser'));
       setUser(userStorage);
 
       const cartStorage = localStorage.getItem('cart');
@@ -73,7 +74,6 @@ export default function CustomerHeader({ cartData }) {
     setCartCount(1);
     setCartItems([cartData]);
     localStorage.setItem('cart', JSON.stringify([cartData]));
-    alert('Item added to cart!');
   };
 
   useEffect(() => {
@@ -91,9 +91,9 @@ export default function CustomerHeader({ cartData }) {
             setCartItems(updatedCartItems);
             setCartCount(updatedCartItems.length);
             localStorage.setItem('cart', JSON.stringify(updatedCartItems));
-            alert('Item added to cart!');
+            toast.success('Item is added successfully!')
           } else {
-            alert('Item is already in the cart!');
+            toast.warning('Item is already in the cart!');
           }
         }
       } else {
@@ -102,28 +102,25 @@ export default function CustomerHeader({ cartData }) {
     }
   }, [cartData]);
 
-  // Logout functionality
   const handleLogout = () => {
     if (session) {
+      localStorage.removeItem('authUser');
       signOut({
         callbackUrl: '/user',
       });
-      localStorage.removeItem('signInData');
+      toast.success('Successfully signed out!');
     }
     else if (user) {
       localStorage.removeItem('user');
       setUser(null);
       router.push('/user');
+      toast.success('Successfully logged out!');
     }
     else {
-      alert('No user found!');
+      toast.error('No user found!');
     }
-
-    // Reset state
-    localStorage.removeItem('cart');
-    setCartCount(0);
-    setCartItems([]);
   };
+
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
@@ -351,7 +348,7 @@ export default function CustomerHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8' : 'max-h-0 p-12 py-0 pb-8 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link href="/" onClick={() => {
           setIsMenuOpen(false);
@@ -424,6 +421,13 @@ export default function CustomerHeader({ cartData }) {
           setCartCount={setCartCount}
         />
       )}
+
+      {/* <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={true}
+        style={{ marginTop: '80px' }}
+      /> */}
     </header>
   );
 }

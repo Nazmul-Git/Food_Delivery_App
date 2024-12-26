@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { TiArrowBack } from 'react-icons/ti';
 import Loading from '../loading';
 import { getSession } from 'next-auth/react';
+import { toast, ToastContainer } from 'react-toastify';
 
 export default function Order() {
     const [userStorage, setUserStorage] = useState();
@@ -99,6 +100,8 @@ export default function Order() {
         const cartData = localStorage.getItem('cart');
         const userData = localStorage.getItem('user');
         const authUser = localStorage.getItem('authUser');
+        const orderStatus = localStorage.getItem('orderStatus');
+        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
 
         if (cartData) {
             setCartStorage(JSON.parse(cartData));
@@ -110,13 +113,14 @@ export default function Order() {
             setUserStorage(JSON.parse(authUser));
         }
 
-        // Fetch order summary
-        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
-        if (storedOrderSummary) {
-            setOrderSummery(storedOrderSummary);
-        } else {
+        if (orderStatus === 'confirmed' && !orderSummery) {
+            localStorage.removeItem('orderStatus');
             router.push('/stores');
         }
+
+        if (storedOrderSummary) {
+            setOrderSummery(storedOrderSummary);
+        } 
 
         setLoading(false);
     }, [router]);
@@ -157,17 +161,16 @@ export default function Order() {
     const confirmOrder = async () => {
         // Check if a payment method has been selected
         if (!selectedPaymentMethod) {
-            alert('Please select a payment method.');
+            toast.error('Please select a payment method.');
             return;
         }
 
         // Check if the cart is empty
         if (!cartStorage || cartStorage.length === 0) {
-            alert('Your cart is empty.');
+            toast.error('Your cart is empty.');
             return;
         }
 
-        // let randomObjectId = generateObjectId();
         let user_Id = userStorage?._id || userStorage?.loggedUser?._id;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
@@ -185,22 +188,22 @@ export default function Order() {
                     `${process.env.NEXT_PUBLIC_API_URL}/api/deliveryPartners?city=${encodeURIComponent(normalizedCity)}&zone=${encodeURIComponent(normalizedZone)}`
                 );
                 const deliveryBoyData = await deliveryBoyResponse.json();
-                console.log(deliveryBoyData);
+                // console.log(deliveryBoyData);
 
                 if (deliveryBoyData.success && deliveryBoyData.result.length > 0) {
-                    // Generate a random index between 0 and the length of the result array
                     const randomIndex = Math.floor(Math.random() * deliveryBoyData.result.length);
-                    // Select the delivery boy at the random index and get their _id
                     delivery_Id = deliveryBoyData.result[randomIndex]._id;
-                    console.log('Random Delivery Boy ID:', delivery_Id);
+                    // console.log('Random Delivery Boy ID:', delivery_Id);
                 } else {
-                    console.log('Failed to find a matching delivery boy.');
+                    toast.warn('Failed to find a matching delivery boy.');
                 }
             } catch (error) {
-                console.error('Error fetching delivery boy data:', error);
+                // console.error('Error fetching delivery boy data:', error);
+                toast.error('Error fetching delivery boy data.');
             }
         } else {
-            console.log('City and zone must be provided.');
+            toast.error('City and zone must be provided.');
+            return;
         }
 
         // Assemble order details
@@ -233,24 +236,25 @@ export default function Order() {
 
             const data = await response.json();
 
-            // Check the response success
             if (data?.success || session?.user) {
                 const orderDetailsStorage = {
                     ...orderDetails,
-                    success: data.success || session?.user && true,
+                    success: data.success || (session?.user && true),
                 };
                 localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
-                alert('Order Confirmed Successfully');
+                localStorage.setItem('orderStatus', 'confirmed');
+                toast.success('Order Confirmed Successfully');
                 router.push('/your-profile');
             } else {
-                alert(data.message || 'Order Failed!');
+                toast.error(data.message || 'Order Failed!');
                 router.push('/stores');
             }
         } catch (error) {
             console.error('Error confirming order:', error);
-            alert('Something went wrong. Please try again later.');
+            toast.error('Something went wrong. Please try again later.');
         }
     };
+
 
 
     if (loading) return <Loading />;
@@ -547,6 +551,12 @@ export default function Order() {
                     </div>
                 </div>
             </div>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={true}
+                style={{ marginTop: '72px' }}
+            />
         </div>
     );
 }

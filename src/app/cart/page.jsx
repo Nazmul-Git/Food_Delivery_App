@@ -97,7 +97,7 @@ export default function Cart() {
 
   // Navigate back to the stores page
   const handleBackClick = () => {
-    router.push('/stores');
+    router.back();
   };
 
   // Proceed to checkout
