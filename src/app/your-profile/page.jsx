@@ -6,6 +6,7 @@ import { FaDollarSign, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import Loading from '../loading';
 import ScrollToTop from '../_components/ScrollToTop';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const Profile = () => {
   const [orders, setOrders] = useState([]);
@@ -142,35 +143,37 @@ const Profile = () => {
               <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg font-semibold text-gray-800">
+                    <p className="text-lg text-gray-800">
                       <strong>Restaurant:</strong>
                     </p>
                     <p className="text-lg text-gray-600">{order?.data?.restaurantName}</p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-lg font-semibold text-gray-800">
+                    <p className="text-lg text-gray-800">
                       <strong>Amount:</strong>
                     </p>
-                    <div className="text-lg text-pink-600 font-semibold flex items-center">
+                    <div className="text-lg text-pink-600 flex items-center">
                       <FaDollarSign className="mr-1" />
                       {order?.amount}
                     </div>
                   </div>
                   {order?.paymentMethod && (
                     <div className="flex justify-between items-center">
-                      <p className="text-lg font-semibold text-gray-800">
+                      <p className="text-lg text-gray-800">
                         <strong>Payment Method:</strong>
                       </p>
-                      <img
+                      <Image
                         src={`/images/${order?.paymentMethod}-Logo.png`}
                         alt={order?.paymentMethod}
-                        className="w-36 h-20"
+                        width={96}    
+                        height={20}  
+                        className="object-contain"
                       />
                     </div>
                   )}
                   {order?.date && (
                     <div className="flex justify-between items-center">
-                      <p className="text-lg font-semibold text-gray-800">
+                      <p className="text-lg text-gray-800">
                         <strong>Order Date:</strong>
                       </p>
                       <p className="text-lg text-gray-600">{order?.date}</p>

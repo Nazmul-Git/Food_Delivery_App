@@ -6,6 +6,7 @@ import { TiArrowBack } from 'react-icons/ti';
 import Loading from '../loading';
 import { getSession } from 'next-auth/react';
 import { toast, ToastContainer } from 'react-toastify';
+import Image from 'next/image';
 
 export default function Order() {
     const [userStorage, setUserStorage] = useState();
@@ -113,14 +114,14 @@ export default function Order() {
             setUserStorage(JSON.parse(authUser));
         }
 
+        if (storedOrderSummary) {
+            setOrderSummery(storedOrderSummary);
+        }
+
         if (orderStatus === 'confirmed' && !orderSummery) {
             localStorage.removeItem('orderStatus');
             router.push('/stores');
         }
-
-        if (storedOrderSummary) {
-            setOrderSummery(storedOrderSummary);
-        } 
 
         setLoading(false);
     }, [router]);
@@ -194,12 +195,9 @@ export default function Order() {
                     const randomIndex = Math.floor(Math.random() * deliveryBoyData.result.length);
                     delivery_Id = deliveryBoyData.result[randomIndex]._id;
                     // console.log('Random Delivery Boy ID:', delivery_Id);
-                } else {
-                    toast.warn('Failed to find a matching delivery boy.');
                 }
             } catch (error) {
                 // console.error('Error fetching delivery boy data:', error);
-                toast.error('Error fetching delivery boy data.');
             }
         } else {
             toast.error('City and zone must be provided.');
@@ -244,6 +242,7 @@ export default function Order() {
                 localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
                 localStorage.setItem('orderStatus', 'confirmed');
                 toast.success('Order Confirmed Successfully');
+                localStorage.removeItem('orderSummery');
                 router.push('/your-profile');
             } else {
                 toast.error(data.message || 'Order Failed!');
@@ -395,8 +394,18 @@ export default function Order() {
                             {/* Payment Method Options */}
                             <div className="space-y-4">
                                 <div className="flex space-x-4">
+
                                     <div className=' flex-1'>
-                                        <p className='text-green-700 text-lg font-semibold mb-2'>BANK</p>
+                                        <div className='flex justify-between items-center'>
+                                            <p className='text-green-700 text-lg font-semibold mb-2'>BANK</p>
+                                            <Image
+                                                src="/images/Bank-Logo.png"
+                                                alt="RestaurantApp Logo"
+                                                className=" object-cover"
+                                                width={96}
+                                                height={8}
+                                            />
+                                        </div>
                                         <button
                                             type="button"
                                             onClick={() => handlePaymentMethodChange('bank')}
@@ -405,17 +414,20 @@ export default function Order() {
                                             Bank Transfer
                                         </button>
                                     </div>
-                                    <IoMdRadioButtonOn className={`text-xl ${selectedPaymentMethod === 'bank' ? 'text-pink-600' : 'text-gray-400'}`} />
+
                                 </div>
                                 {/* Other payment methods (Bkash, Nagad, Rocket) */}
                                 <div className="flex items-baseline  space-x-4">
                                     <div className=' flex-1'>
                                         <div className='flex items-center justify-between '>
+
                                             <p className='text-green-700 text-lg font-semibold mb-2'>Bkash</p>
-                                            <img
+                                            <Image
                                                 src="/images/bkash-Logo.png"
                                                 alt="RestaurantApp Logo"
                                                 className="h-10 w-28 object-cover"
+                                                width={112}
+                                                height={40}
                                             />
                                         </div>
                                         <button
@@ -426,16 +438,18 @@ export default function Order() {
                                             Bkash Payment
                                         </button>
                                     </div>
-                                    <IoMdRadioButtonOn className={`text-xl ${selectedPaymentMethod === 'bkash' ? 'text-pink-600' : 'text-gray-400'}`} />
                                 </div>
                                 <div className="flex items-baseline space-x-4">
                                     <div className=' flex-1'>
                                         <div className='flex items-center justify-between '>
+
                                             <p className='text-green-700 text-lg font-semibold mb-2'>Nagad</p>
-                                            <img
+                                            <Image
                                                 src="/images/nagad-Logo.png"
                                                 alt="RestaurantApp Logo"
                                                 className="h-10 w-28 object-cover"
+                                                width={112}
+                                                height={40}
                                             />
                                         </div>
                                         <button
@@ -446,16 +460,17 @@ export default function Order() {
                                             Nagad Payment
                                         </button>
                                     </div>
-                                    <IoMdRadioButtonOn className={`text-xl ${selectedPaymentMethod === 'nagad' ? 'text-pink-600' : 'text-gray-400'}`} />
                                 </div>
                                 <div className="flex items-baseline space-x-4">
                                     <div className=' flex-1'>
                                         <div className='flex items-center justify-between '>
                                             <p className='text-green-700 text-lg font-semibold mb-2'>PayPal</p>
-                                            <img
+                                            <Image
                                                 src="/images/paypal-Logo.png"
                                                 alt="RestaurantApp Logo"
                                                 className="h-10 w-28 object-cover"
+                                                width={112}
+                                                height={40}
                                             />
                                         </div>
                                         <button
@@ -466,7 +481,6 @@ export default function Order() {
                                             PayPal Payment
                                         </button>
                                     </div>
-                                    <IoMdRadioButtonOn className={`text-xl ${selectedPaymentMethod === 'paypal' ? 'text-pink-600' : 'text-gray-400'}`} />
                                 </div>
                                 <div className='w-2/4 py-2'>
                                     <h1 className="text-xl font-semibold text-pink-500 mt-8 py-2">Cash on Delivery</h1>
@@ -518,7 +532,7 @@ export default function Order() {
                                 if (city && zone && street && mobile) {
                                     confirmOrder();
                                 } else {
-                                    alert('Address & mobile number fields are required!');
+                                    toast.warning('Address & mobile number fields are required!');
                                 }
                             }
                             } type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md mt-6">
@@ -555,7 +569,7 @@ export default function Order() {
                 position="top-right"
                 autoClose={5000}
                 hideProgressBar={true}
-                style={{ marginTop: '72px' }}
+                style={{ marginTop: '0px' }}
             />
         </div>
     );
