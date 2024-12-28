@@ -121,18 +121,39 @@ export default function CustomerHeader({ cartData }) {
     }
   };
 
+  // console.log(session.user.image);
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
-    // console.log('user', user);
-    if (user && user?.email || session && session?.user?.email) {
-      const initials = (user?.email || session?.user?.email)?.charAt(0).toUpperCase() || '';
-      return (
-        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold">
-          {initials}
-        </div>
-      );
+    // Check if user or session is available and has an email
+    const userEmail = user?.email || session?.user?.email;
+    const defaultImage = "/path/to/default-avatar.jpg";
+    const imageUrl = user?.image || session?.user?.image || defaultImage;
+
+    if (userEmail) {
+      // Extract initials from the email (first letter of the email for simplicity)
+      const initials = userEmail.charAt(0).toUpperCase();
+
+      // Check if the user has an image
+      if (user?.image || session?.user?.image) {
+        return (
+          <img
+            src={imageUrl}
+            alt="User Avatar"
+            className="w-8 h-8 rounded-full object-cover"
+          />
+        );
+      } else {
+        // If no image, render the initials in a default circle
+        return (
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold">
+            {initials}
+          </div>
+        );
+      }
     }
+
+    // Fallback if no user or session email exists
     return (
       <div className="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center font-semibold">
         ?
@@ -237,11 +258,11 @@ export default function CustomerHeader({ cartData }) {
 
           {/* Profile Image or Initials */}
           <div className="relative group">
-            <button
+            <div
               className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative"
             >
               {getProfileImage()}
-            </button>
+            </div>
 
             {/* Dropdown Menu */}
             {(user || session?.user) ? (

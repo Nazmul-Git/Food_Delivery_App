@@ -117,7 +117,9 @@ export default function CommonHeader({ cartData }) {
               onMouseLeave={() => setIsHovered(false)}
             >
               <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
-                {getInitials(user?.email)}
+                {
+                  getProfileImage(user?.email)
+                }
               </div>
 
               {/* Show user menu if hovered or clicked */}
@@ -237,34 +239,54 @@ export default function CommonHeader({ cartData }) {
 
       {/* Mobile Menu */}
       <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${
-            isMenuOpen
-              ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
-              : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
-          }`}
+        className="md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 shadow-lg"
+        style={{ perspective: '1000px' }} // Adding perspective for 3D effect
       >
-        <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-          <FaHome className="w-5 h-5 text-yellow-500" />
-          Home
-        </Link>
-        <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-          <FaInfoCircle className="w-5 h-5 text-yellow-500" />
-          About
-        </Link>
+        <div
+          className={`w-full h-full transform ${isMenuOpen ? 'rotate-y-0' : '-rotate-y-180'} transition-all duration-1000 ease-in-out`}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+        >
+          <div
+            className="w-full h-full transform rotate-y-180 backface-hidden" // Rotate the inner content for the book page effect
+          >
+            <Link
+              href="/"
+              onClick={() => setIsMenuOpen(false)}
+              className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+            >
+              <FaHome className="w-5 h-5 text-yellow-500" />
+              Home
+            </Link>
+            <Link
+              href="/about"
+              onClick={() => setIsMenuOpen(false)}
+              className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+            >
+              <FaInfoCircle className="w-5 h-5 text-yellow-500" />
+              About
+            </Link>
 
-        {user ? (
-          <button onClick={handleLogout} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-            <FaUserCircle className="w-5 h-5 text-yellow-500" />
-            Sign Out
-          </button>
-        ) : (
-          <Link href="/login" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-            <TbUserQuestion className="w-5 h-5 text-yellow-500" />
-            Sign In
-          </Link>
-        )}
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+              >
+                <FaUserCircle className="w-5 h-5 text-yellow-500" />
+                Sign Out
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group"
+              >
+                <TbUserQuestion className="w-5 h-5 text-yellow-500" />
+                Sign In
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </header>
   );
