@@ -1,25 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { IoMdRadioButtonOn, IoMdRadioButtonOff } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
 import { TiArrowBack } from 'react-icons/ti';
 import Loading from '../loading';
 import { getSession } from 'next-auth/react';
 import { toast, ToastContainer } from 'react-toastify';
-import Image from 'next/image';
+import PriceSummery from '../_components/PriceSummery';
+import PaymentForm from '../_components/PaymentForm';
+import YesNoModal from '../_components/YesNoModal';
 
 export default function Order() {
     const [userStorage, setUserStorage] = useState();
     const [cartStorage, setCartStorage] = useState([]);
-    const [orderSummery, setOrderSummery] = useState();
+    const [orderSummery, setOrderSummery] = useState({});
     const [loading, setLoading] = useState(true);
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-    const [bankPaymentDetails, setBankPaymentDetails] = useState({
-        bankName: '',
-        accountNumber: '',
-        accountHolderName: '',
-    });
-    const [errors, setErrors] = useState({});
     const router = useRouter();
     const [session, setSession] = useState(null);
     const [mobile, setMobile] = useState('');
@@ -27,8 +21,12 @@ export default function Order() {
     const [city, setCity] = useState('');
     const [street, setStreet] = useState('');
     const [zone, setZone] = useState('');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [confirmOrderAction, setConfirmOrderAction] = useState(null);
 
     // console.log('user', userStorage);
+    // console.log('order summery', orderSummery);
 
     const countryCodes = [
         { code: '+088', label: 'BD' },
@@ -38,10 +36,37 @@ export default function Order() {
         // Add more country codes as needed
     ];
 
-    const handleCountryCodeChange = (newCode) => {
-        setCountryCode(newCode);
-    };
+    useEffect(() => {
+        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
+        const orderStatus = localStorage.getItem('orderStatus');
+        
+        if (orderStatus === 'confirmed' && !storedOrderSummary) {
+            // If the order has already been confirmed, redirect to the profile or another page
+            toast.info('Your order has already been confirmed!');
+            router.push('/your-profile'); 
+            return; 
+        }
 
+        // Fetch order summary
+        if (storedOrderSummary) {
+            setOrderSummery(storedOrderSummary);
+        }
+
+        // Fetch user and cart data from localStorage
+        const cartData = localStorage.getItem('cart');
+        const userData = localStorage.getItem('user');
+        const authUser = localStorage.getItem('authUser');
+        
+        if (cartData) {
+            setCartStorage(JSON.parse(cartData));
+        }
+        if (userData || authUser) {
+            setUserStorage(JSON.parse(userData) || JSON.parse(authUser));
+        }
+
+        setLoading(false); 
+    }, [router]);
+    
     useEffect(() => {
         let signedData = JSON.parse(localStorage.getItem('authUser'));
 
@@ -79,6 +104,11 @@ export default function Order() {
         }
     }, []);
 
+    const handleCountryCodeChange = (newCode) => {
+        setCountryCode(newCode);
+    };
+
+
 
     const handleCityChange = (value) => {
         setCity(value);
@@ -96,67 +126,8 @@ export default function Order() {
         setMobile(value);
     };
 
-    useEffect(() => {
-        // Fetch cart and user data from localStorage
-        const cartData = localStorage.getItem('cart');
-        const userData = localStorage.getItem('user');
-        const authUser = localStorage.getItem('authUser');
-        const orderStatus = localStorage.getItem('orderStatus');
-        const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
-
-        if (cartData) {
-            setCartStorage(JSON.parse(cartData));
-        }
-        if (userData) {
-            setUserStorage(JSON.parse(userData));
-        }
-        if (authUser) {
-            setUserStorage(JSON.parse(authUser));
-        }
-
-        if (storedOrderSummary) {
-            setOrderSummery(storedOrderSummary);
-        }
-
-        if (orderStatus === 'confirmed' && !orderSummery) {
-            localStorage.removeItem('orderStatus');
-            router.push('/stores');
-        }
-
-        setLoading(false);
-    }, [router]);
-
-    const handlePaymentMethodChange = (method) => {
-        setSelectedPaymentMethod(method);
-        setErrors({});
-    };
-
     const handleBackClick = () => {
-        router.push('/cart');
-    };
-
-    const handleBankPaymentChange = (e) => {
-        const { name, value } = e.target;
-        setBankPaymentDetails((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const validateBankPayment = () => {
-        const errors = {};
-        if (!bankPaymentDetails.bankName) errors.bankName = 'Bank name is required';
-        if (!bankPaymentDetails.accountNumber) errors.accountNumber = 'Account number is required';
-        if (!bankPaymentDetails.accountHolderName) errors.accountHolderName = 'Account holder name is required';
-        setErrors(errors);
-        return Object.keys(errors).length === 0;
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (selectedPaymentMethod === 'bank' && !validateBankPayment()) {
-            return;
-        }
+        router.back();
     };
 
     const confirmOrder = async () => {
@@ -241,8 +212,8 @@ export default function Order() {
                 };
                 localStorage.setItem('profile', JSON.stringify(orderDetailsStorage));
                 localStorage.setItem('orderStatus', 'confirmed');
+                localStorage.removeItem('orderSummary');
                 toast.success('Order Confirmed Successfully');
-                localStorage.removeItem('orderSummery');
                 router.push('/your-profile');
             } else {
                 toast.error(data.message || 'Order Failed!');
@@ -253,8 +224,6 @@ export default function Order() {
             toast.error('Something went wrong. Please try again later.');
         }
     };
-
-
 
     if (loading) return <Loading />;
 
@@ -389,182 +358,40 @@ export default function Order() {
                 <div className="bg-white p-8 rounded-lg shadow-sm  mx-auto mt-8">
                     <h2 className="text-2xl font-semibold text-pink-500 mb-6">Payment Method</h2>
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="space-y-6">
-                            {/* Payment Method Options */}
-                            <div className="space-y-4">
-                                <div className="flex space-x-4">
+                    <PaymentForm
+                        city={city}
+                        zone={zone}
+                        street={street}
+                        mobile={mobile}
+                        confirmOrder={confirmOrder}
+                        selectedPaymentMethod={selectedPaymentMethod}
+                        setSelectedPaymentMethod={setSelectedPaymentMethod}
+                        setConfirmOrderAction={setConfirmOrderAction}
+                        setIsModalOpen={setIsModalOpen}
+                    />
 
-                                    <div className=' flex-1'>
-                                        <div className='flex justify-between items-center'>
-                                            <p className='text-green-700 text-lg font-semibold mb-2'>BANK</p>
-                                            <Image
-                                                src="/images/Bank-Logo.png"
-                                                alt="RestaurantApp Logo"
-                                                className=" object-cover"
-                                                width={96}
-                                                height={8}
-                                            />
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handlePaymentMethodChange('bank')}
-                                            className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'bank' ? 'bg-gradient-to-r from-green-500 to-orange-600 text-white' : 'bg-gray-100'}`}
-                                        >
-                                            Bank Transfer
-                                        </button>
-                                    </div>
-
-                                </div>
-                                {/* Other payment methods (Bkash, Nagad, Rocket) */}
-                                <div className="flex items-baseline  space-x-4">
-                                    <div className=' flex-1'>
-                                        <div className='flex items-center justify-between '>
-
-                                            <p className='text-green-700 text-lg font-semibold mb-2'>Bkash</p>
-                                            <Image
-                                                src="/images/bkash-Logo.png"
-                                                alt="RestaurantApp Logo"
-                                                className="h-10 w-28 object-cover"
-                                                width={112}
-                                                height={40}
-                                            />
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handlePaymentMethodChange('bkash')}
-                                            className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'bkash' ? 'bg-gradient-to-r from-pink-500 to-pink-700 text-white' : 'bg-gray-100'}`}
-                                        >
-                                            Bkash Payment
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="flex items-baseline space-x-4">
-                                    <div className=' flex-1'>
-                                        <div className='flex items-center justify-between '>
-
-                                            <p className='text-green-700 text-lg font-semibold mb-2'>Nagad</p>
-                                            <Image
-                                                src="/images/nagad-Logo.png"
-                                                alt="RestaurantApp Logo"
-                                                className="h-10 w-28 object-cover"
-                                                width={112}
-                                                height={40}
-                                            />
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handlePaymentMethodChange('nagad')}
-                                            className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'nagad' ? 'bg-gradient-to-r from-yellow-500 to-red-600 text-white' : 'bg-gray-100'}`}
-                                        >
-                                            Nagad Payment
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="flex items-baseline space-x-4">
-                                    <div className=' flex-1'>
-                                        <div className='flex items-center justify-between '>
-                                            <p className='text-green-700 text-lg font-semibold mb-2'>PayPal</p>
-                                            <Image
-                                                src="/images/paypal-Logo.png"
-                                                alt="RestaurantApp Logo"
-                                                className="h-10 w-28 object-cover"
-                                                width={112}
-                                                height={40}
-                                            />
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => handlePaymentMethodChange('paypal')}
-                                            className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'paypal' ? 'bg-gradient-to-r from-purple-700 to-blue-400 text-white' : 'bg-gray-100'}`}
-                                        >
-                                            PayPal Payment
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className='w-2/4 py-2'>
-                                    <h1 className="text-xl font-semibold text-pink-500 mt-8 py-2">Cash on Delivery</h1>
-                                    <button
-                                        type="button"
-                                        onClick={() => handlePaymentMethodChange('cash')}
-                                        className={`w-full px-4 py-3 text-lg font-semibold text-left border rounded-md transition-all duration-300 ${selectedPaymentMethod === 'cash' ? 'bg-gradient-to-r from-pink-500 to-yellow-300 text-white' : 'bg-gray-100'}`}
-                                    >
-                                        Cash on delivery
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Bank Payment Details (conditionally rendered) */}
-                            {selectedPaymentMethod === 'bank' && (
-                                <div className="space-y-4 mt-4">
-                                    <input
-                                        type="text"
-                                        name="bankName"
-                                        value={bankPaymentDetails.bankName}
-                                        onChange={handleBankPaymentChange}
-                                        placeholder="Bank Name"
-                                        className="w-full px-4 py-2 border rounded-md shadow-sm"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="accountNumber"
-                                        value={bankPaymentDetails.accountNumber}
-                                        onChange={handleBankPaymentChange}
-                                        placeholder="Account Number"
-                                        className="w-full px-4 py-2 border rounded-md shadow-sm"
-                                    />
-                                    <input
-                                        type="text"
-                                        name="accountHolderName"
-                                        value={bankPaymentDetails.accountHolderName}
-                                        onChange={handleBankPaymentChange}
-                                        placeholder="Account Holder Name"
-                                        className="w-full px-4 py-2 border rounded-md shadow-sm"
-                                    />
-                                    {errors.bankName && <p className="text-red-500">{errors.bankName}</p>}
-                                    {errors.accountNumber && <p className="text-red-500">{errors.accountNumber}</p>}
-                                    {errors.accountHolderName && <p className="text-red-500">{errors.accountHolderName}</p>}
-                                </div>
-                            )}
-
-                            {/* Submit Button */}
-                            <button onClick={() => {
-                                if (city && zone && street && mobile) {
-                                    confirmOrder();
-                                } else {
-                                    toast.warning('Address & mobile number fields are required!');
-                                }
-                            }
-                            } type="submit" className="w-full py-3 bg-pink-500 text-white text-lg font-semibold rounded-md mt-6">
-                                Confirm your Order
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
 
             {/* Price Summary Section */}
-            <div className="bg-white rounded-lg shadow-xl p-8 lg:w-1/3 mt-8">
-                <h2 className="text-2xl font-semibold text-pink-500 mb-6">Price Summary</h2>
-                <div className="space-y-4">
-                    <div className="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span>$ {orderSummery?.total}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>VAT (10%):</span>
-                        <span>$ {orderSummery?.vat}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>Delivery Charge:</span>
-                        <span>$ {orderSummery?.deliveryCharge}</span>
-                    </div>
-                    <div className="flex justify-between font-semibold text-lg text-pink-500">
-                        <span>Total:</span>
-                        <span>$ {orderSummery?.finalTotal}</span>
-                    </div>
-                </div>
-            </div>
+            <PriceSummery
+                orderSummery={orderSummery}
+            />
+            <YesNoModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={() => {
+                    // If user confirms, proceed with the order
+                    confirmOrderAction(); // Confirm the order
+                    toast.success('Your order has been confirmed!'); // Show success toast
+                    setIsModalOpen(false); // Close the modal
+                }}
+                onCancel={() => setIsModalOpen(false)} // Close modal on cancel
+                message="Are you sure you want to confirm your order?"
+                confirmText="Yes, Confirm"
+                cancelText="Cancel"
+            />
+
             <ToastContainer
                 position="top-right"
                 autoClose={5000}

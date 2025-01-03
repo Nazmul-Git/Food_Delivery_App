@@ -30,32 +30,29 @@ export default function CustomerHeader({ cartData }) {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      const currentSession = await getSession()
-      // console.log('current session = ',currentSession);
-      setSession(currentSession);
+    const fetchData = async () => {
+        // Fetch session data
+        const currentSession = await getSession();
+        console.log('currentSession', currentSession); 
+
+        setSession(currentSession?.user);
+
+        // Handle user and cart data from localStorage
+        if (typeof window !== 'undefined') {
+            const userStorage = JSON.parse(localStorage.getItem('user')) || JSON.parse(localStorage.getItem('authUser'));
+            setUser(userStorage);
+
+            const cartStorage = localStorage.getItem('cart');
+            if (cartStorage) {
+                const parsedCart = JSON.parse(cartStorage);
+                setCartItems(parsedCart);
+                setCartCount(parsedCart.length);
+            }
+        }
     };
 
-    fetchSession();
-  }, []);
-
-  // console.log('header session is = ', session);
-
-
-  // This effect will handle clearing the cart when the order is confirmed
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userStorage = JSON.parse(localStorage.getItem('user')) || JSON.parse(localStorage.getItem('authUser'));
-      setUser(userStorage);
-
-      const cartStorage = localStorage.getItem('cart');
-      if (cartStorage) {
-        const parsedCart = JSON.parse(cartStorage);
-        setCartItems(parsedCart);
-        setCartCount(parsedCart.length);
-      }
-    }
-  }, []);
+    fetchData();
+}, []);
 
   // after complete order cart will be reset
   useEffect(() => {
@@ -91,7 +88,6 @@ export default function CustomerHeader({ cartData }) {
             setCartItems(updatedCartItems);
             setCartCount(updatedCartItems.length);
             localStorage.setItem('cart', JSON.stringify(updatedCartItems));
-            toast.success('Item is added successfully!')
           } else {
             toast.warning('Item is already in the cart!');
           }
@@ -121,21 +117,21 @@ export default function CustomerHeader({ cartData }) {
     }
   };
 
-  // console.log(session.user.image);
+  console.log(session);
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
     // Check if user or session is available and has an email
-    const userEmail = user?.email || session?.user?.email;
-    const defaultImage = "/path/to/default-avatar.jpg";
-    const imageUrl = user?.image || session?.user?.image || defaultImage;
+    const userEmail = user?.email || session?.email;
+    const imageUrl = user?.image || session?.image;
+    console.log(imageUrl)
 
     if (userEmail) {
       // Extract initials from the email (first letter of the email for simplicity)
       const initials = userEmail.charAt(0).toUpperCase();
 
       // Check if the user has an image
-      if (user?.image || session?.user?.image) {
+      if (imageUrl) {
         return (
           <img
             src={imageUrl}

@@ -20,7 +20,7 @@ export default function Store() {
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [session, setSession] = useState(null);
-  const [visibleRestaurantsCount, setVisibleRestaurantsCount] = useState(6); 
+  const [visibleRestaurantsCount, setVisibleRestaurantsCount] = useState(6);
 
   const router = useRouter();
 
@@ -156,7 +156,7 @@ export default function Store() {
   const filteredRestaurants = restaurants.filter((restaurant) =>
     searchQuery
       ? restaurant.restaurantName &&
-        restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())
+      restaurant.restaurantName.toLowerCase().includes(searchQuery.toLowerCase())
       : true
   );
 
@@ -168,11 +168,13 @@ export default function Store() {
     setVisibleRestaurantsCount(prevCount => prevCount + 6);
   };
 
+  if(loading){
+    return <Loading/>
+  }
+  
   return (
     <div>
       <CustomerHeader />
-      {loading && <Loading />}
-
       <div
         className="flex items-center justify-center min-h-screen bg-cover bg-center relative"
         style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/background-cooking-black-wooden-background-top-view-free-space-your-text_187166-5650.jpg')" }}

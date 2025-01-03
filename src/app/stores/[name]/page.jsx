@@ -61,15 +61,31 @@ export default function StoreDetails({ params, searchParams }) {
     }
 
     const handleAddToCart = (item) => {
-        setCartData(item)
-        setIsSaveData((prev) => [...prev, item])
-        localStorage.setItem('cart', JSON.stringify([...isSaveData, item]))
-    }
+        setCartData(item);
+        setIsSaveData((prev) => [...prev, item]);
+        localStorage.setItem('cart', JSON.stringify([...isSaveData, item]));
+        
+        // Show toast notification
+        toast.success(`${item.foodName} added to the cart!`, {
+            autoClose: 2000,
+        });
+    };
 
     const handleBuyNow = (item) => {
         handleAddToCart(item)
         router.push('/cart')
     }
+
+    const handleRemoveFromCart = (item) => {
+        const updatedCartData = isSaveData.filter((i) => i._id !== item._id);
+        setIsSaveData(updatedCartData);
+        localStorage.setItem('cart', JSON.stringify(updatedCartData));
+    
+        // Show toast notification
+        toast.info(`${item.foodName} removed from the cart!`, {
+            autoClose: 2000,
+        });
+    };
 
     const openModal = (item, actionType) => {
         setSelectedItem({ ...item, actionType });
@@ -80,7 +96,7 @@ export default function StoreDetails({ params, searchParams }) {
 
     // Load more items when the button is clicked
     const handleLoadMore = () => {
-        setVisibleFoodItemsCount((prevCount) => prevCount + 6) 
+        setVisibleFoodItemsCount((prevCount) => prevCount + 6)
     }
 
     return (
@@ -130,7 +146,7 @@ export default function StoreDetails({ params, searchParams }) {
                                             :
                                             <div className='flex items-center gap-2'>
                                                 <button
-                                                    onClick={() => openModal(item,'buyNow')}
+                                                    onClick={() => openModal(item, 'buyNow')}
                                                     className='bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-full transition'>Buy Now</button>
                                                 <button
                                                     onClick={() => openModal(item, 'addToCart')}
@@ -164,14 +180,22 @@ export default function StoreDetails({ params, searchParams }) {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={() => {
-                    selectedItem && (selectedItem.actionType==='addToCart' ? handleAddToCart(selectedItem) : handleBuyNow(selectedItem))
+                    if (selectedItem) {
+                        if (selectedItem.actionType === 'addToCart') {
+                            handleAddToCart(selectedItem);
+                        } else if (selectedItem.actionType === 'buyNow') {
+                            handleBuyNow(selectedItem);
+                        } else if (selectedItem.actionType === 'removeFromCart') {
+                            handleRemoveFromCart(selectedItem);
+                        }
+                    }
                 }}
             />
             <ToastContainer
                 position="top-right"
                 autoClose={2000}
                 hideProgressBar={true}
-                style={{ marginTop: '80px' }} 
+                style={{ marginTop: '80px' }}
             />
         </div>
     )
