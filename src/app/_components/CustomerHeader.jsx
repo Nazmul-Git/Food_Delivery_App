@@ -25,34 +25,48 @@ export default function CustomerHeader({ cartData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [keepProf, setKeepProf] = useState({});
   const [touchStartY, setTouchStartY] = useState(0);
-  const [activeMenu, setActiveMenu] = useState('');
+  const [isHomeActive, setHomeActive] = useState(false);
+  const [isAboutActive, setAboutActive] = useState(false);
+  const [isBlogActive, setBlogActive] = useState(false);
+  const [isContactActive, setContactActive] = useState(false);
+  const [isCartActive, setCartActive] = useState(false);
   const router = useRouter();
   const [session, setSession] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-        // Fetch session data
-        const currentSession = await getSession();
-        console.log('currentSession', currentSession); 
+      // Fetch session data
+      const currentSession = await getSession();
+      // console.log('currentSession', currentSession); 
 
-        setSession(currentSession?.user);
+      setSession(currentSession?.user);
 
-        // Handle user and cart data from localStorage
-        if (typeof window !== 'undefined') {
-            const userStorage = JSON.parse(localStorage.getItem('user')) || JSON.parse(localStorage.getItem('authUser'));
-            setUser(userStorage);
+      // Handle user and cart data from localStorage
+      if (typeof window !== 'undefined') {
+        const userStorage = JSON.parse(localStorage.getItem('user')) || JSON.parse(localStorage.getItem('authUser'));
+        setUser(userStorage);
 
-            const cartStorage = localStorage.getItem('cart');
-            if (cartStorage) {
-                const parsedCart = JSON.parse(cartStorage);
-                setCartItems(parsedCart);
-                setCartCount(parsedCart.length);
-            }
+        const cartStorage = localStorage.getItem('cart');
+        if (cartStorage) {
+          const parsedCart = JSON.parse(cartStorage);
+          setCartItems(parsedCart);
+          setCartCount(parsedCart.length);
         }
+      }
     };
 
     fetchData();
-}, []);
+  }, []);
+
+  useEffect(() => {
+    // Retrieve active state from localStorage on page load
+    const activeStates = JSON.parse(localStorage.getItem('menuStates')) || {};
+    setHomeActive(activeStates.home || false);
+    setAboutActive(activeStates.about || false);
+    setBlogActive(activeStates.blog || false);
+    setContactActive(activeStates.contact || false);
+    setCartActive(activeStates.cart || false);
+  }, []);
 
   // after complete order cart will be reset
   useEffect(() => {
@@ -117,7 +131,7 @@ export default function CustomerHeader({ cartData }) {
     }
   };
 
-  console.log(session);
+  // console.log(session);
 
   // Fallback profile image or initials (first letter of email)
   const getProfileImage = () => {
@@ -174,9 +188,24 @@ export default function CustomerHeader({ cartData }) {
     }
   };
 
-  const handleMenuClick = (menu) => {
-    setActiveMenu(menu);
-    setIsMenuOpen(false);
+  const handleMenuClick = (item) => {
+    // Reset all states and activate the clicked menu
+    const newStates = {
+      home: item === 'home',
+      about: item === 'about',
+      blog: item === 'blog',
+      contact: item === 'contact',
+      cart: item === 'cart',
+    };
+
+    setHomeActive(newStates.home);
+    setAboutActive(newStates.about);
+    setBlogActive(newStates.blog);
+    setContactActive(newStates.contact);
+    setCartActive(newStates.cart);
+
+    // Save states to localStorage
+    localStorage.setItem('menuStates', JSON.stringify(newStates));
   };
 
   return (
@@ -215,47 +244,47 @@ export default function CustomerHeader({ cartData }) {
         <nav className="hidden md:flex space-x-6 items-center">
           <Link
             onClick={() => handleMenuClick('home')}
-            href="/" className={`${activeMenu === 'home' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+            href="/" className="text-white font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group">
             Home
-            <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <FaHome className="opacity-0 w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link
             onClick={() => handleMenuClick('about')}
-            href="/about" className={`${activeMenu === 'about' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+            href="/about" className={`${isAboutActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             About
-            <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <FaInfoCircle className={`${isAboutActive ? 'opacity-100': 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300"`} />
           </Link>
           <Link
             onClick={() => handleMenuClick('blog')}
-            href="/blog" className={`${activeMenu === 'blog' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+            href="/blog" className={`${isBlogActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Blog
-            <FaBlog className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <FaBlog className={`${isBlogActive ? 'opacity-100': 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300`} />
           </Link>
           <Link
             onClick={() => handleMenuClick('contact')}
-            href="/contact" className={`${activeMenu === 'contact' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+            href="/contact" className={`${isContactActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Contact
-            <MdForwardToInbox className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <MdForwardToInbox className={`${isContactActive ? 'opacity-100': 'opacity-0'} w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
           </Link>
           <button
             onClick={() => {
               toggleModal();
               handleMenuClick('cart');
             }}
-            className={`flex items-center gap-2 ${activeMenu === 'cart' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition relative group`}
+            className={`flex items-center gap-2 ${isCartActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition relative group`}
           >
             Cart <p className="text-yellow-400 mb-6 text-xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
             {cartCount ? (
-              <HiOutlineShoppingCart className="w-5 h-5 mr-2 mb-6 text-white" />
+              <HiOutlineShoppingCart className={`${isCartActive ? 'opacity-100 text-teal-300': 'text-white'} w-5 h-5 mr-2 mb-6 `} />
             ) : (
-              <FaShoppingCart className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <FaShoppingCart className={`${isCartActive ? 'opacity-100 text-teal-300': 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300`} />
             )}
           </button>
 
           {/* Profile Image or Initials */}
           <div className="relative group">
             <div
-              className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative"
+              className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative cursor-pointer"
             >
               {getProfileImage()}
             </div>
@@ -370,7 +399,7 @@ export default function CustomerHeader({ cartData }) {
         <Link href="/" onClick={() => {
           setIsMenuOpen(false);
           handleMenuClick('home')
-        }} className={`${activeMenu === 'home' ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
+        }} className={`${isHomeActive ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
           <FaHome className="w-5 h-5 text-teal-500" />
           Home
         </Link>
@@ -378,19 +407,19 @@ export default function CustomerHeader({ cartData }) {
           href="/about" onClick={() => {
             setIsMenuOpen(false);
             handleMenuClick('about');
-          }} className={`${activeMenu === 'about' ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          }} className={`${isAboutActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
           <FaInfoCircle className="w-5 h-5 text-teal-500" />
           About
         </Link>
         <Link
           onClick={() => handleMenuClick('contact')}
-          href="/contact" className={`${activeMenu === 'contact' ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          href="/contact" className={`${isContactActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
           <MdForwardToInbox className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           Contact
         </Link>
         <Link
           onClick={() => handleMenuClick('blog')}
-          href="/blog" className={`${activeMenu === 'blog' ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+          href="/blog" className={`${isBlogActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
           <FaBlog className="w-5 h-5 text-teal-500" />
           Blog
         </Link>
@@ -412,7 +441,7 @@ export default function CustomerHeader({ cartData }) {
             toggleModal();
             handleMenuClick('cart');
           }}
-          className={`block text-lg ${activeMenu === 'cart' ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
+          className={`block text-lg ${isCartActive ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
         >
           <HiOutlineShoppingCart className="w-5 h-5 text-teal-500" />
           Cart <p className="text-orange-600 text-2xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
@@ -439,12 +468,12 @@ export default function CustomerHeader({ cartData }) {
         />
       )}
 
-      {/* <ToastContainer
+      <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={true}
         style={{ marginTop: '80px' }}
-      /> */}
+      />
     </header>
   );
 }

@@ -2,26 +2,16 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { TiArrowForward } from "react-icons/ti";
 import { FaTimes } from "react-icons/fa";
+import { useRouter } from 'next/navigation';
 
-export default function CartModal({ setCartCount, onClose }) {
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+export default function CartModal({ onClose }) {
+  const [cartItems, setCartItems] = useState([]);
+  const router = useRouter();
 
-  // Update localStorage whenever cartItems change
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+  useEffect(()=>{
+    setCartItems(JSON.parse(localStorage.getItem('cart')));
+  },[]);
 
-  // Handle item removal from cart
-  const handleRemoveItem = (itemId) => {
-    const updatedCart = cartItems.filter((item) => item._id !== itemId);
-    setCartItems(updatedCart);
-    setCartCount(updatedCart.length);
-  };
-
-  // Close the modal when clicked outside the modal content
   const handleClickOutside = (e) => {
     if (e.target.id === "modal-overlay") {
       onClose();
@@ -41,7 +31,6 @@ export default function CartModal({ setCartCount, onClose }) {
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
     >
       <div className="relative bg-white rounded-lg shadow-lg max-w-xl w-full overflow-hidden">
-        {/* Header */}
         <div className="bg-blue-600 text-white p-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Your Cart</h2>
           <button
@@ -52,10 +41,17 @@ export default function CartModal({ setCartCount, onClose }) {
           </button>
         </div>
 
-        {/* Cart Content */}
         <div className="p-6 overflow-y-auto max-h-96">
           {cartItems.length === 0 ? (
-            <p className="text-center text-lg text-gray-500">Your cart is empty!</p>
+            <div className='grid grid-cols-1 items-center justify-center'>
+              <p className="text-center text-lg text-gray-500">Your cart is empty!</p>
+              <button
+                onClick={() => router.push('/stores')}
+                className="mt-4 px-3 py-2 rounded-md bg-orange-600 text-white font-semibold self-center mx-auto"
+              >
+                Shop Now
+              </button>
+            </div>
           ) : (
             <ul className="space-y-4">
               {cartItems.map((item) => (
@@ -76,32 +72,26 @@ export default function CartModal({ setCartCount, onClose }) {
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleRemoveItem(item._id)}
-                    className="text-sm bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-                  >
-                    Remove
-                  </button>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
-        {/* Footer */}
         <div className="p-4 bg-gray-50 flex items-center justify-between">
-          <Link
-            href="/cart"
-            className="flex items-center font-semibold"
-          >
-            <TiArrowForward className="mr-2" /> <span className='bg-blue-500 hover:bg-blue-600 text-white rounded-md px-3 py-1'>View Cart</span>
-          </Link>
           <button
             onClick={onClose}
             className="text-sm bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition"
           >
             Close
           </button>
+          <Link
+            href="/cart"
+            className="flex items-center font-semibold"
+          >
+            <TiArrowForward className="mr-2" />
+            <span className='bg-blue-500 hover:bg-blue-600 text-white rounded-md px-3 py-1'>View Cart</span>
+          </Link>
         </div>
       </div>
     </div>

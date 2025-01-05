@@ -84,6 +84,8 @@ export default function Cart() {
   // Remove an item from the cart
   const handleRemoveItem = (itemId) => {
     const updatedCart = cartStorage.filter((item) => item._id !== itemId);
+    if(!updatedCart.length) localStorage.removeItem('cart');
+    // console.log(updatedCart)
     setCartStorage(updatedCart);
   };
 

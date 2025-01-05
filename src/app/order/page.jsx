@@ -14,7 +14,6 @@ export default function Order() {
     const [cartStorage, setCartStorage] = useState([]);
     const [orderSummery, setOrderSummery] = useState({});
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
     const [session, setSession] = useState(null);
     const [mobile, setMobile] = useState('');
     const [countryCode, setCountryCode] = useState('+088');
@@ -24,6 +23,7 @@ export default function Order() {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [confirmOrderAction, setConfirmOrderAction] = useState(null);
+    const router = useRouter();
 
     // console.log('user', userStorage);
     // console.log('order summery', orderSummery);
@@ -40,7 +40,6 @@ export default function Order() {
         const orderStatus = localStorage.getItem('orderStatus');
         
         if (orderStatus === 'confirmed' && !storedOrderSummary) {
-            toast.info('Your order has already been confirmed!');
             router.push('/your-profile'); 
             return; 
         }

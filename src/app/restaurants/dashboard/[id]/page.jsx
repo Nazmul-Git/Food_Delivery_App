@@ -42,7 +42,7 @@ const EditFoodItem = () => {
     };
 
     const handleUpdate = async (event) => {
-        event.preventDefault(); // Prevent form submission
+        event.preventDefault();
 
         if (!foodName || !description || !price || !category || !imagePath) {
             setErrorMessage('All fields are required!');

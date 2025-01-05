@@ -5,14 +5,11 @@ import React, { useState } from 'react';
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
 import { signIn } from 'next-auth/react';
 import { FaGithub } from 'react-icons/fa6';
-import { ToastContainer, toast } from 'react-toastify'; 
-
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function UserLogin({ redirect }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -25,6 +22,9 @@ export default function UserLogin({ redirect }) {
 
     const handleLogin = async (provider) => {
         try {
+            // Notify the user that login is in progress
+            toast.info(`Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`);
+
             const result = await signIn(provider, {
                 callbackUrl: `${redirect?.order ? '/order' : '/stores'}`,
             });
@@ -33,6 +33,9 @@ export default function UserLogin({ redirect }) {
                 throw new Error(result.error);
             }
 
+            // Success message
+            toast.success(`Signed in successfully with ${provider.charAt(0).toUpperCase() + provider.slice(1)}!`);
+
             // Perform manual redirection
             if (result?.url) {
                 console.log("Redirecting to:", result.url);
@@ -40,8 +43,7 @@ export default function UserLogin({ redirect }) {
             }
         } catch (error) {
             console.error("Login failed:", error);
-            setError(error.message || 'Login failed');
-            toast.error(error.message || 'Login failed'); 
+            toast.error(error.message || 'Login failed');
         }
     };
 
@@ -51,8 +53,7 @@ export default function UserLogin({ redirect }) {
         e.preventDefault();
 
         if (!email || !password) {
-            setError('Please enter both email and password');
-            toast.error('Please enter both email and password'); 
+            toast.error('Please enter both email and password');
             return;
         }
 
@@ -69,23 +70,25 @@ export default function UserLogin({ redirect }) {
             });
 
             response = await response.json();
+            // console.log(response); 
 
             if (response.success && response.token) {
                 localStorage.setItem('user', JSON.stringify(response.loggedUser));
-                setMessage('Logged in successfully!');
-                toast.success('Logged in successfully!'); 
-                if (redirect?.order) {
-                    router.push('/order');
-                } else {
-                    router.push('/stores');
-                }
+                toast.success('Logged in successfully!');
+
+                // Delay the redirection to let the toast display
+                setTimeout(() => {
+                    if (redirect?.order) {
+                        router.push('/order');
+                    } else {
+                        router.push('/stores');
+                    }
+                }, 2000);
             } else {
-                setError(response.message || 'Login failed. Please try again.');
-                toast.error(response.message || 'Login failed. Please try again.'); 
+                toast.error(response.message || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error('Login Error:', error);
-            setError('An error occurred. Please try again later.');
             toast.error('An error occurred. Please try again later.');
         } finally {
             setLoading(false);
@@ -131,10 +134,6 @@ export default function UserLogin({ redirect }) {
                         </button>
                     </div>
                 </div>
-
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
-
                 <button
                     type="submit"
                     className="w-full bg-orange-600 text-white py-3 rounded-lg mt-4 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-300"
@@ -167,7 +166,7 @@ export default function UserLogin({ redirect }) {
                 position="top-right"
                 autoClose={5000}
                 hideProgressBar={true}
-                style={{ marginTop: '80px' }} 
+                style={{ marginTop: '80px' }}
             />
         </>
     );

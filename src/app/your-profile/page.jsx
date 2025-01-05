@@ -10,12 +10,12 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 
 const Profile = () => {
-  const [orders, setOrders] = useState([]); // Orders that are visible
-  const [allOrders, setAllOrders] = useState([]); // All orders (fetched from API)
+  const [orders, setOrders] = useState([]); 
+  const [allOrders, setAllOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [userEmail, setUserEmail] = useState('');
-  const [visibleOrders, setVisibleOrders] = useState(10); // Keep track of visible orders count
+  const [visibleOrders, setVisibleOrders] = useState(10);
   const router = useRouter();
 
   useEffect(() => {

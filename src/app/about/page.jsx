@@ -1,38 +1,55 @@
-'use client'
-import React, { useEffect, useState } from 'react'
-import CustomerHeader from '../_components/CustomerHeader'
-import About from '../_components/About'
-import Footer from '../_components/Footer'
+'use client';
+import React, { useEffect, useState } from 'react';
+import CustomerHeader from '../_components/CustomerHeader';
+import About from '../_components/About';
+import Footer from '../_components/Footer';
 import RestaurantHeader from '../_components/RestaurantHeader';
 import DeliveryUserHeader from '../_components/DeliveryUserHeader';
-import CommonHeader from '../_components/CommonHeader'
+import CommonHeader from '../_components/CommonHeader';
 
 export default function AboutPage() {
-  const [cusUser, setCusUser] = useState(null);
-  const [restUser, setRestUser] = useState(null);
-  const [deliUser, setDeliUser] = useState(null);
+    const [cusUser, setCusUser] = useState(null);
+    const [cusAuthUser, setCusAuthUser] = useState(null);
+    const [restUser, setRestUser] = useState(null);
+    const [deliUser, setDeliUser] = useState(null);
 
-  useEffect(() => {
-    const customerUser = localStorage.getItem('user');
-    const restaurantUser = localStorage.getItem('restaurantUser');
-    const deliveryUser = localStorage.getItem('deliveryUser');
+    useEffect(() => {
+      try {
+          const customerUser = localStorage.getItem('user');
+          const customerAuthUser = localStorage.getItem('authUser');
+          const restaurantUser = localStorage.getItem('restaurantUser');
+          const deliveryUser = localStorage.getItem('deliveryUser');
+  
+          if (customerUser) {
+              setCusUser(JSON.parse(customerUser));
+          }
+          if (customerAuthUser) {
+            setCusAuthUser(JSON.parse(customerAuthUser));
+          }
+  
+          if (restaurantUser) {
+              setRestUser(JSON.parse(restaurantUser));
+          }
+  
+          if (deliveryUser) {
+              setDeliUser(JSON.parse(deliveryUser));
+          }
+      } catch (error) {
+          console.error('Error parsing user data from localStorage:', error);
+      }
+  }, []);  
 
-    if (customerUser) setCusUser(JSON.parse(customerUser)); 
-    if (restaurantUser) setRestUser(JSON.parse(restaurantUser)); 
-    if (deliveryUser) setDeliUser(JSON.parse(deliveryUser));
-  }, []);
+    return (
+        <div>
+            {/* Conditional Rendering for Headers */}
+            {cusUser && <CustomerHeader />}
+            {cusAuthUser && <CustomerHeader />}
+            {restUser && <RestaurantHeader />}
+            {deliUser && <DeliveryUserHeader />}
 
-  return (
-    <div>
-      {/* Conditional Rendering for Headers */}
-      {cusUser?.userType === 'customerUser' && <CustomerHeader />}
-      {restUser?.userType === 'restaurantUser' && <RestaurantHeader />}
-      {deliUser?.userType === 'deliveryUser' && <DeliveryUserHeader />}
-      {!cusUser && !restUser && !deliUser && <CommonHeader />}
-
-      {/* Main Content */}
-      <About />
-      <Footer />
-    </div>
-  );
+            {/* Main Content */}
+            <About />
+            <Footer />
+        </div>
+    );
 }
