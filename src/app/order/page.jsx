@@ -33,7 +33,6 @@ export default function Order() {
         { code: '+1', label: 'US' },
         { code: '+44', label: 'UK' },
         { code: '+91', label: 'IN' },
-        // Add more country codes as needed
     ];
 
     useEffect(() => {
@@ -41,7 +40,6 @@ export default function Order() {
         const orderStatus = localStorage.getItem('orderStatus');
         
         if (orderStatus === 'confirmed' && !storedOrderSummary) {
-            // If the order has already been confirmed, redirect to the profile or another page
             toast.info('Your order has already been confirmed!');
             router.push('/your-profile'); 
             return; 

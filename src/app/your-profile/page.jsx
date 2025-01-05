@@ -7,14 +7,15 @@ import Loading from '../loading';
 import ScrollToTop from '../_components/ScrollToTop';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { format } from 'date-fns';
 
 const Profile = () => {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState([]); // Orders that are visible
+  const [allOrders, setAllOrders] = useState([]); // All orders (fetched from API)
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [userEmail, setUserEmail] = useState('');
-  const [orderCount, setOrderCount] = useState(10);
-  const [totalOrders, setTotalOrders] = useState(0);
+  const [visibleOrders, setVisibleOrders] = useState(10); // Keep track of visible orders count
   const router = useRouter();
 
   useEffect(() => {
@@ -29,15 +30,29 @@ const Profile = () => {
           setUser(userInfo);
           setUserEmail(userInfo?.email);
 
-          // Fetch orders related to the logged-in user
+          // Fetch all orders related to the logged-in user
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/order?id=${userInfo?.user_Id || userInfo._id}&limit=${orderCount}`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/order?id=${userInfo?.user_Id || userInfo._id}`
           );
           const data = await response.json();
 
           if (data.success) {
-            setOrders(data.orders.reverse());
-            setTotalOrders(data.totalOrders || data.orders.length);
+            // Date parsing function to handle different structures of `createdAt`
+            const parseDate = (order) => {
+              if (order?.date) {
+                return new Date(order.date);
+              }
+              return new Date(0); // Default date if `date` is not available
+            };
+
+            const sortedOrders = data.orders.sort((a, b) => {
+              const dateA = parseDate(a);
+              const dateB = parseDate(b);
+              return dateB - dateA; // Sort by most recent first
+            });
+
+            setAllOrders(sortedOrders); // Save all orders in state
+            setOrders(sortedOrders.slice(0, 10)); // Set the first 10 orders to be visible
           }
         }
       } catch (error) {
@@ -48,7 +63,14 @@ const Profile = () => {
     };
 
     fetchOrders();
-  }, [orderCount]);
+  }, []);
+
+  // Handle "Load More" functionality
+  const handleLoadMore = () => {
+    const nextOrders = allOrders.slice(visibleOrders, visibleOrders + 10);
+    setOrders([...orders, ...nextOrders]); // Append the next 10 orders to the visible orders
+    setVisibleOrders(visibleOrders + 10); // Increase the visible orders count by 10
+  };
 
   const getInitialsFromEmail = (email) => {
     if (email) {
@@ -68,10 +90,6 @@ const Profile = () => {
     setUser({});
     setUserEmail('');
     router.push('/user');
-  };
-
-  const loadMoreOrders = () => {
-    setOrderCount((prevCount) => prevCount + 10);
   };
 
   if (loading) return <Loading />;
@@ -123,7 +141,11 @@ const Profile = () => {
       <ScrollToTop />
 
       <div className="bg-white shadow-xl p-8 space-y-6">
-        <h1 className="text-4xl font-semibold text-indigo-600 text-center mb-4">Order History</h1>
+        <h1 className="text-4xl font-semibold text-indigo-700 text-center mb-4">Order History</h1>
+        <p className="text-right font-semibold text-indigo-700 mt-4 p-4 bg-indigo-50 rounded-lg shadow-sm border-l-4 border-indigo-500">
+          Total Orders :
+          <span className="font-bold text-red-600"> {allOrders.length}</span>
+        </p>
         {orders.length === 0 ? (
           <p className="text-lg text-gray-500">No orders available.</p>
         ) : (
@@ -142,13 +164,27 @@ const Profile = () => {
               </div>
               <div className="mt-6 bg-white p-6 rounded-lg border border-gray-200">
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                     <p className="text-lg text-gray-800">
                       <strong>Restaurant:</strong>
                     </p>
                     <p className="text-lg text-gray-600">{order?.data?.restaurantName}</p>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <p className="text-lg text-gray-800">
+                      <strong>Ordered Items:</strong>
+                    </p>
+                    <p className="text-lg text-gray-600">
+                      {order?.foods && order.foods.length > 0 ? (
+                        order.foods.map((food, i) => (
+                          <span key={i}>{food.name}, </span>
+                        ))
+                      ) : (
+                        <span>No food items available</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                     <p className="text-lg text-gray-800">
                       <strong>Amount:</strong>
                     </p>
@@ -157,26 +193,26 @@ const Profile = () => {
                       {order?.amount}
                     </div>
                   </div>
+                  {order?.data?.createdAt && (
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                      <p className="text-lg text-gray-800">
+                        <strong>Order Date:</strong>
+                      </p>
+                      <p className="text-lg text-gray-600">{format(new Date(order?.data?.createdAt), 'MMMM dd, yyyy h:mm a')}</p>
+                    </div>
+                  )}
                   {order?.paymentMethod && (
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                       <p className="text-lg text-gray-800">
                         <strong>Payment Method:</strong>
                       </p>
                       <Image
                         src={`/images/${order?.paymentMethod}-Logo.png`}
                         alt={order?.paymentMethod}
-                        width={96}    
-                        height={20}  
+                        width={96}
+                        height={20}
                         className="object-contain"
                       />
-                    </div>
-                  )}
-                  {order?.date && (
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg text-gray-800">
-                        <strong>Order Date:</strong>
-                      </p>
-                      <p className="text-lg text-gray-600">{order?.date}</p>
                     </div>
                   )}
                 </div>
@@ -184,14 +220,15 @@ const Profile = () => {
             </div>
           ))
         )}
-        <div className="text-center mt-4">
+
+        {orders.length < allOrders.length && (
           <button
-            onClick={loadMoreOrders}
-            className="text-lg text-indigo-600 hover:text-indigo-800"
+            onClick={handleLoadMore}
+            className="mt-6 text-center text-indigo-600 py-2 px-6 rounded-full border border-indigo-600 hover:bg-indigo-700 transition-all duration-300 hover:text-white"
           >
             Load More Orders
           </button>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export default function Store() {
   const [restaurants, setRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [session, setSession] = useState(null);
-  const [visibleRestaurantsCount, setVisibleRestaurantsCount] = useState(6);
+  const [visibleRestaurantsCount, setVisibleRestaurantsCount] = useState(8);
 
   const router = useRouter();
 
@@ -80,7 +80,7 @@ export default function Store() {
   useEffect(() => {
     const delayedSearch = debounce(() => {
       loadRestaurants();
-    }, 300); // Adjust the delay as needed
+    }, 300); 
 
     delayedSearch();
 
@@ -165,7 +165,7 @@ export default function Store() {
 
   // Load more restaurants
   const handleLoadMore = () => {
-    setVisibleRestaurantsCount(prevCount => prevCount + 6);
+    setVisibleRestaurantsCount(prevCount => prevCount + 8);
   };
 
   if(loading){

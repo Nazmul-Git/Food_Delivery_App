@@ -12,6 +12,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "bcryptjs": "^2.4.3",
     "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
     "framer-motion": "^11.15.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",

@@ -124,7 +124,7 @@ export default function CustomerHeader({ cartData }) {
     // Check if user or session is available and has an email
     const userEmail = user?.email || session?.email;
     const imageUrl = user?.image || session?.image;
-    console.log(imageUrl)
+    // console.log(imageUrl)
 
     if (userEmail) {
       // Extract initials from the email (first letter of the email for simplicity)
