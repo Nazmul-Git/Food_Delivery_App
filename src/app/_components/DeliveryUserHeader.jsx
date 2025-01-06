@@ -10,13 +10,25 @@ import { GoGoal } from 'react-icons/go';
 import { GrContact } from 'react-icons/gr';
 import { TfiUser } from 'react-icons/tfi';
 import { VscSignOut } from 'react-icons/vsc';
+import { MdDashboardCustomize } from 'react-icons/md';
 
-export default function CommonHeader({ cartData }) {
+export default function DeliveryUserHeader({ cartData }) {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [touchStartY, setTouchStartY] = useState(0);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isHomeActive, setHomeActive] = useState(false);
+  const [isAboutActive, setAboutActive] = useState(false);
+  const [isServicesActive, setServicesActive] = useState(false);
+  const [isCareerActive, setCareerActive] = useState(false);
+  const [isContactActive, setContactActive] = useState(false);
+  const [isProfileActive, setProfileActive] = useState(false);
+  const [isLogoutActive, setLogoutActive] = useState(false);
+  const [isSignInActive, setSignInActive] = useState(false);
+  const [isMissionActive, setMissionActive] = useState(false);
+  const [isDashboardActive, setDashboardActive] = useState(false);
+
   const router = useRouter();
   const userMenuRef = useRef(null);
   const profileIconRef = useRef(null);
@@ -27,6 +39,51 @@ export default function CommonHeader({ cartData }) {
       setUser(deliveryUserStorage);
     }
   }, []);
+
+  useEffect(() => {
+    // Retrieve active state from localStorage on page load
+    const activeStates = JSON.parse(localStorage.getItem('menuStates')) || {};
+    setHomeActive(activeStates.home || false);
+    setAboutActive(activeStates.about || false);
+    setServicesActive(activeStates.services || false);
+    setCareerActive(activeStates.career || false);
+    setContactActive(activeStates.contact || false);
+    setProfileActive(activeStates.profile || false);
+    setLogoutActive(activeStates.logout || false);
+    setSignInActive(activeStates.signin || false);
+    setMissionActive(activeStates.mission || false);
+    setDashboardActive(activeStates.dashboard || false);
+  }, []);
+
+  const handleMenuClick = (item) => {
+    // Reset all states and activate the clicked menu
+    const newStates = {
+      home: item === 'home',
+      about: item === 'about',
+      services: item === 'services',
+      career: item === 'career',
+      contact: item === 'contact',
+      profile: item === 'profile',
+      logout: item === 'logout',
+      signin: item === 'signin',
+      mission: item === 'mission',
+      dashboard: item === 'dashboard',
+    };
+
+    setHomeActive(newStates.home);
+    setAboutActive(newStates.about);
+    setServicesActive(newStates.services);
+    setCareerActive(newStates.career);
+    setContactActive(newStates.contact);
+    setProfileActive(newStates.profile);
+    setLogoutActive(newStates.logout);
+    setSignInActive(newStates.signin);
+    setMissionActive(newStates.mission);
+    setDashboardActive(newStates.dashboard);
+
+    // Save states to localStorage
+    localStorage.setItem('menuStates', JSON.stringify(newStates));
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('deliveryUser');
@@ -39,7 +96,7 @@ export default function CommonHeader({ cartData }) {
     if (user && user?.fullName) {
       const initials = user?.fullName?.charAt(0).toUpperCase();
       return (
-        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-400 text-white font-semibold">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-400 text-white font-semibold">
           {initials}
         </div>
       );
@@ -97,15 +154,23 @@ export default function CommonHeader({ cartData }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
-          <Link href="/" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+          <Link href="/" onClick={() => handleMenuClick('home')} className={`${isHomeActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
             Home
             <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/Services" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+          <Link href="/about-us" onClick={() => handleMenuClick('about')} className={`${isAboutActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            About
+            <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
+          <Link href="/services" onClick={() => handleMenuClick('services')} className={`${isServicesActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
             Services
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/contact" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+          <Link href="/career" onClick={() => handleMenuClick('career')} className={`${isCareerActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+            Career
+            <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
+          <Link href="/contact-us" onClick={() => handleMenuClick('contact')} className={`${isContactActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
             Contact
             <GrContact className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
@@ -118,38 +183,45 @@ export default function CommonHeader({ cartData }) {
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
-                {getProfileImage(user?.email)}
+              <div className="w-8 h-8 rounded-full bg-green-400 flex items-center justify-center cursor-pointer">
+                {getProfileImage(user?.fullName)}
               </div>
 
               {/* Show user menu if hovered or clicked */}
               {(isHovered || userMenuOpen) && (
                 <div
                   ref={userMenuRef}
-                  className="absolute top-16 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200"
+                  className="absolute top-16 right-0 bg-black shadow-lg rounded-md py-4 w-60 border border-teal-200"
                 >
                   {/* Profile Link */}
                   <Link
-                    href="/profile"
-                    className="block px-6 py-3 flex items-center space-x-2  hover:text-teal-600 transition-all duration-300 ease-in-out"
+                    href="/profile" onClick={() => handleMenuClick('profile')} className={`${isProfileActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
                   >
-                    <TfiUser className="w-5 h-5 text-teal-600" />
+                    <TfiUser className="w-5 h-5 text-yellow-400" />
                     <span className="font-semibold text-sm">Profile</span>
+                  </Link>
+                  <Link
+                    href="/dashboard" onClick={() => handleMenuClick('dashboard')} className={`${isDashboardActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
+                  >
+                    <MdDashboardCustomize className="w-5 h-5 text-yellow-400" />
+                    <span className="font-semibold text-sm">Dashboard</span>
                   </Link>
 
                   {/* Our Mission Link */}
                   <Link
-                    href="/our-mission"
-                    className="block px-6 py-3 flex items-center space-x-2  hover:text-teal-600 transition-all duration-300 ease-in-out"
+                    href="/our-mission" onClick={() => handleMenuClick('mission')} className={`${isMissionActive ? 'text-yellow-400' : 'text-white'}  block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
                   >
-                    <GoGoal className="w-5 h-5 text-teal-600" />
+                    <GoGoal className="w-5 h-5 text-yellow-400" />
                     <span className="font-semibold text-sm">Our Mission</span>
                   </Link>
 
                   {/* Sign Out Button */}
                   <button
-                    onClick={handleLogout}
-                    className="block px-6 py-3 flex items-center space-x-2  hover:text-red-700 transition-all duration-300 ease-in-out"
+                    onClick={() => {
+                      handleMenuClick('logout');
+                      handleLogout();
+                    }}
+                    className={`${isLogoutActive ? 'text-red-700' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-red-700 transition-all duration-300 ease-in-out`}
                   >
                     <VscSignOut className="w-5 h-5 text-red-700 inline-block" />
                     <span className="font-semibold text-sm">Sign Out</span>
@@ -171,22 +243,26 @@ export default function CommonHeader({ cartData }) {
 
               {/* Show user menu if hovered or clicked */}
               {(isHovered || userMenuOpen) && (
-                <div ref={userMenuRef} className="absolute top-12 right-0 bg-gradient-to-br from-teal-100 via-white to-teal-50 shadow-lg rounded-md py-4 w-60 border border-teal-200">
-                  <Link
-                    href="/"
-                    className="block px-4 py-2 hover:text-blue-500 transition"
+                <div ref={userMenuRef} className="absolute top-12 right-0 bg-black shadow-lg rounded-md py-4 w-60 border border-teal-200">
+                  <button
+                    onClick={() => {
+                      handleMenuClick('signin');
+                      router.push('/delivery-user');
+                    }}
+                    className={`${isSignInActive ? 'text-yellow-400' : 'text-white'} block px-4 py-2 hover:text-yellow-400 transition`}
                   >
                     <div className='flex gap-2 items-center font-semibold'>
-                      <FaSignInAlt className="w-5 h-5 text-teal-600" />
+                      <FaSignInAlt className="w-5 h-5 text-yellow-400" />
                       Sign In
                     </div>
-                  </Link>
+                  </button>
                   <Link
                     href="/our-mission"
-                    className="block px-4 py-2 hover:text-blue-500 transition"
+                    onClick={() => handleMenuClick('mission')}
+                    className={`${isMissionActive ? 'text-yellow-400' : 'text-white'} block px-4 py-2 hover:text-yellow-400 transition`}
                   >
                     <div className='flex gap-2 items-center font-semibold'>
-                      <GoGoal className="w-5 h-5 text-teal-600" />
+                      <GoGoal className="w-5 h-5 text-yellow-400" />
                       Our Mission
                     </div>
                   </Link>
@@ -242,26 +318,52 @@ export default function CommonHeader({ cartData }) {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${isMenuOpen
-            ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
-            : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
+          ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
+          : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
           }`}
       >
-        <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-          <FaHome className="w-5 h-5 text-yellow-500" />
-          Home
-        </Link>
-        <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
+        <div className='flex justify-between items-center'>
+          <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
+            <FaHome className="w-5 h-5 text-yellow-500" />
+            Home
+          </Link>
+          <div className="w-8 h-8 rounded-full bg-green-400 flex items-center justify-center cursor-pointer">
+            {getProfileImage(user?.fullName)}
+          </div>
+        </div>
+        <Link href="/about-us" onClick={() => {
+          setIsMenuOpen(false)
+          handleMenuClick('about');
+        }}
+          className={`${isAboutActive ? 'text-yellow-400' : 'text-white'} block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group`}>
           <FaInfoCircle className="w-5 h-5 text-yellow-500" />
           About
         </Link>
-
+        <Link href="/services" onClick={() => handleMenuClick('services')} className={`${isServicesActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+          <FaInfoCircle className="w-5 h-5 text-yellow-500" />
+          Services
+        </Link>
+        <Link href="/career" onClick={() => handleMenuClick('career')} className={`${isCareerActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+          <FaInfoCircle className="w-5 h-5 text-yellow-500" />
+          Career
+        </Link>
+        <Link
+          href="/dashboard" onClick={() => handleMenuClick('dashboard')} className={`${isDashboardActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
+        >
+          <MdDashboardCustomize className="w-5 h-5 text-yellow-400" />
+          <span className="font-semibold text-sm">Dashboard</span>
+        </Link>
         {user ? (
-          <button onClick={handleLogout} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
-            <FaUserCircle className="w-5 h-5 text-yellow-500" />
+          <button onClick={() => {
+            handleLogout();
+            handleMenuClick('logout');
+          }}
+            className={`${isLogoutActive ? 'text-red-700' : 'text-white'} block text-lg hover:text-red-700 trans}ition flex gap-2 items-center relative group`}>
+            <FaUserCircle className="w-5 h-5 text-red-700" />
             Sign Out
           </button>
         ) : (
-          <Link href="/login" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
+          <Link href="/delivery-user" onClick={() => setIsMenuOpen(false)} className={`${isSignInActive ? 'text-yellow-400' : 'text-white'} block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group`}>
             <TbUserQuestion className="w-5 h-5 text-yellow-500" />
             Sign In
           </Link>

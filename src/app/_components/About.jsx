@@ -11,7 +11,7 @@ export default function About() {
                 <div className="relative z-10 max-w-6xl mx-auto">
                     <h1 className="text-4xl md:text-6xl font-bold">Welcome to Foodie Haven</h1>
                     <p className="mt-4 text-lg md:text-2xl">Your favorite meals, delivered with love.</p>
-                    <a href="#about-us" className="mt-6 inline-block px-6 py-3 bg-yellow-400 text-gray-900 rounded-full text-lg font-semibold shadow-lg hover:bg-yellow-500 transition">Learn More</a>
+                    <a href="#" className="mt-6 inline-block px-6 py-3 bg-yellow-400 text-gray-900 rounded-full text-lg font-semibold shadow-lg hover:bg-yellow-500 transition">Learn More</a>
                 </div>
             </section>
 

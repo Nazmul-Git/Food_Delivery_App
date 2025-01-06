@@ -436,13 +436,27 @@ export default function CustomerHeader({ cartData }) {
         onTouchMove={handleTouchMove}
         className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-[500px] p-14 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
-        <Link href="/" onClick={() => {
-          setIsMenuOpen(false);
-          handleMenuClick('home')
-        }} className={`${isHomeActive ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
-          <FaHome className="w-5 h-5 text-teal-500" />
-          Home
-        </Link>
+        <div className='flex justify-between items-center'>
+          <Link href="/" onClick={() => {
+            setIsMenuOpen(false);
+            handleMenuClick('home')
+          }} className={`${isHomeActive ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
+            <FaHome className="w-5 h-5 text-teal-500" />
+            Home
+          </Link>
+          {/* Profile Image or Initials */}
+          <button
+            onClick={() => {
+              user || session?.user ?
+                router.push('/your-profile')
+                :
+                router.push('/user');
+            }}
+            className="block text-lg transition flex gap-2 items-center relative group"
+          >
+            {getProfileImage()}
+          </button>
+        </div>
         <Link
           href="/about" onClick={() => {
             setIsMenuOpen(false);
@@ -502,18 +516,6 @@ export default function CustomerHeader({ cartData }) {
         >
           <GoGoal className="w-5 h-5 text-teal-600 transition-opacity duration-300" />
           Vission
-        </button>
-        {/* Profile Image or Initials */}
-        <button
-          onClick={() => {
-            user || session?.user ?
-              router.push('/your-profile')
-              :
-              router.push('/user');
-          }}
-          className="block text-lg transition flex gap-2 items-center relative group"
-        >
-          {getProfileImage()}
         </button>
       </div>
 

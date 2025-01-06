@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Footer from "../_components/Footer";
 import DeliveryUserLogin from "../_components/DeliveryUserLogin";
 import DeliveryUserSignup from "../_components/DeliveryUserSignup";
-import DeliveryHeader from "../_components/DeliveryUserHeader";
+import DeliveryUserHeader from "../_components/DeliveryUserHeader";
 
 const deliveryDashboard = () => {
     const [login, setLogin] = useState(true);
@@ -31,7 +31,7 @@ const deliveryDashboard = () => {
 
     return (
         <>
-            <DeliveryHeader />
+            <DeliveryUserHeader />
 
             <div className="min-h-screen bg-gray-100 flex items-center justify-center p-16">
                 <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">

@@ -25,7 +25,7 @@ export async function GET(req, { params }) {
                     restauranInfo.paymentMethod = item.paymentMethod;
                     restauranInfo.amount = item.amount;
                     restauranInfo.status = item.status;
-                    restauranInfo.date = new Date();
+                    restauranInfo.date = item?.data?.createdAt;
                     return restauranInfo;
                 })
             );

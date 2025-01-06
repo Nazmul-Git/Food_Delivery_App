@@ -16,7 +16,6 @@ const ordersSchema = new mongoose.Schema({
     },
     delivery_Id: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,  
     },
     status: {
         type: String,

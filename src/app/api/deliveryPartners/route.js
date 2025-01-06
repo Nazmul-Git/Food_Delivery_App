@@ -10,16 +10,12 @@ export async function GET(req) {
 
     // Destructure the query parameters from the request
     const city = req.nextUrl.searchParams.get('city');
-    const zone = req.nextUrl.searchParams.get('zone');
-
-    console.log('City:', city);
-    console.log('Zone:', zone);
 
     // Ensure city and zone are both provided
-    if (!city || !zone) {
+    if (!city) {
         return NextResponse.json({
             success: false,
-            error: "City and Zone are required parameters."
+            error: "City required parameters."
         }, { status: 400 });
     }
 
@@ -33,7 +29,6 @@ export async function GET(req) {
         const filter = {
             $and: [
                 { "city": { $regex: new RegExp(city, "i") } },
-                { "zone": { $regex: new RegExp(zone, "i") } },
             ],
         };
 
@@ -45,7 +40,7 @@ export async function GET(req) {
         // Return the result and success status
         return NextResponse.json({ result, success });
     } catch (error) {
-        console.error("Error filtering delivery users by city and zone:", error);
+        console.error("Error filtering delivery users by city:", error);
 
         return NextResponse.json(
             { success: false, error: "Internal server error!" },

@@ -133,51 +133,46 @@ export default function Order() {
             toast.error('Please select a payment method.');
             return;
         }
-
+    
         // Check if the cart is empty
         if (!cartStorage || cartStorage.length === 0) {
             toast.error('Your cart is empty.');
             return;
         }
-
+    
         let user_Id = userStorage?._id || userStorage?.loggedUser?._id;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
         let delivery_Id = null;
-
-        // Normalize the city and zone inputs
+    
+        // Normalize the city input
         const normalizeString = (str) => str.toLowerCase().replace(/[-\d]/g, '').trim();
-
         const normalizedCity = normalizeString(city);
-        const normalizedZone = normalizeString(zone);
-
-        if (normalizedCity && normalizedZone) {
+    
+        if (normalizedCity) {
             try {
                 const deliveryBoyResponse = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/deliveryPartners?city=${encodeURIComponent(normalizedCity)}&zone=${encodeURIComponent(normalizedZone)}`
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/deliveryPartners?city=${encodeURIComponent(normalizedCity)}`
                 );
                 const deliveryBoyData = await deliveryBoyResponse.json();
-                // console.log(deliveryBoyData);
-
                 if (deliveryBoyData.success && deliveryBoyData.result.length > 0) {
                     const randomIndex = Math.floor(Math.random() * deliveryBoyData.result.length);
                     delivery_Id = deliveryBoyData.result[randomIndex]._id;
-                    // console.log('Random Delivery Boy ID:', delivery_Id);
                 }
             } catch (error) {
-                // console.error('Error fetching delivery boy data:', error);
+                console.error('Error fetching delivery boy data:', error);
             }
         } else {
-            toast.error('City and zone must be provided.');
+            toast.error('City must be provided.');
             return;
         }
-
+    
         // Assemble order details
         let orderDetails = {
             user_Id,
             foodItemId,
             restaurantId,
-            delivery_Id,
+            delivery_Id: delivery_Id || null,
             customerName: userStorage?.loggedUser?.fullName || userStorage?.fullName,
             image: userStorage?.loggedUser?.image || userStorage?.image,
             email: userStorage?.loggedUser?.email || userStorage?.email,
@@ -190,7 +185,7 @@ export default function Order() {
             amount: orderSummery?.finalTotal,
             paymentMethod: selectedPaymentMethod,
         };
-
+    
         try {
             let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order`, {
                 method: 'POST',
@@ -199,9 +194,9 @@ export default function Order() {
                 },
                 body: JSON.stringify(orderDetails),
             });
-
+    
             const data = await response.json();
-
+    
             if (data?.success || session?.user) {
                 const orderDetailsStorage = {
                     ...orderDetails,
@@ -221,6 +216,7 @@ export default function Order() {
             toast.error('Something went wrong. Please try again later.');
         }
     };
+    
 
     if (loading) return <Loading />;
 
