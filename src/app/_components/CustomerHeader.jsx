@@ -30,6 +30,9 @@ export default function CustomerHeader({ cartData }) {
   const [isBlogActive, setBlogActive] = useState(false);
   const [isContactActive, setContactActive] = useState(false);
   const [isCartActive, setCartActive] = useState(false);
+  const [isProfileActive, setProfileActive] = useState(false);
+  const [isLogoutActive, setLogoutActive] = useState(false);
+  const [isSignInActive, setSignInActive] = useState(false);
   const router = useRouter();
   const [session, setSession] = useState(null);
 
@@ -37,7 +40,7 @@ export default function CustomerHeader({ cartData }) {
     const fetchData = async () => {
       // Fetch session data
       const currentSession = await getSession();
-      // console.log('currentSession', currentSession); 
+      // console.log('currentSession', currentSession.user.image); 
 
       setSession(currentSession?.user);
 
@@ -50,7 +53,7 @@ export default function CustomerHeader({ cartData }) {
         if (cartStorage) {
           const parsedCart = JSON.parse(cartStorage);
           setCartItems(parsedCart);
-          setCartCount(parsedCart.length);
+          setCartCount(parsedCart?.length);
         }
       }
     };
@@ -66,6 +69,9 @@ export default function CustomerHeader({ cartData }) {
     setBlogActive(activeStates.blog || false);
     setContactActive(activeStates.contact || false);
     setCartActive(activeStates.cart || false);
+    setProfileActive(activeStates.profile || false);
+    setLogoutActive(activeStates.logout || false);
+    setSignInActive(activeStates.signin || false);
   }, []);
 
   // after complete order cart will be reset
@@ -115,16 +121,16 @@ export default function CustomerHeader({ cartData }) {
   const handleLogout = () => {
     if (session) {
       localStorage.removeItem('authUser');
+      toast.success('Successfully signed out!');
       signOut({
         callbackUrl: '/user',
       });
-      toast.success('Successfully signed out!');
     }
     else if (user) {
       localStorage.removeItem('user');
       setUser(null);
-      router.push('/user');
       toast.success('Successfully logged out!');
+      router.push('/user');
     }
     else {
       toast.error('No user found!');
@@ -196,6 +202,9 @@ export default function CustomerHeader({ cartData }) {
       blog: item === 'blog',
       contact: item === 'contact',
       cart: item === 'cart',
+      profile: item === 'profile',
+      logout: item === 'logout',
+      signin: item === 'signin',
     };
 
     setHomeActive(newStates.home);
@@ -203,6 +212,9 @@ export default function CustomerHeader({ cartData }) {
     setBlogActive(newStates.blog);
     setContactActive(newStates.contact);
     setCartActive(newStates.cart);
+    setProfileActive(newStates.profile);
+    setLogoutActive(newStates.logout);
+    setSignInActive(newStates.signin);
 
     // Save states to localStorage
     localStorage.setItem('menuStates', JSON.stringify(newStates));
@@ -296,10 +308,11 @@ export default function CustomerHeader({ cartData }) {
                   <li>
                     <button
                       onClick={() => {
+                        handleMenuClick('profile');
                         if (user || session.user) router.push('/your-profile');
                         else router.push('/user');
                       }}
-                      className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
+                      className={`text-black font-semibold ${isProfileActive ? 'text-teal-300' : 'text-black'} hover:text-teal-600 transition flex items-center gap-2 relative group`}
                     >
                       <TfiUser className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       Your Profile
@@ -307,8 +320,12 @@ export default function CustomerHeader({ cartData }) {
                   </li>
                   <li>
                     <button
-                      onClick={handleLogout}
-                      className="text-black font-semibold hover:text-red-700 transition flex items-center gap-2 relative group"
+                      onClick={()=>{
+                        handleLogout();
+                        handleMenuClick('logout')
+                      }
+                    }
+                      className={`text-black font-semibold ${isLogoutActive ? 'text-teal-300' : 'text-black'} hover:text-red-700 transition flex items-center gap-2 relative group`}
                     >
                       <VscSignOut className="w-5 h-5 mr-2 text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       Sign Out
@@ -323,6 +340,7 @@ export default function CustomerHeader({ cartData }) {
                   <li>
                     <button
                       onClick={() => {
+                        handleMenuClick('signin');
                         user || session?.user
                           ? router.push('/stores')
                           : router.push('/user');
@@ -335,7 +353,10 @@ export default function CustomerHeader({ cartData }) {
                   </li>
                   <li>
                     <button
-                      onClick={() => router.push('/your-profile')}
+                      onClick={() => {
+                        handleMenuClick('vission');
+                        router.push('/your-profile');
+                      }}
                       className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
                     >
                       <GoGoal className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -425,12 +446,19 @@ export default function CustomerHeader({ cartData }) {
         </Link>
         {/* Conditional Rendering for User */}
         {user || session?.user ? (
-          <button onClick={handleLogout} className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group">
+          <button onClick={()=>{
+            handleMenuClick('logout');
+            handleLogout();
+          }} className={`block text-lg ${isLogoutActive ? 'text-red-700' : 'md:text-black'} hover:text-red-700 transition flex gap-2 items-center relative group`}>
             <VscSignOut className="w-5 h-5 text-teal-500" />
             Sign Out
           </button>
         ) : (
-          <Link href="/user" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative group">
+          <Link href="/user" onClick={() => {
+            handleMenuClick('signin');
+            setIsMenuOpen(false);
+            }} 
+            className={`block text-lg ${isSignInActive ? 'text-teal-300' : 'md:text-black'} hover:text-teal-300 transition flex gap-2 items-center relative group`}>
             <TbUserQuestion className="w-5 h-5 text-teal-500" />
             Login/Signup
           </Link>

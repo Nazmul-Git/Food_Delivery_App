@@ -101,8 +101,8 @@ export default function CommonHeader({ cartData }) {
             Home
             <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/about" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
-            About
+          <Link href="/Services" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
+            Services
             <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <Link href="/contact" className="text-white font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group">
@@ -241,10 +241,9 @@ export default function CommonHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${
-            isMenuOpen
-              ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
-              : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${isMenuOpen
+            ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
+            : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
           }`}
       >
         <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
