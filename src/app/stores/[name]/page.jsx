@@ -22,10 +22,10 @@ export default function StoreDetails({ params, searchParams }) {
     const [visibleFoodItemsCount, setVisibleFoodItemsCount] = useState(6)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedItem, setSelectedItem] = useState(null)
+    const [latestMessage, setLatestMessage] = useState('') // State for latest message
     const router = useRouter();
 
     useEffect(() => {
-        // Only execute this code in the browser
         if (typeof window !== 'undefined') {
             const cartFromStorage = JSON.parse(localStorage.getItem('cart')) || []
             setIsSaveData(cartFromStorage)
@@ -64,10 +64,12 @@ export default function StoreDetails({ params, searchParams }) {
         setCartData(item);
         setIsSaveData((prev) => [...prev, item]);
         localStorage.setItem('cart', JSON.stringify([...isSaveData, item]));
-        
-        // Show toast notification
-        toast.success(`${item.foodName} added to the cart!`, {
-            autoClose: 2000,
+
+        const message = `${item.foodName} added to the cart!`;
+        setLatestMessage(message); // Update the latest message
+        toast.success(message, {
+            autoClose: 1000,
+            onClose: () => setLatestMessage(''), // Clear the message on toast close
         });
     };
 
@@ -80,10 +82,12 @@ export default function StoreDetails({ params, searchParams }) {
         const updatedCartData = isSaveData.filter((i) => i._id !== item._id);
         setIsSaveData(updatedCartData);
         localStorage.setItem('cart', JSON.stringify(updatedCartData));
-    
-        // Show toast notification
-        toast.info(`${item.foodName} removed from the cart!`, {
+
+        const message = `${item.foodName} removed from the cart!`;
+        setLatestMessage(message); // Update the latest message
+        toast.info(message, {
             autoClose: 2000,
+            onClose: () => setLatestMessage(''), // Clear the message on toast close
         });
     };
 
@@ -94,7 +98,6 @@ export default function StoreDetails({ params, searchParams }) {
 
     const displayedFoodItems = foodItems.slice(0, visibleFoodItemsCount)
 
-    // Load more items when the button is clicked
     const handleLoadMore = () => {
         setVisibleFoodItemsCount((prevCount) => prevCount + 6)
     }
@@ -108,7 +111,6 @@ export default function StoreDetails({ params, searchParams }) {
                     backgroundImage: `url(${restaurantDetails?.imageUrl || ''})`,
                 }}
             >
-                {/* Apply blur effect to the background image */}
                 <div className="absolute inset-0 bg-black opacity-50 backdrop-blur-md"></div>
                 <p className='md:text-8xl text-4xl text-white font-extrabold absolute inset-0 flex justify-center items-center'>
                     {decodeURI(name)}
@@ -118,7 +120,6 @@ export default function StoreDetails({ params, searchParams }) {
             <ScrollToTop />
 
             <div className="container mx-auto px-4 md:px-14 py-14">
-                {/* Available Foods Section */}
                 <p className="text-center text-4xl font-semibold text-indigo-600 mb-10 tracking-wide">
                     Available Foods
                 </p>
@@ -130,15 +131,11 @@ export default function StoreDetails({ params, searchParams }) {
                             <img src={item.imagePath} alt={item.foodName} className="w-full h-64 object-cover" />
                             <div className="flex flex-col flex-grow p-4">
                                 <h3 className="text-2xl font-semibold text-gray-800 mb-2">{item.foodName}</h3>
-
-                                {/* Truncate description to a limited number of words */}
                                 <p className="text-lg text-gray-700 mt-2 flex-grow">
                                     {item.description.split(' ').slice(0, 10).join(' ')}{item.description.split(' ').length > 10 && '...'}
                                 </p>
-
                                 <div className="flex justify-between items-center mt-4">
                                     <span className="text-lg font-bold text-green-500">${item.price}</span>
-
                                     {
                                         isSaveData.find((i) => i._id === item._id) ?
                                             <button
@@ -171,7 +168,6 @@ export default function StoreDetails({ params, searchParams }) {
                 )}
             </div>
 
-            {/* Restaurant Details Section */}
             <RestaurantDetails restaurantDetails={restaurantDetails} />
 
             <Footer />
