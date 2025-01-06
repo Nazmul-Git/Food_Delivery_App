@@ -8,9 +8,12 @@ export default function CartModal({ onClose }) {
   const [cartItems, setCartItems] = useState([]);
   const router = useRouter();
 
-  useEffect(()=>{
-    setCartItems(JSON.parse(localStorage.getItem('cart')));
-  },[]);
+  useEffect(() => {
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  }, []);
 
   const handleClickOutside = (e) => {
     if (e.target.id === "modal-overlay") {
@@ -42,7 +45,7 @@ export default function CartModal({ onClose }) {
         </div>
 
         <div className="p-6 overflow-y-auto max-h-96">
-          {cartItems.length === 0 ? (
+          {cartItems?.length === 0 ? (
             <div className='grid grid-cols-1 items-center justify-center'>
               <p className="text-center text-lg text-gray-500">Your cart is empty!</p>
               <button
@@ -54,7 +57,7 @@ export default function CartModal({ onClose }) {
             </div>
           ) : (
             <ul className="space-y-4">
-              {cartItems.map((item) => (
+              {cartItems?.map((item) => (
                 <li
                   key={item._id}
                   className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-sm"
