@@ -33,6 +33,8 @@ export default function CustomerHeader({ cartData }) {
   const [isProfileActive, setProfileActive] = useState(false);
   const [isLogoutActive, setLogoutActive] = useState(false);
   const [isSignInActive, setSignInActive] = useState(false);
+  const [isVissionActive, setVissionActive] = useState(false);
+  const [isMissionActive, setMissionActive] = useState(false);
   const router = useRouter();
   const [session, setSession] = useState(null);
 
@@ -72,6 +74,8 @@ export default function CustomerHeader({ cartData }) {
     setProfileActive(activeStates.profile || false);
     setLogoutActive(activeStates.logout || false);
     setSignInActive(activeStates.signin || false);
+    setVissionActive(activeStates.vission || false);
+    setMissionActive(activeStates.mission || false);
   }, []);
 
   // after complete order cart will be reset
@@ -205,6 +209,8 @@ export default function CustomerHeader({ cartData }) {
       profile: item === 'profile',
       logout: item === 'logout',
       signin: item === 'signin',
+      vission: item === 'vission',
+      mission: item === 'mission',
     };
 
     setHomeActive(newStates.home);
@@ -215,6 +221,7 @@ export default function CustomerHeader({ cartData }) {
     setProfileActive(newStates.profile);
     setLogoutActive(newStates.logout);
     setSignInActive(newStates.signin);
+    setVissionActive(newStates.vission);
 
     // Save states to localStorage
     localStorage.setItem('menuStates', JSON.stringify(newStates));
@@ -264,19 +271,19 @@ export default function CustomerHeader({ cartData }) {
             onClick={() => handleMenuClick('about')}
             href="/about" className={`${isAboutActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             About
-            <FaInfoCircle className={`${isAboutActive ? 'opacity-100': 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300"`} />
+            <FaInfoCircle className={`${isAboutActive ? 'opacity-100' : 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300"`} />
           </Link>
           <Link
             onClick={() => handleMenuClick('blog')}
             href="/blog" className={`${isBlogActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Blog
-            <FaBlog className={`${isBlogActive ? 'opacity-100': 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300`} />
+            <FaBlog className={`${isBlogActive ? 'opacity-100' : 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300`} />
           </Link>
           <Link
             onClick={() => handleMenuClick('contact')}
             href="/contact" className={`${isContactActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
             Contact
-            <MdForwardToInbox className={`${isContactActive ? 'opacity-100': 'opacity-0'} w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+            <MdForwardToInbox className={`${isContactActive ? 'opacity-100' : 'opacity-0'} w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
           </Link>
           <button
             onClick={() => {
@@ -287,9 +294,9 @@ export default function CustomerHeader({ cartData }) {
           >
             Cart <p className="text-yellow-400 mb-6 text-xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
             {cartCount ? (
-              <HiOutlineShoppingCart className={`${isCartActive ? 'opacity-100 text-teal-300': 'text-white'} w-5 h-5 mr-2 mb-6 `} />
+              <HiOutlineShoppingCart className={`${isCartActive ? 'opacity-100 text-teal-300' : 'text-white'} w-5 h-5 mr-2 mb-6 `} />
             ) : (
-              <HiOutlineShoppingCart className={`${isCartActive ? 'opacity-100 text-teal-300': 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300`} />
+              <HiOutlineShoppingCart className={`${isCartActive ? 'opacity-100 text-teal-300' : 'opacity-0'} w-5 h-5 mr-2 mb-6 group-hover:opacity-100 transition-opacity duration-300`} />
             )}
           </button>
 
@@ -312,7 +319,7 @@ export default function CustomerHeader({ cartData }) {
                         if (user || session.user) router.push('/your-profile');
                         else router.push('/user');
                       }}
-                      className={`text-black font-semibold ${isProfileActive ? 'text-teal-300' : 'text-black'} hover:text-teal-600 transition flex items-center gap-2 relative group`}
+                      className={`text-black font-semibold ${isProfileActive ? 'text-teal-700' : 'md:text-black'} hover:text-teal-700 transition flex items-center gap-2 relative group`}
                     >
                       <TfiUser className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       Your Profile
@@ -320,12 +327,24 @@ export default function CustomerHeader({ cartData }) {
                   </li>
                   <li>
                     <button
-                      onClick={()=>{
+                      onClick={() => {
+                        handleMenuClick('vission');
+                        router.push('/vission');
+                      }}
+                      className={`text-black font-semibold ${isVissionActive ? 'text-teal-700' : 'text-black'} hover:text-teal-600 transition flex items-center gap-2 relative group`}
+                    >
+                      <GoGoal className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      Vission
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
                         handleLogout();
                         handleMenuClick('logout')
                       }
-                    }
-                      className={`text-black font-semibold ${isLogoutActive ? 'text-teal-300' : 'text-black'} hover:text-red-700 transition flex items-center gap-2 relative group`}
+                      }
+                      className={`text-black font-semibold ${isLogoutActive ? 'text-teal-700' : 'text-black'} hover:text-red-700 transition flex items-center gap-2 relative group`}
                     >
                       <VscSignOut className="w-5 h-5 mr-2 text-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       Sign Out
@@ -345,7 +364,7 @@ export default function CustomerHeader({ cartData }) {
                           ? router.push('/stores')
                           : router.push('/user');
                       }}
-                      className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
+                      className={`font-semibold ${isSignInActive ? 'text-teal-600' : 'md:text-black'} hover:text-teal-600 transition flex items-center gap-2 relative group`}
                     >
                       <SiSimplelogin className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       Sign In
@@ -355,9 +374,9 @@ export default function CustomerHeader({ cartData }) {
                     <button
                       onClick={() => {
                         handleMenuClick('vission');
-                        router.push('/your-profile');
+                        router.push('/vission');
                       }}
-                      className="text-black font-semibold hover:text-teal-600 transition flex items-center gap-2 relative group"
+                      className={`text-black font-semibold ${isVissionActive ? 'text-teal-700' : 'text-black'} hover:text-teal-600 transition flex items-center gap-2 relative group`}
                     >
                       <GoGoal className="w-5 h-5 mr-2 text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       Vission
@@ -415,7 +434,7 @@ export default function CustomerHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-[500px] p-14 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
       >
         <Link href="/" onClick={() => {
           setIsMenuOpen(false);
@@ -446,7 +465,7 @@ export default function CustomerHeader({ cartData }) {
         </Link>
         {/* Conditional Rendering for User */}
         {user || session?.user ? (
-          <button onClick={()=>{
+          <button onClick={() => {
             handleMenuClick('logout');
             handleLogout();
           }} className={`block text-lg ${isLogoutActive ? 'text-red-700' : 'md:text-black'} hover:text-red-700 transition flex gap-2 items-center relative group`}>
@@ -457,7 +476,7 @@ export default function CustomerHeader({ cartData }) {
           <Link href="/user" onClick={() => {
             handleMenuClick('signin');
             setIsMenuOpen(false);
-            }} 
+          }}
             className={`block text-lg ${isSignInActive ? 'text-teal-300' : 'md:text-black'} hover:text-teal-300 transition flex gap-2 items-center relative group`}>
             <TbUserQuestion className="w-5 h-5 text-teal-500" />
             Login/Signup
@@ -473,6 +492,16 @@ export default function CustomerHeader({ cartData }) {
         >
           <HiOutlineShoppingCart className="w-5 h-5 text-teal-500" />
           Cart <p className="text-orange-600 text-2xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
+        </button>
+        <button
+          onClick={() => {
+            handleMenuClick('vission');
+            router.push('/vission');
+          }}
+          className={`font-semibold ${isVissionActive ? 'md:text-teal-700 text-teal-300' : 'md:text-black'} hover:text-teal-700 transition flex items-center gap-2 relative group`}
+        >
+          <GoGoal className="w-5 h-5 text-teal-600 transition-opacity duration-300" />
+          Vission
         </button>
         {/* Profile Image or Initials */}
         <button
