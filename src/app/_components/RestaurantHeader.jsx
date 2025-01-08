@@ -346,7 +346,7 @@ export default function RestaurantHeader() {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-[500px] p-12 text-sm font-semibold flex flex-col gap-6' : 'max-h-0 py-0 text-sm font-semibold flex flex-col gap-6'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-[550px] p-12 text-sm font-semibold flex flex-col gap-6' : 'max-h-0 py-0 text-sm font-semibold flex flex-col gap-6'}`}
       >
         <Link
           href="/"
