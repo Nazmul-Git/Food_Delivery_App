@@ -20,17 +20,17 @@ const CartItem = ({ item, updateQuantity, handleRemoveItem, limitDescription }) 
                 {/* Item Image */}
                 <div className="flex-shrink-0">
                     <img
-                        src={item.imagePath}
-                        alt={item.foodName}
+                        src={item?.imagePath}
+                        alt={item?.foodName}
                         className="w-20 h-20 object-cover rounded-lg shadow-sm"
                     />
                 </div>
 
                 {/* Item Description */}
                 <div className="flex flex-col justify-between">
-                    <h3 className="text-xl font-semibold text-gray-800">{item.foodName}</h3>
-                    <p className="text-sm text-gray-500">{limitDescription(item.description)}</p>
-                    <span className="text-sm font-medium text-gray-700">${item.price}</span>
+                    <h3 className="text-xl font-semibold text-gray-800">{item?.foodName}</h3>
+                    <p className="text-sm text-gray-500">{limitDescription(item?.description)}</p>
+                    <span className="text-sm font-medium text-gray-700">${item?.price}</span>
                 </div>
             </div>
 

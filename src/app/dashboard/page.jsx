@@ -47,8 +47,7 @@ const Dashboard = () => {
 
       if (!storedDeliveryUser._id) throw new Error("DeliveryMan ID not found");
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${apiUrl}/api/deliveryPartners/orders/${storedDeliveryUser._id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/deliveryPartners/orders/${storedDeliveryUser?._id}`);
 
       if (!response.ok) {
         throw new Error(`API request failed with status: ${response.status}`);
@@ -56,10 +55,11 @@ const Dashboard = () => {
 
       const data = await response.json();
 
-      if (data.success) {
-        setOrders(data.orders);
+      if (data?.success) {
+        setOrders(data?.orders);
       } else {
-        console.error("Failed to fetch orders", data);
+        // console.error("Failed to fetch orders", data);
+        setOrders([]);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -87,7 +87,7 @@ const Dashboard = () => {
   };
 
   const handleLoadMore = () => {
-    setVisibleOrders((prevVisible) => prevVisible + 9); // Load 9 more orders
+    setVisibleOrders((prevVisible) => prevVisible + 9);
   };
 
   if (loading) return <Loading />;

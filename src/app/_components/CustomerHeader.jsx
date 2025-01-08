@@ -303,7 +303,7 @@ export default function CustomerHeader({ cartData }) {
           {/* Profile Image or Initials */}
           <div className="relative group">
             <div
-              className="block text-lg hover:text-teal-300 transition flex gap-2 items-center relative cursor-pointer"
+              className="block text-lg  transition flex gap-2 items-center relative cursor-pointer"
             >
               {getProfileImage()}
             </div>
@@ -434,79 +434,104 @@ export default function CustomerHeader({ cartData }) {
       <div
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-[500px] p-14 text-lg font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'}`}
+        className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 ${isMenuOpen ? 'max-h-[500px] p-14 text-base font-semibold flex flex-col gap-4' : 'max-h-0 p-12 py-0 text-base font-semibold flex flex-col gap-4'}`}
       >
-        <div className='flex justify-between items-center'>
-          <Link href="/" onClick={() => {
-            setIsMenuOpen(false);
-            handleMenuClick('home')
-          }} className={`${isHomeActive ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}>
+        <div className="flex justify-between items-center">
+          <Link
+            href="/"
+            onClick={() => {
+              setIsMenuOpen(false);
+              handleMenuClick('home');
+            }}
+            className={`${isHomeActive ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}
+          >
             <FaHome className="w-5 h-5 text-teal-500" />
-            Home
+            <span className="text-base">Home</span>
           </Link>
           {/* Profile Image or Initials */}
           <button
             onClick={() => {
-              user || session?.user ?
-                router.push('/your-profile')
-                :
-                router.push('/user');
+              user || session?.user ? router.push('/your-profile') : router.push('/user');
             }}
-            className="block text-lg transition flex gap-2 items-center relative group"
+            className="block text-base transition flex gap-2 items-center relative group"
           >
             {getProfileImage()}
           </button>
         </div>
+
+        {/* About Link */}
         <Link
-          href="/about" onClick={() => {
+          href="/about"
+          onClick={() => {
             setIsMenuOpen(false);
             handleMenuClick('about');
-          }} className={`${isAboutActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          }}
+          className={`${isAboutActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}
+        >
           <FaInfoCircle className="w-5 h-5 text-teal-500" />
-          About
+          <span className="text-base">About</span>
         </Link>
+
+        {/* Contact Link */}
         <Link
           onClick={() => handleMenuClick('contact')}
-          href="/contact" className={`${isContactActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}>
+          href="/contact"
+          className={`${isContactActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}
+        >
           <MdForwardToInbox className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
-          Contact
+          <span className="text-base">Contact</span>
         </Link>
+
+        {/* Blog Link */}
         <Link
           onClick={() => handleMenuClick('blog')}
-          href="/blog" className={`${isBlogActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}>
+          href="/blog"
+          className={`${isBlogActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}
+        >
           <FaBlog className="w-5 h-5 text-teal-500" />
-          Blog
+          <span className="text-base">Blog</span>
         </Link>
+
         {/* Conditional Rendering for User */}
         {user || session?.user ? (
-          <button onClick={() => {
-            handleMenuClick('logout');
-            handleLogout();
-          }} className={`block text-lg ${isLogoutActive ? 'text-red-700' : 'md:text-black'} hover:text-red-700 transition flex gap-2 items-center relative group`}>
+          <button
+            onClick={() => {
+              handleMenuClick('logout');
+              handleLogout();
+            }}
+            className={`block text-base ${isLogoutActive ? 'text-red-700' : 'md:text-black'} hover:text-red-700 transition flex gap-2 items-center relative group`}
+          >
             <VscSignOut className="w-5 h-5 text-teal-500" />
-            Sign Out
+            <span className="text-base">Sign Out</span>
           </button>
         ) : (
-          <Link href="/user" onClick={() => {
-            handleMenuClick('signin');
-            setIsMenuOpen(false);
-          }}
-            className={`block text-lg ${isSignInActive ? 'text-teal-300' : 'md:text-black'} hover:text-teal-300 transition flex gap-2 items-center relative group`}>
+          <Link
+            href="/user"
+            onClick={() => {
+              handleMenuClick('signin');
+              setIsMenuOpen(false);
+            }}
+            className={`block text-base ${isSignInActive ? 'text-teal-300' : 'md:text-black'} hover:text-teal-300 transition flex gap-2 items-center relative group`}
+          >
             <TbUserQuestion className="w-5 h-5 text-teal-500" />
-            Login/Signup
+            <span className="text-base">Login/Signup</span>
           </Link>
         )}
 
+        {/* Cart Button */}
         <button
           onClick={() => {
             toggleModal();
             handleMenuClick('cart');
           }}
-          className={`block text-lg ${isCartActive ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
+          className={`block text-base ${isCartActive ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
         >
           <HiOutlineShoppingCart className="w-5 h-5 text-teal-500" />
-          Cart <p className="text-orange-600 text-2xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
+          <span className="text-base">Cart</span>
+          <p className="text-orange-600 text-2xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
         </button>
+
+        {/* Vision Link */}
         <button
           onClick={() => {
             handleMenuClick('vission');
@@ -515,7 +540,7 @@ export default function CustomerHeader({ cartData }) {
           className={`font-semibold ${isVissionActive ? 'md:text-teal-700 text-teal-300' : 'md:text-black'} hover:text-teal-700 transition flex items-center gap-2 relative group`}
         >
           <GoGoal className="w-5 h-5 text-teal-600 transition-opacity duration-300" />
-          Vission
+          <span className="text-base">Vission</span>
         </button>
       </div>
 

@@ -127,8 +127,12 @@ export default function DeliveryUserSignup({ redirect }) {
 
     return (
         <>
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
-
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={true}
+                style={{ marginTop: '80px' }}
+            />
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Full Name */}
                 <div className="mb-4">

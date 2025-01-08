@@ -60,7 +60,7 @@ export default function AddFoodItem() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="w-full max-w-3xl bg-white/50 backdrop-blur-lg p-8 rounded-lg shadow-md">
+            <div className="w-full max-w-3xl bg-white/50 backdrop-blur-lg p-8 rounded-lg">
                 <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Add Food Item</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>

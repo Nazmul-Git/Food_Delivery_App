@@ -73,7 +73,7 @@ export default function WhyChooseUs() {
                     navigation
                     pagination={{
                         clickable: true,
-                        el: '.custom-pagination', // Use the custom pagination container
+                        el: '.custom-pagination', 
                     }}
                     className="py-6"
                 >

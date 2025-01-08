@@ -49,7 +49,7 @@ export default function DeliveryUserLogin() {
                 localStorage.setItem('deliveryUser', JSON.stringify(loggedUser));
 
                 toast.success('Logged in successfully! Redirecting...');
-                setTimeout(() => router.push('/dashboard'), 2000);
+                setTimeout(() => router.push('/dashboard'), 1000);
             } else {
                 toast.error(data.message || 'Login failed. Please try again.');
             }
@@ -63,8 +63,13 @@ export default function DeliveryUserLogin() {
 
     return (
         <>
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
-            
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={true}
+                style={{ marginTop: '80px' }}
+            />
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label htmlFor="phone" className="block text-lg font-medium text-gray-700">Mobile</label>

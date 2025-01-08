@@ -3,14 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify'; 
-import Loading from '../loading';
+import { ToastContainer, toast } from 'react-toastify';
 
 export default function RestaurantLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     const router = useRouter();
 
@@ -25,8 +23,6 @@ export default function RestaurantLogin() {
             toast.error('Please enter both email and password');
             return;
         }
-
-        setLoading(true);
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants`, {
@@ -50,21 +46,22 @@ export default function RestaurantLogin() {
             }
         } catch (error) {
             toast.error('An error occurred, please try again later.');
-        } finally {
-            setLoading(false);
         }
     };
 
-    if (loading) {
-        return <Loading />;
-    }
-
     return (
         <>
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={true} />
-            
-            <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">Restaurant Login</h2>
-            
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={true}
+                style={{ marginTop: '80px' }}
+            />
+
+            <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+                Restaurant Login
+            </h2>
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label htmlFor="email" className="block text-gray-700">Email</label>
@@ -108,9 +105,13 @@ export default function RestaurantLogin() {
                             id="rememberMe"
                             className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                         />
-                        <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-600">Remember me</label>
+                        <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-600">
+                            Remember me
+                        </label>
                     </div>
-                    <a href="#" className="text-sm text-indigo-600 hover:underline">Forgot password?</a>
+                    <a href="#" className="text-sm text-indigo-600 hover:underline">
+                        Forgot password?
+                    </a>
                 </div>
 
                 <button

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { FaHome, FaInfoCircle, FaSignInAlt, FaUserCircle } from 'react-icons/fa';
+import { FcServices } from "react-icons/fc";
 import { TbUserQuestion } from "react-icons/tb";
 import { useRouter } from 'next/navigation';
 import { IoMdHelpCircle } from 'react-icons/io';
@@ -10,7 +11,7 @@ import { GoGoal } from 'react-icons/go';
 import { GrContact } from 'react-icons/gr';
 import { TfiUser } from 'react-icons/tfi';
 import { VscSignOut } from 'react-icons/vsc';
-import { MdDashboardCustomize } from 'react-icons/md';
+import { MdDashboardCustomize, MdWorkspacePremium } from 'react-icons/md';
 
 export default function DeliveryUserHeader({ cartData }) {
   const [user, setUser] = useState(null);
@@ -56,6 +57,23 @@ export default function DeliveryUserHeader({ cartData }) {
   }, []);
 
   const handleMenuClick = (item) => {
+    //  Check if the clicked item is already active
+    if (
+      (item === 'home' && isHomeActive) ||
+      (item === 'about' && isAboutActive) ||
+      (item === 'services' && isServicesActive) ||
+      (item === 'career' && isCareerActive) ||
+      (item === 'contact' && isContactActive) ||
+      (item === 'profile' && isProfileActive) ||
+      (item === 'logout' && isLogoutActive) ||
+      (item === 'signin' && isSignInActive) ||
+      (item === 'mission' && isMissionActive) ||
+      (item === 'dashboard' && isDashboardActive)
+    ) {
+      setIsMenuOpen(false);
+      return;
+    }
+
     // Reset all states and activate the clicked menu
     const newStates = {
       home: item === 'home',
@@ -154,120 +172,136 @@ export default function DeliveryUserHeader({ cartData }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-6 items-center">
-          <Link href="/" onClick={() => handleMenuClick('home')} className={`${isHomeActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+          {/* Home Link */}
+          <Link
+            href="/"
+            onClick={() => handleMenuClick('home')}
+            className={`${isHomeActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+          >
             Home
             <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/about-us" onClick={() => handleMenuClick('about')} className={`${isAboutActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+
+          {/* About Link */}
+          <Link
+            href="/about-us"
+            onClick={() => handleMenuClick('about')}
+            className={`${isAboutActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+          >
             About
             <FaHome className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/services" onClick={() => handleMenuClick('services')} className={`${isServicesActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+
+          {/* Services Link */}
+          <Link
+            href="/services"
+            onClick={() => handleMenuClick('services')}
+            className={`${isServicesActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+          >
             Services
-            <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <FcServices className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/career" onClick={() => handleMenuClick('career')} className={`${isCareerActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+
+          {/* Career Link */}
+          <Link
+            href="/career"
+            onClick={() => handleMenuClick('career')}
+            className={`${isCareerActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+          >
             Career
-            <FaInfoCircle className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <MdWorkspacePremium className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <Link href="/contact-us" onClick={() => handleMenuClick('contact')} className={`${isContactActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
+
+          {/* Contact Link */}
+          <Link
+            href="/contact-us"
+            onClick={() => handleMenuClick('contact')}
+            className={`${isContactActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+          >
             Contact
             <GrContact className="w-5 h-5 mr-2 mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
+
           {/* User Profile and Logout */}
           {user ? (
-            <div
-              className="relative flex items-center gap-2"
-              ref={profileIconRef}
-              onClick={() => setUserMenuOpen((prev) => !prev)}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <div className="w-8 h-8 rounded-full bg-green-400 flex items-center justify-center cursor-pointer">
+            <div className="relative group">
+              <div className="w-8 h-8 rounded-full bg-blue-500 text-white font-semibold flex items-center justify-center cursor-pointer">
                 {getProfileImage(user?.fullName)}
               </div>
 
-              {/* Show user menu if hovered or clicked */}
-              {(isHovered || userMenuOpen) && (
-                <div
-                  ref={userMenuRef}
-                  className="absolute top-16 right-0 bg-black shadow-lg rounded-md py-4 w-60 border border-teal-200"
+              {/* Profile Dropdown Menu */}
+              <div
+                className="absolute top-12 right-0 w-60 bg-black shadow-lg rounded-md py-4 border z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >
+                <Link
+                  href="/profile"
+                  onClick={() => handleMenuClick('profile')}
+                  className={`${isProfileActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2 hover:text-yellow-400 transition-all duration-300 ease-in-out`}
                 >
-                  {/* Profile Link */}
-                  <Link
-                    href="/profile" onClick={() => handleMenuClick('profile')} className={`${isProfileActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
-                  >
-                    <TfiUser className="w-5 h-5 text-yellow-400" />
-                    <span className="font-semibold text-sm">Profile</span>
-                  </Link>
-                  <Link
-                    href="/dashboard" onClick={() => handleMenuClick('dashboard')} className={`${isDashboardActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
-                  >
-                    <MdDashboardCustomize className="w-5 h-5 text-yellow-400" />
-                    <span className="font-semibold text-sm">Dashboard</span>
-                  </Link>
-
-                  {/* Our Mission Link */}
-                  <Link
-                    href="/our-mission" onClick={() => handleMenuClick('mission')} className={`${isMissionActive ? 'text-yellow-400' : 'text-white'}  block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
-                  >
-                    <GoGoal className="w-5 h-5 text-yellow-400" />
-                    <span className="font-semibold text-sm">Our Mission</span>
-                  </Link>
-
-                  {/* Sign Out Button */}
-                  <button
-                    onClick={() => {
-                      handleMenuClick('logout');
-                      handleLogout();
-                    }}
-                    className={`${isLogoutActive ? 'text-red-700' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-red-700 transition-all duration-300 ease-in-out`}
-                  >
-                    <VscSignOut className="w-5 h-5 text-red-700 inline-block" />
-                    <span className="font-semibold text-sm">Sign Out</span>
-                  </button>
-                </div>
-              )}
+                  <TfiUser className="w-5 h-5 text-yellow-400" />
+                  <span className="font-semibold text-sm">Profile</span>
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={() => handleMenuClick('dashboard')}
+                  className={`${isDashboardActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2 hover:text-yellow-400 transition-all duration-300 ease-in-out`}
+                >
+                  <MdDashboardCustomize className="w-5 h-5 text-yellow-400" />
+                  <span className="font-semibold text-sm">Dashboard</span>
+                </Link>
+                <Link
+                  href="/our-mission"
+                  onClick={() => handleMenuClick('mission')}
+                  className={`${isMissionActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2 hover:text-yellow-400 transition-all duration-300 ease-in-out`}
+                >
+                  <GoGoal className="w-5 h-5 text-yellow-400" />
+                  <span className="font-semibold text-sm">Our Mission</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    handleMenuClick('logout');
+                    handleLogout();
+                  }}
+                  className={`${isLogoutActive ? 'text-red-700' : 'text-white'} block px-6 py-3 flex items-center space-x-2 hover:text-red-700 transition-all duration-300 ease-in-out`}
+                >
+                  <VscSignOut className="w-5 h-5 text-red-700 inline-block" />
+                  <span className="font-semibold text-sm">Sign Out</span>
+                </button>
+              </div>
             </div>
           ) : (
-            <div
-              className="relative flex items-center gap-2"
-              ref={profileIconRef}
-              onClick={() => setUserMenuOpen((prev) => !prev)}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
+            <div className="relative group">
               <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer">
                 <IoMdHelpCircle className="w-6 h-6 text-yellow-500" />
               </div>
 
-              {/* Show user menu if hovered or clicked */}
-              {(isHovered || userMenuOpen) && (
-                <div ref={userMenuRef} className="absolute top-12 right-0 bg-black shadow-lg rounded-md py-4 w-60 border border-teal-200">
-                  <button
-                    onClick={() => {
-                      handleMenuClick('signin');
-                      router.push('/delivery-user');
-                    }}
-                    className={`${isSignInActive ? 'text-yellow-400' : 'text-white'} block px-4 py-2 hover:text-yellow-400 transition`}
-                  >
-                    <div className='flex gap-2 items-center font-semibold'>
-                      <FaSignInAlt className="w-5 h-5 text-yellow-400" />
-                      Sign In
-                    </div>
-                  </button>
-                  <Link
-                    href="/our-mission"
-                    onClick={() => handleMenuClick('mission')}
-                    className={`${isMissionActive ? 'text-yellow-400' : 'text-white'} block px-4 py-2 hover:text-yellow-400 transition`}
-                  >
-                    <div className='flex gap-2 items-center font-semibold'>
-                      <GoGoal className="w-5 h-5 text-yellow-400" />
-                      Our Mission
-                    </div>
-                  </Link>
-                </div>
-              )}
+              {/* Guest Menu Dropdown */}
+              <div
+                className="absolute top-14 right-0 w-60 bg-black shadow-lg rounded-md py-4 border z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              >
+                <button
+                  onClick={() => {
+                    handleMenuClick('signin');
+                    router.push('/delivery-user');
+                  }}
+                  className={`${isSignInActive ? 'text-yellow-400' : 'text-white'} block px-4 py-2 hover:text-yellow-400 transition`}
+                >
+                  <div className="flex gap-2 items-center font-semibold">
+                    <FaSignInAlt className="w-5 h-5 text-yellow-400" />
+                    Sign In
+                  </div>
+                </button>
+                <Link
+                  href="/our-mission"
+                  onClick={() => handleMenuClick('mission')}
+                  className={`${isMissionActive ? 'text-yellow-400' : 'text-white'} block px-4 py-2 hover:text-yellow-400 transition`}
+                >
+                  <div className="flex gap-2 items-center font-semibold">
+                    <GoGoal className="w-5 h-5 text-yellow-400" />
+                    Our Mission
+                  </div>
+                </Link>
+              </div>
             </div>
           )}
         </nav>
@@ -318,12 +352,19 @@ export default function DeliveryUserHeader({ cartData }) {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         className={`md:hidden overflow-hidden bg-gradient-to-b from-black via-black to-teal-900 text-white px-6 transform transition-all duration-1000 shadow-lg ${isMenuOpen
-          ? 'max-h-96 p-14 text-lg font-semibold flex flex-col gap-8'
-          : 'max-h-0 p-12 py-0 text-lg font-semibold flex flex-col gap-4'
+          ? 'max-h-[500px] p-14 flex flex-col gap-8'
+          : 'max-h-0 p-12 py-0 flex flex-col gap-4'
           }`}
       >
         <div className='flex justify-between items-center'>
-          <Link href="/" onClick={() => setIsMenuOpen(false)} className="block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group">
+          <Link
+            href="/"
+            onClick={() => {
+              setIsMenuOpen(false);
+              handleMenuClick('home');
+            }}
+            className={`${isHomeActive ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} block text-base hover:text-yellow-300 transition flex gap-2 items-center relative group`}
+          >
             <FaHome className="w-5 h-5 text-yellow-500" />
             Home
           </Link>
@@ -331,39 +372,69 @@ export default function DeliveryUserHeader({ cartData }) {
             {getProfileImage(user?.fullName)}
           </div>
         </div>
-        <Link href="/about-us" onClick={() => {
-          setIsMenuOpen(false)
-          handleMenuClick('about');
-        }}
-          className={`${isAboutActive ? 'text-yellow-400' : 'text-white'} block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group`}>
+        <Link
+          href="/about-us"
+          onClick={() => {
+            setIsMenuOpen(false);
+            handleMenuClick('about');
+          }}
+          className={`${isAboutActive ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} block text-base hover:text-yellow-300 transition flex gap-2 items-center relative group`}
+        >
           <FaInfoCircle className="w-5 h-5 text-yellow-500" />
           About
         </Link>
-        <Link href="/services" onClick={() => handleMenuClick('services')} className={`${isServicesActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
-          <FaInfoCircle className="w-5 h-5 text-yellow-500" />
+        <Link
+          href="/services"
+          onClick={() => handleMenuClick('services')}
+          className={`${isServicesActive ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} text-base hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+        >
+          <FcServices className="w-5 h-5 text-yellow-500" />
           Services
         </Link>
-        <Link href="/career" onClick={() => handleMenuClick('career')} className={`${isCareerActive ? 'text-yellow-400' : 'text-white'} font-semibold hover:text-yellow-300 transition flex items-center gap-2 relative group`}>
-          <FaInfoCircle className="w-5 h-5 text-yellow-500" />
+        <Link
+          href="/career"
+          onClick={() => handleMenuClick('career')}
+          className={`${isCareerActive ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} text-base hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+        >
+          <MdWorkspacePremium className="w-5 h-5 text-yellow-500" />
           Career
         </Link>
         <Link
-          href="/dashboard" onClick={() => handleMenuClick('dashboard')} className={`${isDashboardActive ? 'text-yellow-400' : 'text-white'} block px-6 py-3 flex items-center space-x-2  hover:text-yellow-400 transition-all duration-300 ease-in-out`}
+          href="/contact-us"
+          onClick={() => handleMenuClick('contact')}
+          className={`${isContactActive ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} text-base hover:text-yellow-300 transition flex items-center gap-2 relative group`}
+        >
+          <GrContact className="w-5 h-5 text-yellow-500" />
+          Contact
+        </Link>
+        <Link
+          href="/dashboard"
+          onClick={() => handleMenuClick('dashboard')}
+          className={`${isDashboardActive && user ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} text-base hover:text-yellow-300 transition flex items-center gap-2 relative group`}
         >
           <MdDashboardCustomize className="w-5 h-5 text-yellow-400" />
-          <span className="font-semibold text-sm">Dashboard</span>
+          <span className="text-base">Dashboard</span>
         </Link>
         {user ? (
-          <button onClick={() => {
-            handleLogout();
-            handleMenuClick('logout');
-          }}
-            className={`${isLogoutActive ? 'text-red-700' : 'text-white'} block text-lg hover:text-red-700 trans}ition flex gap-2 items-center relative group`}>
+          <button
+            onClick={() => {
+              handleLogout();
+              handleMenuClick('logout');
+            }}
+            className={`${isLogoutActive ? 'text-red-700 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} text-base hover:text-red-700 transition flex gap-2 items-center relative group`}
+          >
             <FaUserCircle className="w-5 h-5 text-red-700" />
             Sign Out
           </button>
         ) : (
-          <Link href="/delivery-user" onClick={() => setIsMenuOpen(false)} className={`${isSignInActive ? 'text-yellow-400' : 'text-white'} block text-lg hover:text-yellow-300 transition flex gap-2 items-center relative group`}>
+          <Link
+            href="/delivery-user"
+            onClick={() => {
+              setIsMenuOpen(false);
+              handleMenuClick('signin');
+            }}
+            className={`${isSignInActive ? 'text-yellow-400 bg-teal-700 px-2 py-1 rounded-md' : 'text-white'} text-base hover:text-yellow-300 transition flex gap-2 items-center relative group`}
+          >
             <TbUserQuestion className="w-5 h-5 text-yellow-500" />
             Sign In
           </Link>
