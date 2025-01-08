@@ -443,17 +443,18 @@ export default function CustomerHeader({ cartData }) {
               setIsMenuOpen(false);
               handleMenuClick('home');
             }}
-            className={`${isHomeActive ? 'text-teal-300' : 'text-white'} font-semibold transition flex items-center gap-2 relative group`}
+            className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isHomeActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
           >
-            <FaHome className="w-5 h-5 text-teal-500" />
+            <FaHome className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
             <span className="text-base">Home</span>
           </Link>
+
           {/* Profile Image or Initials */}
           <button
             onClick={() => {
               user || session?.user ? router.push('/your-profile') : router.push('/user');
             }}
-            className="block text-base transition flex gap-2 items-center relative group"
+            className="block text-base transition flex gap-2 items-center relative group text-white "
           >
             {getProfileImage()}
           </button>
@@ -466,9 +467,9 @@ export default function CustomerHeader({ cartData }) {
             setIsMenuOpen(false);
             handleMenuClick('about');
           }}
-          className={`${isAboutActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}
+          className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isAboutActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
         >
-          <FaInfoCircle className="w-5 h-5 text-teal-500" />
+          <FaInfoCircle className="w-5 h-5 text-whitew-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           <span className="text-base">About</span>
         </Link>
 
@@ -476,7 +477,7 @@ export default function CustomerHeader({ cartData }) {
         <Link
           onClick={() => handleMenuClick('contact')}
           href="/contact"
-          className={`${isContactActive ? 'text-teal-300' : 'text-white'} font-semibold flex items-center gap-2 relative group`}
+          className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isContactActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
         >
           <MdForwardToInbox className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           <span className="text-base">Contact</span>
@@ -486,9 +487,9 @@ export default function CustomerHeader({ cartData }) {
         <Link
           onClick={() => handleMenuClick('blog')}
           href="/blog"
-          className={`${isBlogActive ? 'text-teal-300' : 'text-white'} font-semibold hover:text-teal-300 transition flex items-center gap-2 relative group`}
+          className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isBlogActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
         >
-          <FaBlog className="w-5 h-5 text-teal-500" />
+          <FaBlog className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           <span className="text-base">Blog</span>
         </Link>
 
@@ -499,9 +500,9 @@ export default function CustomerHeader({ cartData }) {
               handleMenuClick('logout');
               handleLogout();
             }}
-            className={`block text-base ${isLogoutActive ? 'text-red-700' : 'md:text-black'} hover:text-red-700 transition flex gap-2 items-center relative group`}
+            className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white hover:text-red-700  ${isLogoutActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg text-red-700' : 'bg-transparent'}`}
           >
-            <VscSignOut className="w-5 h-5 text-teal-500" />
+            <VscSignOut className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
             <span className="text-base">Sign Out</span>
           </button>
         ) : (
@@ -511,9 +512,9 @@ export default function CustomerHeader({ cartData }) {
               handleMenuClick('signin');
               setIsMenuOpen(false);
             }}
-            className={`block text-base ${isSignInActive ? 'text-teal-300' : 'md:text-black'} hover:text-teal-300 transition flex gap-2 items-center relative group`}
+            className={`block text-base $transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isSignInActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
           >
-            <TbUserQuestion className="w-5 h-5 text-teal-500" />
+            <TbUserQuestion className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
             <span className="text-base">Login/Signup</span>
           </Link>
         )}
@@ -524,11 +525,11 @@ export default function CustomerHeader({ cartData }) {
             toggleModal();
             handleMenuClick('cart');
           }}
-          className={`block text-base ${isCartActive ? 'text-teal-300' : 'text-white'} flex gap-2 items-center relative group`}
+          className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isCartActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
         >
-          <HiOutlineShoppingCart className="w-5 h-5 text-teal-500" />
-          <span className="text-base">Cart</span>
-          <p className="text-orange-600 text-2xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
+          <HiOutlineShoppingCart className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
+          <span className="text-base font-semibold">Cart</span>
+          <p className="text-orange-600 text-xl font-mono font-bold">{cartCount ? cartCount : 0}</p>
         </button>
 
         {/* Vision Link */}
@@ -537,9 +538,9 @@ export default function CustomerHeader({ cartData }) {
             handleMenuClick('vission');
             router.push('/vission');
           }}
-          className={`font-semibold ${isVissionActive ? 'md:text-teal-700 text-teal-300' : 'md:text-black'} hover:text-teal-700 transition flex items-center gap-2 relative group`}
+          className={`transition flex items-center gap-2 relative group px-4 py-2 rounded-full text-white  ${isVissionActive ? 'bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 shadow-lg' : 'bg-transparent'}`}
         >
-          <GoGoal className="w-5 h-5 text-teal-600 transition-opacity duration-300" />
+          <GoGoal className="w-5 h-5 opacity-100 text-teal-300 transition-opacity duration-300" />
           <span className="text-base">Vission</span>
         </button>
       </div>
