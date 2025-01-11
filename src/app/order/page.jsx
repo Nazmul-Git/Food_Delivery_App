@@ -105,8 +105,6 @@ export default function Order() {
         setCountryCode(newCode);
     };
 
-
-
     const handleCityChange = (value) => {
         setCity(value);
     };
@@ -127,6 +125,7 @@ export default function Order() {
         router.back();
     };
 
+    // console.log('user', userStorage.loggedUser._id);
     const confirmOrder = async () => {
         // Check if a payment method has been selected
         if (!selectedPaymentMethod) {
@@ -169,7 +168,7 @@ export default function Order() {
     
         // Assemble order details
         let orderDetails = {
-            user_Id,
+            user_Id: user_Id,
             foodItemId,
             restaurantId,
             delivery_Id: delivery_Id || null,
