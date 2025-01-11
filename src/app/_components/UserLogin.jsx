@@ -1,13 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
 import { signIn } from 'next-auth/react';
 import { FaGithub } from 'react-icons/fa6';
 import { ToastContainer, toast } from 'react-toastify';
 
 export default function UserLogin({ redirect }) {
+    const [authUser, setAuthUser] = useState(null);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -24,7 +25,6 @@ export default function UserLogin({ redirect }) {
         try {
             // Notify the user that login is in progress
             toast.info(`Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`);
-
             const result = await signIn(provider, {
                 callbackUrl: `${redirect?.order ? '/order' : '/stores'}`,
             });

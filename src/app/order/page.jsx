@@ -38,10 +38,10 @@ export default function Order() {
     useEffect(() => {
         const storedOrderSummary = JSON.parse(localStorage.getItem('orderSummary'));
         const orderStatus = localStorage.getItem('orderStatus');
-        
+
         if (orderStatus === 'confirmed' && !storedOrderSummary) {
-            router.push('/your-profile'); 
-            return; 
+            router.push('/your-profile');
+            return;
         }
 
         // Fetch order summary
@@ -53,7 +53,7 @@ export default function Order() {
         const cartData = localStorage.getItem('cart');
         const userData = localStorage.getItem('user');
         const authUser = localStorage.getItem('authUser');
-        
+
         if (cartData) {
             setCartStorage(JSON.parse(cartData));
         }
@@ -61,9 +61,9 @@ export default function Order() {
             setUserStorage(JSON.parse(userData) || JSON.parse(authUser));
         }
 
-        setLoading(false); 
+        setLoading(false);
     }, [router]);
-    
+
     useEffect(() => {
         let signedData = JSON.parse(localStorage.getItem('authUser'));
 
@@ -132,22 +132,30 @@ export default function Order() {
             toast.error('Please select a payment method.');
             return;
         }
-    
+
         // Check if the cart is empty
         if (!cartStorage || cartStorage.length === 0) {
             toast.error('Your cart is empty.');
             return;
         }
-    
-        let user_Id = userStorage?._id || userStorage?.loggedUser?._id;
+
+        // Fallback to authUser if userStorage is undefined or incomplete
+        let user = userStorage || JSON.parse(localStorage.getItem('authUser'));
+
+        if (!user) {
+            toast.error('User is not authenticated.');
+            return;
+        }
+
+        let user_Id = user._id || user?.loggedUser?._id;
         let foodItemId = cartStorage.map((item) => item._id).toString();
         let restaurantId = cartStorage[0].restaurantId;
         let delivery_Id = null;
-    
+
         // Normalize the city input
         const normalizeString = (str) => str.toLowerCase().replace(/[-\d]/g, '').trim();
         const normalizedCity = normalizeString(city);
-    
+
         if (normalizedCity) {
             try {
                 const deliveryBoyResponse = await fetch(
@@ -165,16 +173,16 @@ export default function Order() {
             toast.error('City must be provided.');
             return;
         }
-    
+
         // Assemble order details
         let orderDetails = {
             user_Id: user_Id,
             foodItemId,
             restaurantId,
             delivery_Id: delivery_Id || null,
-            customerName: userStorage?.loggedUser?.fullName || userStorage?.fullName,
-            image: userStorage?.loggedUser?.image || userStorage?.image,
-            email: userStorage?.loggedUser?.email || userStorage?.email,
+            customerName: user.loggedUser?.fullName || user.fullName,
+            image: user.loggedUser?.image || user.image,
+            email: user.loggedUser?.email || user.email,
             countryCode: countryCode || 'N/A',
             mobile: mobile,
             city: city,
@@ -184,7 +192,7 @@ export default function Order() {
             amount: orderSummery?.finalTotal,
             paymentMethod: selectedPaymentMethod,
         };
-    
+
         try {
             let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/order`, {
                 method: 'POST',
@@ -193,9 +201,9 @@ export default function Order() {
                 },
                 body: JSON.stringify(orderDetails),
             });
-    
+
             const data = await response.json();
-    
+
             if (data?.success || session?.user) {
                 const orderDetailsStorage = {
                     ...orderDetails,
@@ -215,7 +223,7 @@ export default function Order() {
             toast.error('Something went wrong. Please try again later.');
         }
     };
-    
+
 
     if (loading) return <Loading />;
 
